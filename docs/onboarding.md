@@ -55,7 +55,7 @@ Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`).
 | `DATABASE_URL_UNPOOLED` | Connect → conexão direta ou pooler em modo sessão | Migrations |
 | `SUPABASE_URL` | Project Settings → API | Auth no servidor |
 | `SUPABASE_PUBLISHABLE_KEY` | Project Settings → API keys (chave publishable, `sb_publishable_…`) | Auth no servidor |
-| `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API keys (chave secreta) | Só para criar/editar logins de funcionário |
+| `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API keys (chave secreta) | Só para criar/editar logins de funcionário (entra com a tela de funcionários) |
 | `LOG_LEVEL` | — (padrão `info`) | Nível dos logs do servidor |
 
 `.env.local` fica fora do Git. `.env.example` tem os nomes e só defaults não sensíveis.

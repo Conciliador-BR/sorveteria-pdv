@@ -9,14 +9,20 @@ import { buscarFuncionarioAtivo } from "./sessao";
 import { loginSchema, usuarioParaEmail } from "./usuario";
 
 // `tentativa` muda a cada envio para o aviso de erro ser anunciado de novo.
-export type EstadoLogin = { erro?: string; usuario?: string; tentativa?: number };
+// `credencial` diz se o erro é de usuário/senha (marca os campos como inválidos).
+export type EstadoLogin = { erro?: string; credencial?: boolean; usuario?: string; tentativa?: number };
 
 const ERRO_GENERICO = "Usuário ou senha incorretos.";
 const ERRO_INDISPONIVEL = "Não foi possível entrar agora. Tente de novo.";
 
 export async function entrar(anterior: EstadoLogin, formData: FormData): Promise<EstadoLogin> {
   const usuarioDigitado = String(formData.get("usuario") ?? "");
-  const falha = (erro: string) => ({ erro, usuario: usuarioDigitado, tentativa: (anterior.tentativa ?? 0) + 1 });
+  const falha = (erro: string): EstadoLogin => ({
+    erro,
+    credencial: erro === ERRO_GENERICO,
+    usuario: usuarioDigitado,
+    tentativa: (anterior.tentativa ?? 0) + 1,
+  });
   const dados = loginSchema.safeParse({ usuario: usuarioDigitado, senha: formData.get("senha") });
   if (!dados.success) return falha(ERRO_GENERICO);
 

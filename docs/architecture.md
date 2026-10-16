@@ -61,6 +61,7 @@ sorveteria-pdv/
 │   ├── components/
 │   │   ├── ui/                   # Button, MoneyInput, WeightInput, Keypad, Modal, Card, Badge, Table...
 │   │   └── layout/               # AppShell, Sidebar, Topbar, PageHeader
+│   ├── proxy.ts                  # chama a renovação de sessão (substitui o middleware no Next 16)
 │   ├── db/
 │   │   ├── index.ts              # getDb(): pool lazy (template do toolkit)
 │   │   └── schema/               # um arquivo por grupo de tabelas
@@ -69,7 +70,7 @@ sorveteria-pdv/
 │       ├── logger.ts             # Pino (template do toolkit)
 │       ├── utils.ts              # cn() (template do toolkit)
 │       ├── dinheiro.ts           # centavos ⇄ R$, troco, arredondamento
-│       └── supabase/             # server.ts (cliente Auth do servidor) e proxy.ts (renova a sessão)
+│       └── supabase/             # server.ts (cliente Auth do servidor), proxy.ts (renova a sessão), cookies.ts (opções do cookie)
 ├── eslint-rules/, eslint.config.mjs, scripts/verify-quality-rules.mjs
 ├── drizzle.config.ts, vitest.config.mts
 ├── .env.example                  # nomes e defaults não sensíveis
@@ -128,7 +129,7 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 - `funcionarios.usuario` tem CHECK com a mesma regra do login (minúsculas, 3 a 32 de `a-z0-9._-`), e o login no Auth deve ser criado com `usuarioParaEmail`. A FK para `auth.users` é `restrict`: quem tem login não é apagado pelo painel, é desativado.
 - Cookie de sessão `httpOnly`, `sameSite=lax` e `secure` em produção (`src/lib/supabase/cookies.ts`): o JavaScript da página não lê o token.
 - Riscos aceitos: o limite de tentativas do Supabase Auth conta por IP, e todas as tentativas saem do mesmo servidor, então um ataque de senha pode bloquear o login da loja inteira por alguns minutos (limite próprio por usuário fica para depois); e a resposta de senha certa de funcionário desativado demora um pouco mais que a de senha errada.
-- `exigirFuncionario()`, `exigirPermissao()` e `exigirDono()` redirecionam: sem sessão vai para `/entrar`; sem permissão, para `/caixa`. O layout de `src/app/(sistema)/` protege as telas, e cada página e Server Action repete a checagem que lhe cabe (`getFuncionarioAtual` usa `cache` do React, então a repetição não consulta o banco duas vezes). Os `exigir*` vão na primeira linha, fora de `try/catch`: o redirect é uma exceção e um `catch` o engoliria.
+- `exigirFuncionario()`, `exigirPermissao()` e `exigirDono()` redirecionam: sem sessão vai para `/entrar`; sem permissão, para `/caixa`. O layout de `src/app/(sistema)/` protege as telas, e cada página e Server Action repete a checagem que lhe cabe (`getFuncionarioAtual` usa `cache` do React, então na renderização a repetição não consulta o banco duas vezes; em Server Action não há cache). Os `exigir*` vão na primeira linha, fora de `try/catch`: o redirect é uma exceção e um `catch` o engoliria.
 
 ## Dados e migrations
 

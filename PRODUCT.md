@@ -132,7 +132,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 
 ## Próxima entrega
 
-Login com Supabase Auth e tabela `funcionarios` com permissões (o bootstrap já foi feito; ver docs/setup.md).
+Login entregue no PR #2 (falta o teste ponta a ponta com o primeiro usuário do dono). Próxima: tokens visuais, apresentação e tela de funcionários.
 
 ## Manutenção
 

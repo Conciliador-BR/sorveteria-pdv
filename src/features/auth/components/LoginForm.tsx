@@ -26,7 +26,7 @@ export function LoginForm() {
           spellCheck={false}
           required
           defaultValue={estado.usuario}
-          aria-invalid={!!estado.erro}
+          aria-invalid={!!estado.credencial}
           aria-describedby={estado.erro ? "erro-login" : undefined}
           className="h-12 rounded-lg border border-foreground/20 bg-background px-3 text-base"
         />
@@ -39,7 +39,7 @@ export function LoginForm() {
           autoComplete="current-password"
           required
           ref={senhaRef}
-          aria-invalid={!!estado.erro}
+          aria-invalid={!!estado.credencial}
           aria-describedby={estado.erro ? "erro-login" : undefined}
           className="h-12 rounded-lg border border-foreground/20 bg-background px-3 text-base"
         />

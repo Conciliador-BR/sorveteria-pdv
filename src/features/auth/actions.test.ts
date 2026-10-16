@@ -41,6 +41,17 @@ describe("entrar", () => {
     expect(signInWithPassword).toHaveBeenCalledWith({ email: "joana@sorveteria.local", password: "123456" });
   });
 
+  it("leva o dono ativo ao dashboard", async () => {
+    buscarFuncionarioAtivo.mockResolvedValue({ id: "u1", papel: "dono", ativo: true });
+    await expect(entrar({}, formulario("mateus", "123456"))).rejects.toThrow("redirect:/dashboard");
+  });
+
+  it("recusa usuário inválido sem chamar o Supabase", async () => {
+    const estado = await entrar({}, formulario("jo", "123456"));
+    expect(signInWithPassword).not.toHaveBeenCalled();
+    expect(estado).toMatchObject({ erro: "Usuário ou senha incorretos.", credencial: true });
+  });
+
   it("recusa senha errada com a mensagem genérica", async () => {
     signInWithPassword.mockResolvedValue({ data: { user: null }, error: { status: 400, code: "invalid_credentials" } });
     const estado = await entrar({}, formulario("joana", "errada1"));
@@ -58,7 +69,7 @@ describe("entrar", () => {
     buscarFuncionarioAtivo.mockRejectedValue(new Error("banco fora"));
     const estado = await entrar({}, formulario("joana", "123456"));
     expect(signOut).toHaveBeenCalled();
-    expect(estado.erro).toBe("Não foi possível entrar agora. Tente de novo.");
+    expect(estado).toMatchObject({ erro: "Não foi possível entrar agora. Tente de novo.", credencial: false });
   });
 
   it("avisa quando o Supabase limita as tentativas", async () => {
@@ -69,6 +80,12 @@ describe("entrar", () => {
 });
 
 describe("sair", () => {
+  it("encerra a sessão pelo Supabase sem mexer nos cookies à mão", async () => {
+    await expect(sair()).rejects.toThrow("redirect:/entrar");
+    expect(signOut).toHaveBeenCalledWith({ scope: "local" });
+    expect(apagarCookie).not.toHaveBeenCalled();
+  });
+
   it("apaga os cookies de sessão quando o Supabase não responde", async () => {
     signOut.mockResolvedValue({ error: { status: 500 } });
     await expect(sair()).rejects.toThrow("redirect:/entrar");
