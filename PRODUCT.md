@@ -114,7 +114,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 |---|---|---|---|
 | "Cortar" no cartão é parcelar no crédito | Hipótese reversível | Campo de parcelas | Dono confirma |
 | Sorvete vendido por peso (self-service por kg) | Hipótese reversível | Tipo de produto "peso" | Dono confirma |
-| Um caixa por funcionário, cada um com sua conferência | Hipótese que muda regra | Modelo de caixa | Dono confirma antes da entrega do caixa |
+| Um caixa por funcionário, cada um com sua conferência | Decidido pelo dono em 16/10/2026 | Modelo de caixa | — |
 | Nome e logo da loja | Pendente | Apresentação e layout | Dono envia |
 | Variáveis de ambiente do Supabase no host e no `.env.local` do dono | Pendente externo | Rodar o app com banco real | Dono cadastra quando o login estiver pronto |
 
