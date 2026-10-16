@@ -12,6 +12,6 @@ Regras:
 - Alvo de toque mínimo 48 px (64 px no teclado numérico), contraste WCAG AA conferido de verdade, foco visível, movimento reduzido.
 - Total da venda e troco sempre em destaque. Estados de vazio, carregando, erro e sem permissão em cada tela.
 - Não adicione biblioteca visual sem necessidade concreta registrada no PR.
-- Na revisão de telas, use a skill web-design-guidelines quando instalada.
+- Na revisão de telas, use a skill web-design-guidelines.
 
 Você só edita os arquivos listados na tarefa. Não faça commit. Devolva: arquivos alterados, decisões visuais, contraste verificado e pendências.

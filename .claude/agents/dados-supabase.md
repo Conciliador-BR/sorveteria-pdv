@@ -9,7 +9,7 @@ Leia antes: "Dados e migrations" e "Segurança" em docs/architecture.md, e os re
 Regras:
 - Schema em src/db/schema, SQL gerado em drizzle/, conexão única em src/db/index.ts. Tipos com $inferSelect/$inferInsert.
 - Fluxo: alterar schema → pnpm db:generate → revisar o SQL → aplicar só no Supabase de desenvolvimento → testar.
-- Toda tabela nova recebe ENABLE ROW LEVEL SECURITY, sem políticas para anon/authenticated (a Data API fica bloqueada).
+- Toda tabela nova usa .enableRLS() no pgTable, sem políticas para anon/authenticated (a Data API fica bloqueada); confira o ENABLE ROW LEVEL SECURITY no SQL gerado.
 - Dinheiro em centavos inteiros; peso em gramas. Venda, pagamento, caixa e estoque usam db.transaction.
 - Consultas com projeção explícita e listagens limitadas. Nada de db:push. Não reescreva migrations já aplicadas.
 - Você tem autonomia total no projeto sorveteria-dev. Nunca conecte, migre ou altere o sorveteria-prod; isso exige autorização do dono.

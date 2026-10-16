@@ -11,11 +11,11 @@ export default defineConfig([
     rules: {
       "quality/no-direct-console": ["error", { logger: "the server logger (remove client debug output)" }],
       "quality/no-direct-data-access": ["error", {
-        modules: ["@/db", "@/db/index"], bindings: ["db", "getDb"],
+        modules: ["@/db", "@/db/index"], bindings: ["db", "getDb", "closeDatabase"],
         layers: ["/src/app/", "/src/components/"], extensions: [".tsx"],
       }],
-      "drizzle/enforce-delete-with-where": ["error", { drizzleObjectName: ["db"] }],
-      "drizzle/enforce-update-with-where": ["error", { drizzleObjectName: ["db"] }],
+      "drizzle/enforce-delete-with-where": ["error", { drizzleObjectName: ["db", "getDb", "tx"] }],
+      "drizzle/enforce-update-with-where": ["error", { drizzleObjectName: ["db", "getDb", "tx"] }],
     },
   },
 ]);

@@ -13,7 +13,7 @@
 | `pnpm build` | Build de produção do Next sem credenciais reais |
 | `pnpm check` | Todos os anteriores em sequência; rodar antes de abrir ou atualizar um PR |
 
-Durante o trabalho, rode o teste do arquivo alterado (`pnpm test src/features/caixa`); antes do PR, a suíte completa via `pnpm check`.
+Durante o trabalho, rode só os testes da pasta alterada (ex.: `pnpm test src/lib`); antes do PR, a suíte completa via `pnpm check`. O Vitest procura `src/**/*.test.ts`; testes de componente (`.tsx`) exigem ampliar o `include` e escolher um ambiente DOM quando surgirem.
 
 ## Regras de base
 
@@ -25,8 +25,9 @@ Durante o trabalho, rode o teste do arquivo alterado (`pnpm test src/features/ca
 
 Específicas do produto:
 
-- Nenhuma variável sensível com prefixo `NEXT_PUBLIC_`; `src/db` e `src/lib/supabase-server.ts` importam `server-only`.
-- Toda tabela nova tem `ENABLE ROW LEVEL SECURITY` no SQL gerado.
+- Nenhuma variável sensível com prefixo `NEXT_PUBLIC_`; `src/db` (e `src/lib/supabase-server.ts`, quando existir) importam `server-only`.
+- Toda tabela nova usa `.enableRLS()` e o SQL gerado tem `ENABLE ROW LEVEL SECURITY`.
+- Cliente do banco nomeado `db`/`getDb()` e transação `tx`: só assim as guardas Drizzle de `update/delete` sem `where` funcionam.
 - Toda Server Action que altera dados chama a checagem de sessão/permissão antes de qualquer escrita.
 
 ## Estratégia de testes

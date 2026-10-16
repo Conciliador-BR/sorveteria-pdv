@@ -7,8 +7,9 @@ export function createLogger(destination?: DestinationStream) {
     level: getLogLevel(),
     redact: {
       paths: [
-        "password", "token", "secret", "authorization", "cookie", "DATABASE_URL", "DATABASE_URL_UNPOOLED", "databaseUrl",
-        "*.password", "*.token", "*.secret", "*.authorization", "*.cookie",
+        "password", "senha", "token", "secret", "authorization", "cookie", "DATABASE_URL", "DATABASE_URL_UNPOOLED", "databaseUrl",
+        "SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY",
+        "*.password", "*.senha", "*.token", "*.secret", "*.authorization", "*.cookie",
         "req.headers.authorization", "req.headers.cookie", 'req.headers["x-api-key"]',
       ],
       remove: true,

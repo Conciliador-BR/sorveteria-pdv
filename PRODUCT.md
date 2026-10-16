@@ -80,7 +80,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Comanda é uma venda com status `aberta`; cada item registra quem lançou e quando.
 - Troco = valor recebido em dinheiro − parte em dinheiro da venda; nunca negativo. Valor recebido menor que a parte em dinheiro bloqueia a confirmação.
 - A soma dos pagamentos deve ser igual ao total para concluir.
-- Bandeiras iniciais. Débito: Visa, Maestro (Mastercard), Elo. Crédito: Visa, Mastercard, Elo, Amex, Hipercard. Lista editável pelo dono.
+- Bandeiras iniciais. Débito: Visa, Maestro (Mastercard), Elo. Crédito: Visa, Mastercard, Elo, Amex, Hipercard (o "P-Card" do pedido, confirmado pelo dono em 16/10/2026). Lista editável pelo dono.
 - Parcelas no crédito: opção que o dono liga ou desliga, com máximo configurável; padrão 1x.
 - Venda concluída não é editada: corrige-se cancelando (com permissão e motivo) e vendendo de novo. Cancelamento devolve estoque e sai dos totais do caixa.
 
@@ -112,12 +112,11 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 
 | Item | Tipo | Impacto | Próximo passo |
 |---|---|---|---|
-| "P-Card" no crédito é Hipercard | Hipótese reversível | Só a lista de bandeiras | Dono confirma |
 | "Cortar" no cartão é parcelar no crédito | Hipótese reversível | Campo de parcelas | Dono confirma |
 | Sorvete vendido por peso (self-service por kg) | Hipótese reversível | Tipo de produto "peso" | Dono confirma |
 | Um caixa por funcionário, cada um com sua conferência | Hipótese que muda regra | Modelo de caixa | Dono confirma antes da entrega do caixa |
 | Nome e logo da loja | Pendente | Apresentação e layout | Dono envia |
-| Conexão do Supabase dev e envio ao GitHub | Pendente externo | Bloqueia o login e o primeiro PR | Dono conclui o conector e instala o Claude GitHub App |
+| Variáveis de ambiente do Supabase no host e no `.env.local` do dono | Pendente externo | Rodar o app com banco real | Dono cadastra quando o login estiver pronto |
 
 ## Critérios de aceitação
 
@@ -137,4 +136,4 @@ Login com Supabase Auth e tabela `funcionarios` com permissões (o bootstrap já
 
 ## Manutenção
 
-Atualize este documento quando objetivo, escopo, restrições ou critérios de aceitação mudarem. Decisões técnicas e evidências detalhadas ficam em docs/architecture.md e docs/setup.md. O nome do arquivo gerado é PRODUCT.md.
+Atualize este documento quando objetivo, escopo, restrições ou critérios de aceitação mudarem. Decisões técnicas e evidências detalhadas ficam em docs/architecture.md e docs/setup.md.

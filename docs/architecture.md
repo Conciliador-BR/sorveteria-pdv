@@ -11,7 +11,7 @@ Versões efetivas no `pnpm-lock.yaml` e em `docs/setup.md`:
 | Camada | Escolha | Motivo |
 |---|---|---|
 | Aplicação | Next.js 16.4 (Turbopack), React 19.3, TypeScript strict, Tailwind 4, ESLint 9, `src/`, `@/*` | Default do toolkit |
-| Runtime e gerenciador | Node.js 24 LTS, pnpm | Default do toolkit; base validada pelo toolkit em Node 24 |
+| Runtime e gerenciador | Node.js 24 LTS, pnpm | Default do toolkit (validado pelo toolkit em Node 24); os checks deste bootstrap rodaram em Node 22, ver `docs/setup.md` |
 | Banco | PostgreSQL hospedado no Supabase | Pedido do dono; é PostgreSQL, então o default se mantém |
 | ORM | Drizzle ORM + driver `pg` | Default do toolkit |
 | Autenticação | Supabase Auth via `@supabase/ssr`, só no servidor (instalado na entrega do login) | Produto exige login por funcionário; mesmo provedor do banco |
@@ -72,7 +72,7 @@ sorveteria-pdv/
 │       └── supabase-server.ts    # cliente Auth do servidor
 ├── eslint-rules/, eslint.config.mjs, scripts/verify-quality-rules.mjs
 ├── drizzle.config.ts, vitest.config.mts
-├── .env.example                  # só nomes, sem valores
+├── .env.example                  # nomes e defaults não sensíveis
 └── .graphifyignore
 ```
 
@@ -105,8 +105,8 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 ```
 
 - O navegador não recebe nenhuma chave nem fala com o Supabase diretamente. Login e logout também são Server Actions.
-- `src/db`, `src/lib/env.ts`, `src/lib/logger.ts` e `src/lib/supabase-server.ts` importam `server-only`.
-- A regra de fronteira do lint impede que `app/` e `components/` importem `src/db`.
+- `src/db`, `src/lib/env.ts` e `src/lib/logger.ts` importam `server-only` (e `src/lib/supabase-server.ts`, quando existir). Um módulo de cliente que puxe o banco quebra o build por causa do `server-only`.
+- A regra de fronteira do lint bloqueia `db`, `getDb` e `closeDatabase` importados de `@/db` em qualquer `.tsx` e em `.ts` dentro de `src/app/` e `src/components/`. Não cobre imports relativos (`../db`), re-exports nem `import()` dinâmico; a revisão confere esses casos.
 - Esconder botões na interface é conforto; a autorização real está em cada Server Action.
 
 ## Segurança
@@ -116,7 +116,7 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 3. **Autorização por ação:** helper `exigirPermissao('pode_lancar_estoque')` (e `exigirDono()`) chamado no início de cada Server Action sensível; funcionário inativo é recusado.
 4. **Senha de novo no caixa:** abertura e fechamento reautenticam a senha do próprio funcionário no Supabase Auth antes de agir.
 5. **Criar funcionário:** Server Action exclusiva do dono usa a `service_role` para criar o usuário no Auth (e-mail técnico `usuario@sorveteria.local`, cadastro público desligado).
-6. **Logs:** Pino com redação de tokens, cookies, senhas e URLs de conexão.
+6. **Logs:** Pino com redação de `password`/`senha`, tokens, cookies, `DATABASE_URL*` e chaves `SUPABASE_*` (primeiro nível e um nível abaixo). Logue só campos escolhidos, nunca objetos de erro ou configuração inteiros.
 7. **Ambientes:** Supabase de desenvolvimento (agentes podem migrar) e de produção (só migrations revisadas e autorizadas pelo dono).
 8. **Revisão:** o especialista `seguranca` revisa todo PR (chaves no diff, Server Action sem checagem, RLS faltando, dados sensíveis em log).
 
@@ -143,7 +143,7 @@ Saldo de estoque: soma de `estoque_movimentos` por produto (view ou consulta agr
 
 Operações em transação (`db.transaction`): abrir caixa, fechar caixa, adicionar item, finalizar venda (conferir soma = total, calcular troco, gerar baixa de estoque), cancelar venda (devolver estoque) e lançar estoque.
 
-Ciclo das migrations: alterar schema → `pnpm db:generate` → revisar o SQL em `drizzle/` (incluindo `ENABLE ROW LEVEL SECURITY` de cada tabela nova) → `pnpm db:migrate` no Supabase de desenvolvimento → testar → PR. Produção só com autorização do dono. Nada de `db:push`.
+Ciclo das migrations: alterar schema (cada `pgTable` com `.enableRLS()`) → `pnpm db:generate` → revisar o SQL em `drizzle/` (incluindo `ENABLE ROW LEVEL SECURITY` de cada tabela nova) → `pnpm db:migrate` no Supabase de desenvolvimento → testar → PR. Produção só com autorização do dono. Nada de `db:push`.
 
 Conexão: `DATABASE_URL` aponta para o pooler do Supabase (modo transação) e `DATABASE_URL_UNPOOLED` para a conexão direta ou de sessão, usada pelas migrations. Pool pequeno e lazy, conforme o template do toolkit e a orientação de pooling da Vercel.
 

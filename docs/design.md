@@ -11,7 +11,7 @@
 
 ## Sistema existente
 
-Nada implementado. Direção dos tokens:
+Nada implementado. O `src/app/globals.css` e as fontes Geist atuais vieram do scaffold do Next (inclusive um modo escuro automático) e serão substituídos na entrega de tokens. Direção dos tokens:
 
 | Token | Nome | Valor | Uso |
 |---|---|---|---|

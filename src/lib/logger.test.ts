@@ -12,7 +12,8 @@ it("removes structured secrets while keeping useful context", async () => {
     token: "test-secret",
     DATABASE_URL: "postgresql://private-test-value",
     DATABASE_URL_UNPOOLED: "postgresql://direct-test-value",
-    user: { password: "test-password", id: "user-1" },
+    user: { password: "test-password", senha: "senha-teste", id: "user-1" },
+    SUPABASE_SERVICE_ROLE_KEY: "service-role-test",
     req: { headers: { authorization: "Bearer test-token", cookie: "session=test", "x-api-key": "test-api-key" } },
     requestId: "request-1",
   }, "Request completed");
@@ -23,6 +24,8 @@ it("removes structured secrets while keeping useful context", async () => {
   expect(output).not.toContain("direct-test-value");
   expect(output).not.toContain("test-api-key");
   expect(output).not.toContain("test-password");
+  expect(output).not.toContain("senha-teste");
+  expect(output).not.toContain("service-role-test");
   expect(output).not.toContain("test-token");
   expect(output).not.toContain("session=test");
   expect(JSON.parse(output)).toMatchObject({ requestId: "request-1", user: { id: "user-1" } });

@@ -8,12 +8,12 @@ Base do bootstrap pronta; funcionalidades em andamento. Requer Node.js 24 LTS e 
 
 ```bash
 pnpm install
-cp .env.example .env.local   # valores do Supabase de desenvolvimento
+cp .env.example .env.local   # preencha com a conexão do Supabase de desenvolvimento
 pnpm dev
 pnpm check                   # lint, tipos, regras, testes e build
 ```
 
-Precisa de um projeto Supabase de desenvolvimento. As credenciais ficam só em `.env.local`, fora do Git.
+Precisa de um projeto Supabase de desenvolvimento. As credenciais ficam em `.env.local` (no seu computador) e nas variáveis do host ou do ambiente na nuvem, nunca no Git.
 
 ## Documentação
 

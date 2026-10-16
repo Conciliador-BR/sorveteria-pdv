@@ -29,13 +29,13 @@
 | drizzle-kit 0.31.11, @types/pg, @next/env 16.4.2, vitest 5.0.5, eslint-plugin-drizzle 0.2.3, @types/node 24 | Núcleo do toolkit | Projeto | Validado |
 | `templates/next/` (env, logger, utils, db e testes) | Copiado sem o sufixo `.example` | Projeto | Validado (testes) |
 | ESLint perfil completo + `eslint-rules/` + self-check | `next-app.config.mjs.example` | Projeto | Validado |
-| Skills Vercel: `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `writing-guidelines`, `vercel-react-view-transitions`, `vercel-optimize`, `deploy-to-vercel`, `vercel-cli-with-tokens`, `find-skills` | `npx skills@latest add … --agent claude-code` | Projeto | Arquivos presentes e `skills-lock.json` gerado; descoberta em sessão nova pendente |
+| Skills Vercel (sem o `Archive.zip` da `deploy-to-vercel`, binário duplicado fora do `skills-lock.json`): `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `writing-guidelines`, `vercel-react-view-transitions`, `vercel-optimize`, `deploy-to-vercel`, `vercel-cli-with-tokens`, `find-skills` | `npx skills@latest add … --agent claude-code` | Projeto | Arquivos presentes e `skills-lock.json` gerado; descoberta em sessão nova pendente |
 | Especialistas `.claude/agents/` e `.claude/rules/parallel-subagent-driven-development.md` | Escritos a partir do guia de orquestração | Projeto | Arquivos presentes; descoberta pendente |
 | `.graphifyignore` | Template do toolkit | Projeto | Presente |
 | Graphify (CLI) | Reutilizar instalação global | Máquina do dono | Pendente: não instalado neste container; grafo inicial não gerado |
 | RTK, Ponytail `full`, Caveman, Superpowers | Plugins do cliente (prompt 10) | Máquina do dono | Pendente |
 | Context7 | Reutilizar conexão do cliente | Máquina do dono | Pendente: sem conexão nesta sessão; `.mcp.json` não criado |
-| Supabase MCP | `claude mcp add` limitado ao projeto dev | Máquina do dono / conector claude.ai | Pendente: conector incompleto |
+| Supabase (conector claude.ai) | Conector da conta do dono | Sessões na nuvem | Conectado em 16/10/2026; projetos `sorveteria-dev` e `sorveteria-prod` visíveis. Agentes usam só o dev |
 | React Native skills | Não instalado | — | Produto é só web |
 
 ## Documentação criada
@@ -60,8 +60,15 @@ PRODUCT.md, README.md, AGENTS.md (com o bloco de regras gerado pelo Next preserv
 
 ## Pendências e próxima entrega
 
-1. Dono: concluir o conector do Supabase (projeto `sorveteria-dev`).
-2. Dono: rodar o prompt 10 na máquina (RTK, Ponytail, Caveman, Superpowers, Context7, Graphify).
-3. Próxima tarefa do MVP: login com Supabase Auth e tabela `funcionarios` com permissões.
+1. Dono: rodar o prompt 10 na máquina (RTK, Ponytail, Caveman, Superpowers, Context7, Graphify).
+2. Próxima tarefa do MVP: login com Supabase Auth e tabela `funcionarios` com permissões.
 
-Sugestão de revisão deste bootstrap: 3 ciclos (segurança de variáveis e `.gitignore`; fronteira de dados e configuração do lint; coerência da documentação), rodando `pnpm check` ao final.
+## Revisão do bootstrap (16/10/2026)
+
+Três ciclos pedidos pelo dono, com os especialistas `seguranca` e `revisor`:
+
+1. **Segurança de variáveis e segredos:** aprovado. Correções: `Archive.zip` removido; regras em `AGENTS.md` para não imprimir valores de `.env*`, só aceitar skills novas com aprovação e não usar o `deploy.sh` de terceiros; logger passou a redigir `senha` e chaves `SUPABASE_*` (com teste).
+2. **Lint e fronteira de dados:** guardas Drizzle agora cobrem `getDb()` e `tx`, verificado com `eslint --stdin`; `closeDatabase` entrou na fronteira. Limites restantes da regra (imports relativos, re-export, `import()`) documentados em `docs/architecture.md`. Comentários herdados do toolkit em `eslint-rules/` e `scripts/` ficaram como estão.
+3. **Coerência da documentação:** 13 ajustes (variáveis de ambiente, estado do Ponytail, pendências, tokens do scaffold, arquivos futuros, `.enableRLS()`, Node 22 vs 24).
+
+Riscos residuais: advisories de desenvolvimento listados acima; checks rodados em Node 22.

@@ -47,7 +47,7 @@ pnpm dev
 
 ## Ambiente
 
-Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`):
+Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`). As `SUPABASE_*` entram no `.env.example` junto da entrega do login.
 
 | Variável | Onde obter no Supabase | Uso |
 |---|---|---|
@@ -56,8 +56,9 @@ Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`):
 | `SUPABASE_URL` | Project Settings → API | Auth no servidor |
 | `SUPABASE_ANON_KEY` | Project Settings → API keys (chave pública/publishable) | Auth no servidor |
 | `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API keys (chave secreta) | Só para criar/editar logins de funcionário |
+| `LOG_LEVEL` | — (padrão `info`) | Nível dos logs do servidor |
 
-`.env.local` fica fora do Git. `.env.example` tem só os nomes.
+`.env.local` fica fora do Git. `.env.example` tem os nomes e só defaults não sensíveis.
 
 ## Banco
 

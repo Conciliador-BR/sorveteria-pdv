@@ -62,7 +62,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Ferramentas e estilo
 
-- **Ponytail:** plugin/skill instalado em intensidade `full` para programação. `stop ponytail` desativa o modo.
+- **Ponytail:** plugin/skill em intensidade `full` para programação, quando instalado na máquina (estado em `docs/setup.md`). `stop ponytail` desativa o modo.
 - **Caveman:** conversa concisa em português do Brasil, preservando clareza e explicações completas quando solicitadas. O dono é iniciante: explique termos técnicos quando eles aparecerem. Código, documentação e commits têm redação normal. `stop caveman` desativa o estilo.
 - **Superpowers:** use skills pertinentes e proporcione o fluxo ao escopo. Instruções explícitas e execução já autorizada prevalecem sobre aprovações repetidas.
 - **Context7:** consulte documentação atual para Next.js, Drizzle, Supabase Auth, Zod e Tailwind. Resolva o identificador e consulte um conceito por vez. Nunca envie segredos ou código privado. Se indisponível, use fontes oficiais e registre a limitação.
@@ -99,7 +99,7 @@ Instalar skills não executa suas ações. Não force animações, cache, deploy
 ## Delegação e revisão
 
 - Delegue somente quando isolamento de contexto, especialização ou paralelismo independente compensarem a coordenação; prefira ferramenta determinística ou execução direta para tarefas simples.
-- A sessão principal é a coordenadora. Os especialistas do projeto ficam em `.claude/agents/` e a regra de ondas paralelas em `.claude/rules/parallel-subagent-driven-development.md`.
+- A sessão principal é a coordenadora. Os especialistas do projeto ficam em `.claude/agents/` e a regra de ondas paralelas em `.claude/rules/parallel-subagent-driven-development.md`. A "tabela de roteamento" citada pela regra é o fluxo de entrega em `docs/onboarding.md`; o contrato da skill-base depende do Superpowers instalado.
 - Quebre o trabalho por fluxo do produto (fatia vertical: tela, ação do servidor, dados e testes da mesma funcionalidade), não por camada técnica. Especialistas de design, dados e segurança entram como revisores com checklist próprio ou em tarefas que realmente só tocam seu domínio.
 - Cada tarefa recebe objetivo, contexto mínimo, arquivos permitidos, dependências, aceite e checks. Um escritor por arquivo; coordenador cuida de lockfiles, configuração compartilhada, migrations e integração. Revisores paralelos trabalham somente em leitura.
 - Verifique diff e checks antes de aceitar o resultado de um trabalhador. Diante de falha, investigue e escale capacidade/contexto quando necessário; respeite limites finitos de tentativas, tempo e recursos. Não estime economia sem medição.
@@ -109,7 +109,11 @@ Instalar skills não executa suas ações. Não force animações, cache, deploy
 ## Convenções e contexto
 
 - Idioma: interface, nomes de domínio (tabelas, funções de regra de negócio), commits e PRs em português; termos do framework ficam como estão.
-- Dinheiro sempre em centavos inteiros (`*_centavos`), peso em gramas. Formatação só em `src/lib/dinheiro.ts`.
+- Dinheiro sempre em centavos inteiros (`*_centavos`), peso em gramas. Formatação só em `src/lib/dinheiro.ts` (criado na primeira tela com valores).
 - Organização: rotas em `src/app/`, funcionalidades em `src/features/<funcionalidade>/`, componentes visuais genéricos em `src/components/ui/`. Um componente por arquivo, criado quando a tela que o usa for implementada. Detalhes em `docs/architecture.md`.
-- Estilo só com os tokens de `src/app/globals.css` (tema Tailwind). Nada de cor solta. Direção em `docs/design.md`.
+- Estilo só com os tokens de `src/app/globals.css` (tema Tailwind). Nada de cor solta. Hoje esse arquivo e as fontes Geist ainda são do scaffold e serão trocados na entrega de tokens; até lá, a referência é `docs/design.md`.
+- Banco: cliente do Drizzle sempre nomeado `db` (ou `getDb()`) e transação `tx`, para as guardas de `update/delete` do lint funcionarem. Cada `pgTable` usa `.enableRLS()`; a revisão confere o `ENABLE ROW LEVEL SECURITY` no SQL gerado.
+- Segredos: nunca leia, imprima ou copie valores de `.env*` para a conversa, logs ou histórico do shell; confira só se a variável existe. Variáveis de host são cadastradas pelo dono no painel.
+- Skills: novas skills só entram com aprovação do dono e revisão do agente `seguranca`, nunca com `-g -y`. `.claude/skills/` é código de terceiros: revise o diff a cada atualização.
+- Deploy: só no projeto Vercel do dono e com autorização dele; não use o `deploy.sh` da skill `deploy-to-vercel`, que envia o código a um endpoint de terceiros.
 - Segurança: navegador nunca recebe chave do Supabase, `DATABASE_URL` ou `SUPABASE_SERVICE_ROLE_KEY`; nenhuma variável sensível com prefixo `NEXT_PUBLIC_`. Toda Server Action confere sessão e permissão antes de agir.
