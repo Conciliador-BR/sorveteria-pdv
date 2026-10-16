@@ -54,7 +54,7 @@ Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`). As `SUPABASE_*` 
 | `DATABASE_URL` | Connect → connection string do pooler (modo transação) | Consultas do app |
 | `DATABASE_URL_UNPOOLED` | Connect → conexão direta ou pooler em modo sessão | Migrations |
 | `SUPABASE_URL` | Project Settings → API | Auth no servidor |
-| `SUPABASE_ANON_KEY` | Project Settings → API keys (chave pública/publishable) | Auth no servidor |
+| `SUPABASE_PUBLISHABLE_KEY` | Project Settings → API keys (chave publishable, `sb_publishable_…`) | Auth no servidor |
 | `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API keys (chave secreta) | Só para criar/editar logins de funcionário |
 | `LOG_LEVEL` | — (padrão `info`) | Nível dos logs do servidor |
 

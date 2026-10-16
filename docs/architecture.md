@@ -69,7 +69,7 @@ sorveteria-pdv/
 │       ├── logger.ts             # Pino (template do toolkit)
 │       ├── utils.ts              # cn() (template do toolkit)
 │       ├── dinheiro.ts           # centavos ⇄ R$, troco, arredondamento
-│       └── supabase-server.ts    # cliente Auth do servidor
+│       └── supabase/             # server.ts (cliente Auth do servidor) e proxy.ts (renova a sessão)
 ├── eslint-rules/, eslint.config.mjs, scripts/verify-quality-rules.mjs
 ├── drizzle.config.ts, vitest.config.mts
 ├── .env.example                  # nomes e defaults não sensíveis
@@ -105,13 +105,13 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 ```
 
 - O navegador não recebe nenhuma chave nem fala com o Supabase diretamente. Login e logout também são Server Actions.
-- `src/db`, `src/lib/env.ts` e `src/lib/logger.ts` importam `server-only` (e `src/lib/supabase-server.ts`, quando existir). Um módulo de cliente que puxe o banco quebra o build por causa do `server-only`.
+- `src/db`, `src/lib/env.ts` e `src/lib/logger.ts` importam `server-only` (e `src/lib/supabase/server.ts`). Um módulo de cliente que puxe o banco quebra o build por causa do `server-only`.
 - A regra de fronteira do lint bloqueia `db`, `getDb` e `closeDatabase` importados de `@/db` em qualquer `.tsx` e em `.ts` dentro de `src/app/` e `src/components/`. Não cobre imports relativos (`../db`), re-exports nem `import()` dinâmico; a revisão confere esses casos.
 - Esconder botões na interface é conforto; a autorização real está em cada Server Action.
 
 ## Segurança
 
-1. **Segredos só no servidor:** `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` (usada pelo Auth do servidor) e `SUPABASE_SERVICE_ROLE_KEY` (só para criar/editar logins de funcionário). Nenhuma com prefixo `NEXT_PUBLIC_`. Valores em `.env.local` (ignorado) e nas variáveis do host; nunca no Git ou no chat.
+1. **Segredos só no servidor:** `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (usada pelo Auth do servidor) e `SUPABASE_SERVICE_ROLE_KEY` (só para criar/editar logins de funcionário). Nenhuma com prefixo `NEXT_PUBLIC_`. Valores em `.env.local` (ignorado) e nas variáveis do host; nunca no Git ou no chat.
 2. **Data API bloqueada:** RLS ligado em todas as tabelas do schema `public`, sem políticas para `anon` e `authenticated`. Mesmo que alguém descubra a URL do projeto, não lê nem grava nada pela API REST. O acesso legítimo é o Drizzle no servidor.
 3. **Autorização por ação:** helper `exigirPermissao('pode_lancar_estoque')` (e `exigirDono()`) chamado no início de cada Server Action sensível; funcionário inativo é recusado.
 4. **Senha de novo no caixa:** abertura e fechamento reautenticam a senha do próprio funcionário no Supabase Auth antes de agir.
@@ -119,6 +119,15 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 6. **Logs:** Pino com redação de `password`/`senha`, tokens, cookies, `DATABASE_URL*` e chaves `SUPABASE_*` (primeiro nível e um nível abaixo). Logue só campos escolhidos, nunca objetos de erro ou configuração inteiros.
 7. **Ambientes:** Supabase de desenvolvimento (agentes podem migrar) e de produção (só migrations revisadas e autorizadas pelo dono).
 8. **Revisão:** o especialista `seguranca` revisa todo PR (chaves no diff, Server Action sem checagem, RLS faltando, dados sensíveis em log).
+
+## Login e sessão
+
+- O funcionário digita usuário e senha; o servidor troca o usuário pelo e-mail técnico `usuario@sorveteria.local` (`src/features/auth/usuario.ts`) e chama `signInWithPassword` numa Server Action. Erros respondem sempre "Usuário ou senha incorretos.", sem revelar se o usuário existe.
+- Sessão em cookies do `@supabase/ssr`. `src/proxy.ts` renova o token a cada navegação; páginas e ações confirmam a identidade com `getClaims()` (assinatura verificada) e buscam papel, permissões e `ativo` na tabela `funcionarios` (`src/features/auth/sessao.ts`).
+- Login válido sem linha em `funcionarios` ou com `ativo = false` é desfeito na hora. "Sair" encerra só a sessão daquele aparelho (`scope: "local"`).
+- Cookie de sessão `httpOnly`, `sameSite=lax` e `secure` em produção (`src/lib/supabase/cookies.ts`): o JavaScript da página não lê o token.
+- Riscos aceitos: o limite de tentativas do Supabase Auth conta por IP, e todas as tentativas saem do mesmo servidor, então um ataque de senha pode bloquear o login da loja inteira por alguns minutos (limite próprio por usuário fica para depois); e a resposta de senha certa de funcionário desativado demora um pouco mais que a de senha errada.
+- `exigirFuncionario()`, `exigirPermissao()` e `exigirDono()` redirecionam: sem sessão vai para `/entrar`; sem permissão, para `/caixa`. O layout de `src/app/(sistema)/` protege as telas, e cada página e Server Action repete a checagem que lhe cabe.
 
 ## Dados e migrations
 
@@ -143,7 +152,7 @@ Saldo de estoque: soma de `estoque_movimentos` por produto (view ou consulta agr
 
 Operações em transação (`db.transaction`): abrir caixa, fechar caixa, adicionar item, finalizar venda (conferir soma = total, calcular troco, gerar baixa de estoque), cancelar venda (devolver estoque) e lançar estoque.
 
-Ciclo das migrations: alterar schema (cada `pgTable` com `.enableRLS()`) → `pnpm db:generate` → revisar o SQL em `drizzle/` (incluindo `ENABLE ROW LEVEL SECURITY` de cada tabela nova) → `pnpm db:migrate` no Supabase de desenvolvimento → testar → PR. Produção só com autorização do dono. Nada de `db:push`.
+Ciclo das migrations: alterar schema (cada `pgTable` com `.enableRLS()`) → `pnpm db:generate` → revisar o SQL em `drizzle/` (incluindo `ENABLE ROW LEVEL SECURITY` de cada tabela nova) → `pnpm db:migrate` no Supabase de desenvolvimento → testar → PR. Sem `DATABASE_URL_UNPOOLED` na sessão, o agente aplica o mesmo SQL pelo conector Supabase (`apply_migration`) e grava a linha correspondente em `drizzle.__drizzle_migrations` (hash SHA-256 do arquivo `.sql` e o `when` do `_journal.json`), para o `pnpm db:migrate` não reaplicar. Produção só com autorização do dono. Nada de `db:push`.
 
 Conexão: `DATABASE_URL` aponta para o pooler do Supabase (modo transação) e `DATABASE_URL_UNPOOLED` para a conexão direta ou de sessão, usada pelas migrations. Pool pequeno e lazy, conforme o template do toolkit e a orientação de pooling da Vercel.
 
