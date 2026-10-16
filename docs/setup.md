@@ -60,9 +60,8 @@ PRODUCT.md, README.md, AGENTS.md (com o bloco de regras gerado pelo Next preserv
 
 ## Pendências e próxima entrega
 
-1. Dono: instalar o Claude GitHub App no repositório para permitir o envio do código.
-2. Dono: concluir o conector do Supabase (projeto `sorveteria-dev`).
-3. Dono: rodar o prompt 10 na máquina (RTK, Ponytail, Caveman, Superpowers, Context7, Graphify).
-4. Próxima tarefa do MVP: login com Supabase Auth e tabela `funcionarios` com permissões.
+1. Dono: concluir o conector do Supabase (projeto `sorveteria-dev`).
+2. Dono: rodar o prompt 10 na máquina (RTK, Ponytail, Caveman, Superpowers, Context7, Graphify).
+3. Próxima tarefa do MVP: login com Supabase Auth e tabela `funcionarios` com permissões.
 
 Sugestão de revisão deste bootstrap: 3 ciclos (segurança de variáveis e `.gitignore`; fronteira de dados e configuração do lint; coerência da documentação), rodando `pnpm check` ao final.
