@@ -6,6 +6,8 @@ import { opcoesCookieSessao } from "./cookies";
 
 // Renova o token de sessão a cada requisição (padrão do Supabase SSR para Next.js).
 export async function updateSession(request: NextRequest) {
+  // Visitante sem cookie de sessão não tem o que renovar.
+  if (!request.cookies.getAll().some(({ name }) => name.startsWith("sb-"))) return NextResponse.next({ request });
   let response = NextResponse.next({ request });
   const supabase = createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
     cookieOptions: opcoesCookieSessao,

@@ -1,12 +1,18 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { entrar, type EstadoLogin } from "../actions";
 
 const estadoInicial: EstadoLogin = {};
 
 export function LoginForm() {
   const [estado, acao, enviando] = useActionState(entrar, estadoInicial);
+  const senhaRef = useRef<HTMLInputElement>(null);
+
+  // Depois de um erro, o foco volta para a senha (o React limpa o formulário).
+  useEffect(() => {
+    if (estado.tentativa) senhaRef.current?.focus();
+  }, [estado.tentativa]);
 
   return (
     <form action={acao} className="flex w-full max-w-sm flex-col gap-4" noValidate>
@@ -20,6 +26,7 @@ export function LoginForm() {
           spellCheck={false}
           required
           defaultValue={estado.usuario}
+          aria-invalid={!!estado.erro}
           aria-describedby={estado.erro ? "erro-login" : undefined}
           className="h-12 rounded-lg border border-foreground/20 bg-background px-3 text-base"
         />
@@ -31,11 +38,13 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
+          ref={senhaRef}
+          aria-invalid={!!estado.erro}
           aria-describedby={estado.erro ? "erro-login" : undefined}
           className="h-12 rounded-lg border border-foreground/20 bg-background px-3 text-base"
         />
       </label>
-      <p id="erro-login" role="alert" className="min-h-5 text-sm font-medium">
+      <p key={estado.tentativa} id="erro-login" role="alert" className="min-h-5 text-sm font-medium">
         {estado.erro}
       </p>
       <button

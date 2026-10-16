@@ -123,11 +123,12 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 ## Login e sessão
 
 - O funcionário digita usuário e senha; o servidor troca o usuário pelo e-mail técnico `usuario@sorveteria.local` (`src/features/auth/usuario.ts`) e chama `signInWithPassword` numa Server Action. Erros respondem sempre "Usuário ou senha incorretos.", sem revelar se o usuário existe.
-- Sessão em cookies do `@supabase/ssr`. `src/proxy.ts` renova o token a cada navegação; páginas e ações confirmam a identidade com `getClaims()` (assinatura verificada) e buscam papel, permissões e `ativo` na tabela `funcionarios` (`src/features/auth/sessao.ts`).
-- Login válido sem linha em `funcionarios` ou com `ativo = false` é desfeito na hora. "Sair" encerra só a sessão daquele aparelho (`scope: "local"`).
+- Sessão em cookies do `@supabase/ssr`. `src/proxy.ts` renova o token a cada navegação de quem tem cookie de sessão (visitante sem cookie passa direto, então a home abre mesmo sem as variáveis do Supabase); páginas e ações confirmam a identidade com `getClaims()` (assinatura verificada) e buscam papel, permissões e `ativo` na tabela `funcionarios` (`src/features/auth/sessao.ts`).
+- Login válido sem linha em `funcionarios` ou com `ativo = false` é desfeito na hora. Falha do banco nesse momento também desfaz o login, com aviso "Não foi possível entrar agora". "Sair" encerra só a sessão daquele aparelho (`scope: "local"`); se o Supabase não responder, os cookies `sb-*` são apagados à mão.
+- `funcionarios.usuario` tem CHECK com a mesma regra do login (minúsculas, 3 a 32 de `a-z0-9._-`), e o login no Auth deve ser criado com `usuarioParaEmail`. A FK para `auth.users` é `restrict`: quem tem login não é apagado pelo painel, é desativado.
 - Cookie de sessão `httpOnly`, `sameSite=lax` e `secure` em produção (`src/lib/supabase/cookies.ts`): o JavaScript da página não lê o token.
 - Riscos aceitos: o limite de tentativas do Supabase Auth conta por IP, e todas as tentativas saem do mesmo servidor, então um ataque de senha pode bloquear o login da loja inteira por alguns minutos (limite próprio por usuário fica para depois); e a resposta de senha certa de funcionário desativado demora um pouco mais que a de senha errada.
-- `exigirFuncionario()`, `exigirPermissao()` e `exigirDono()` redirecionam: sem sessão vai para `/entrar`; sem permissão, para `/caixa`. O layout de `src/app/(sistema)/` protege as telas, e cada página e Server Action repete a checagem que lhe cabe.
+- `exigirFuncionario()`, `exigirPermissao()` e `exigirDono()` redirecionam: sem sessão vai para `/entrar`; sem permissão, para `/caixa`. O layout de `src/app/(sistema)/` protege as telas, e cada página e Server Action repete a checagem que lhe cabe (`getFuncionarioAtual` usa `cache` do React, então a repetição não consulta o banco duas vezes). Os `exigir*` vão na primeira linha, fora de `try/catch`: o redirect é uma exceção e um `catch` o engoliria.
 
 ## Dados e migrations
 

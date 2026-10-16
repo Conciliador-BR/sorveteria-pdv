@@ -1,6 +1,6 @@
 # Qualidade
 
-> Estado em 16/10/2026: todos os comandos abaixo existem e passam na base do bootstrap (8 testes de fronteira do servidor). Testes de regras de negócio entram com cada funcionalidade.
+> Estado em 16/10/2026: todos os comandos abaixo existem e passam (29 testes: fronteiras do servidor, regras de login e permissões, autorização dos `exigir*` e da action de login com mocks). Testes de regras de negócio entram com cada funcionalidade.
 
 ## Comandos
 
@@ -25,7 +25,7 @@ Durante o trabalho, rode só os testes da pasta alterada (ex.: `pnpm test src/li
 
 Específicas do produto:
 
-- Nenhuma variável sensível com prefixo `NEXT_PUBLIC_`; `src/db` (e `src/lib/supabase-server.ts`, quando existir) importam `server-only`.
+- Nenhuma variável sensível com prefixo `NEXT_PUBLIC_`; `src/db` e `src/lib/supabase/` importam `server-only`.
 - Toda tabela nova usa `.enableRLS()` e o SQL gerado tem `ENABLE ROW LEVEL SECURITY`.
 - Cliente do banco nomeado `db`/`getDb()` e transação `tx`: só assim as guardas Drizzle de `update/delete` sem `where` funcionam.
 - Toda Server Action que altera dados chama a checagem de sessão/permissão antes de qualquer escrita.

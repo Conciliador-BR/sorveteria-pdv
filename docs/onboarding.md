@@ -47,7 +47,7 @@ pnpm dev
 
 ## Ambiente
 
-Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`). As `SUPABASE_*` entram no `.env.example` junto da entrega do login.
+Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`).
 
 | Variável | Onde obter no Supabase | Uso |
 |---|---|---|
@@ -59,6 +59,8 @@ Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`). As `SUPABASE_*` 
 | `LOG_LEVEL` | — (padrão `info`) | Nível dos logs do servidor |
 
 `.env.local` fica fora do Git. `.env.example` tem os nomes e só defaults não sensíveis.
+
+O cookie de sessão é `Secure` quando o app roda em modo produção (`pnpm start`). Para testar no tablet pela rede local (`http://192.168…`), use `pnpm dev`; em produção o site é HTTPS.
 
 ## Banco
 
