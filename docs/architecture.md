@@ -116,7 +116,7 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 2. **Data API bloqueada:** RLS ligado em todas as tabelas do schema `public`, sem políticas para `anon` e `authenticated`. Mesmo que alguém descubra a URL do projeto, não lê nem grava nada pela API REST. O acesso legítimo é o Drizzle no servidor.
 3. **Autorização por ação:** helper `exigirPermissao('pode_lancar_estoque')` (e `exigirDono()`) chamado no início de cada Server Action sensível; funcionário inativo é recusado.
 4. **Senha de novo no caixa:** abertura e fechamento reautenticam a senha do próprio funcionário no Supabase Auth antes de agir.
-5. **Criar funcionário:** Server Action exclusiva do dono usa a `service_role` para criar o usuário no Auth (e-mail técnico `usuario@sorveteria.local`, cadastro público desligado).
+5. **Criar funcionário:** Server Actions exclusivas do dono (`src/features/funcionarios/actions.ts`) usam a chave secreta (`SUPABASE_SERVICE_ROLE_KEY`, cliente em `src/lib/supabase/admin.ts`) para criar o login no Auth com `usuarioParaEmail`, trocar senha e desativar. Se gravar o perfil falhar, o login criado é apagado. O dono não pode tirar o próprio papel nem se desativar. Toda criação, edição e troca de senha vai para `auditoria`.
 6. **Logs:** Pino com redação de `password`/`senha`, tokens, cookies, `DATABASE_URL*` e chaves `SUPABASE_*` (primeiro nível e um nível abaixo). Logue só campos escolhidos, nunca objetos de erro ou configuração inteiros.
 7. **Ambientes:** Supabase de desenvolvimento (agentes podem migrar) e de produção (só migrations revisadas e autorizadas pelo dono).
 8. **Revisão:** o especialista `seguranca` revisa todo PR (chaves no diff, Server Action sem checagem, RLS faltando, dados sensíveis em log).
@@ -148,7 +148,7 @@ Plano de schema (Drizzle, em `src/db/schema/`). Tipos inferidos com `$inferSelec
 | `pagamentos` | `id`, `venda_id`, `forma` (`dinheiro`/`pix`/`debito`/`credito`), `bandeira_id`, `valor_centavos`, `valor_recebido_centavos`, `criado_em` |
 | `bandeiras` | `id`, `nome`, `tipo` (`debito`/`credito`), `ativo`, `ordem` |
 | `configuracoes` | `nome_loja` |
-| `auditoria` | `id`, `tabela`, `registro_id`, `acao`, `dados_antes`, `dados_depois`, `funcionario_id`, `criado_em` |
+| `auditoria` | `id`, `tabela`, `registro_id`, `acao`, `dados` (jsonb), `funcionario_id`, `criado_em` |
 
 Saldo de estoque: soma de `estoque_movimentos` por produto (view ou consulta agregada).
 

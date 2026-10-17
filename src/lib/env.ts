@@ -17,3 +17,8 @@ export function getSupabaseUrl() {
 export function getSupabasePublishableKey() {
   return parseEnv("SUPABASE_PUBLISHABLE_KEY", process.env.SUPABASE_PUBLISHABLE_KEY, supabaseKeySchema);
 }
+
+// Chave secreta (service_role/secret): só para o dono criar e editar logins. Nunca sai do servidor.
+export function getSupabaseServiceRoleKey() {
+  return parseEnv("SUPABASE_SERVICE_ROLE_KEY", process.env.SUPABASE_SERVICE_ROLE_KEY, supabaseKeySchema);
+}
