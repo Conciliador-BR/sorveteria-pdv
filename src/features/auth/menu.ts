@@ -20,7 +20,8 @@ const itens: readonly (ItemMenu & { regra: Regra })[] = [
   { href: "/comandas", rotulo: "Comandas", icone: "comandas", regra: "todos" },
   { href: "/estoque", rotulo: "Estoque", icone: "estoque", regra: "pode_lancar_estoque" },
   { href: "/produtos", rotulo: "Produtos", icone: "produtos", regra: "pode_gerenciar_produtos" },
-  { href: "/vendas", rotulo: "Histórico", icone: "historico", regra: "pode_ver_historico" },
+  // Todos veem as próprias vendas; quem tem `pode_ver_historico` vê as de todos.
+  { href: "/vendas", rotulo: "Histórico", icone: "historico", regra: "todos" },
   { href: "/dashboard", rotulo: "Dashboard", icone: "dashboard", regra: "dono" },
   { href: "/funcionarios", rotulo: "Funcionários", icone: "funcionarios", regra: "dono" },
 ];

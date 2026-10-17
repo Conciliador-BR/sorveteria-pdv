@@ -41,11 +41,12 @@ sorveteria-pdv/
 │   │   ├── entrar/page.tsx       # login
 │   │   └── (sistema)/            # área logada; layout confere sessão
 │   │       ├── layout.tsx
-│   │       ├── caixa/page.tsx
+│   │       ├── caixa/page.tsx, caixa/fechamento/[id]/page.tsx
 │   │       ├── vender/page.tsx
-│   │       ├── comandas/[id]/page.tsx
+│   │       ├── comandas/page.tsx, comandas/[id]/page.tsx
+│   │       ├── produtos/page.tsx
 │   │       ├── estoque/page.tsx
-│   │       ├── vendas/page.tsx
+│   │       ├── vendas/page.tsx, vendas/[id]/page.tsx, vendas/csv/route.ts
 │   │       ├── dashboard/page.tsx
 │   │       ├── funcionarios/page.tsx
 │   │       └── configuracoes/page.tsx
@@ -55,8 +56,8 @@ sorveteria-pdv/
 │   │   ├── produtos/
 │   │   ├── estoque/
 │   │   ├── caixa/
-│   │   ├── vendas/               # venda, comanda, itens
-│   │   ├── pagamento/
+│   │   ├── vendas/               # venda no balcão, comanda, itens e pagamento (carrinho em useCarrinho.ts)
+│   │   ├── historico/            # filtros, lista, detalhe e CSV das vendas
 │   │   └── dashboard/
 │   ├── components/
 │   │   ├── ui/                   # Button, MoneyInput, WeightInput, Keypad, Modal, Card, Badge, Table...
@@ -150,9 +151,20 @@ Plano de schema (Drizzle, em `src/db/schema/`). Tipos inferidos com `$inferSelec
 | `configuracoes` | `nome_loja` |
 | `auditoria` | `id`, `tabela`, `registro_id`, `acao`, `dados` (jsonb), `funcionario_id`, `criado_em` |
 
-Saldo de estoque: soma de `estoque_movimentos` por produto (view ou consulta agregada).
+Saldo de estoque: soma de `estoque_movimentos` por produto (consulta agregada). `quantidade` é inteiro: unidades ou gramas, conforme o `tipo_venda` do produto; por isso o tipo não muda depois que o produto tem venda ou estoque.
 
-Operações em transação (`db.transaction`): abrir caixa, fechar caixa, adicionar item, finalizar venda (conferir soma = total, calcular troco, gerar baixa de estoque), cancelar venda (devolver estoque) e lançar estoque.
+Operações em transação (`db.transaction`): abrir caixa, fechar caixa, sangria/suprimento, abrir comanda, lançar e remover item, finalizar venda (conferir soma = total, calcular troco, gerar baixa de estoque), cancelar venda (devolver estoque) e lançar estoque. Erros do Postgres chegam embrulhados em `DrizzleQueryError`; o código fica em `cause.code` (`src/db/erros.ts`).
+
+## Venda, caixa e concorrência
+
+- **Preço e total vêm do banco.** A tela manda só produto, quantidade ou gramas e as partes do pagamento; o servidor busca preço e nome no cadastro, recalcula o total e confere a soma. Se o total mudou desde que a tela abriu, a resposta diz o novo valor.
+- **Travas (`for update`) sempre na mesma ordem: caixa, depois venda.** Venda, cobrança de comanda, abertura de comanda, sangria e suprimento travam o caixa aberto, então nada entra num caixa que está fechando. O cancelamento lê o caixa da venda, trava esse caixa e só depois a venda, para não se cruzar com uma cobrança.
+- **Venda repetida:** a tela do balcão gera o `id` da venda (UUID v4 com `getRandomValues`, porque `crypto.randomUUID` não existe fora de HTTPS e o tablet pode abrir o sistema pela rede local). Um segundo envio esbarra na chave primária e recebe a venda já gravada.
+- **Comanda cobrada por outro funcionário** passa para o caixa de quem cobrou: o dinheiro está na gaveta dele.
+- **Baixa de estoque** trava os produtos em ordem de id, para não correr junto com um ajuste de contagem.
+- **Limite por venda:** R$ 100.000,00 por item, venda ou comanda (o mesmo dos pagamentos), abaixo do teto do `integer`.
+- **Histórico:** quem tem `pode_ver_historico` (ou é dono) vê todas as vendas; os demais veem só as próprias, na lista, no detalhe e no CSV (filtro forçado no servidor). O CSV protege texto livre contra fórmula de planilha.
+- **Riscos aceitos:** `estoque_movimentos.venda_id` não tem chave estrangeira (os schemas de estoque e de venda se importariam em ciclo; só o servidor grava nessa coluna). Sangria não confere se há dinheiro suficiente na gaveta: o esperado pode ficar negativo e aparece na conferência. Venda de caixa fechado só se cancela depois que o dono reabre aquele caixa (pelo detalhe da venda), e a reabertura é recusada se o funcionário já tem outro caixa aberto: ele fecha o atual antes.
 
 Ciclo das migrations: alterar schema (cada `pgTable` com `.enableRLS()`) → `pnpm db:generate` → revisar o SQL em `drizzle/` (incluindo `ENABLE ROW LEVEL SECURITY` de cada tabela nova) → `pnpm db:migrate` no Supabase de desenvolvimento → testar → PR. Sem `DATABASE_URL_UNPOOLED` na sessão, o agente aplica o mesmo SQL pelo conector Supabase (`apply_migration`) e grava a linha correspondente em `drizzle.__drizzle_migrations` (hash SHA-256 do arquivo `.sql` e o `when` do `_journal.json`), para o `pnpm db:migrate` não reaplicar. Produção só com autorização do dono. Nada de `db:push`.
 

@@ -74,16 +74,18 @@ Específico do produto:
 - Alvo de toque mínimo de 48 × 48 px; teclas do teclado numérico na tela com 64 px.
 - Campo de dinheiro aceita digitação contínua em centavos (digitar `2580` mostra R$ 25,80).
 - Botões de confirmação de pagamento ficam desabilitados e mostram "Salvando…" durante o envio, para impedir venda duplicada.
+- Formulários com campos não controlados enviam com `useEnvioSemReset` (`src/lib/`; o pagamento e o lançamento na comanda usam estado controlado e não precisam): o React 19 apaga campos não controlados em todo `<form action>`, mesmo quando a action devolve erro; o hook evita isso e leva o foco ao primeiro campo inválido.
+- Total, troco e "falta pagar" ficam em regiões `aria-live` sempre montadas, com rótulo e valor juntos (`aria-atomic`).
 - Troco aparece em destaque assim que o valor recebido é digitado; valor insuficiente mostra o quanto falta, junto do campo.
 - Ações destrutivas (cancelar venda, cancelar comanda, desativar funcionário) pedem confirmação e motivo.
 - Animações de 150 a 200 ms, desligadas com `prefers-reduced-motion`.
 
 ## Layout e revisão
 
-- Breakpoints: celular (área do dono), tablet a partir de 768 px (balcão, PDV em abas: Produtos / Venda / Comandas) e desktop a partir de 1280 px (PDV em três colunas).
+- Breakpoints: celular (área do dono), tablet a partir de 768 px (balcão: produtos e carrinho lado a lado, carrinho fixo ao rolar; Comandas fica no menu) e desktop a partir de 1280 px (mesmas duas colunas, mais largas).
 - Área logada: menu lateral recolhível, barra superior com nome do funcionário, situação do caixa e botão sair. Implementado sem recolher o menu lateral e sem a situação do caixa (entra com o caixa).
 - Estados a cobrir em cada tela: vazio (sem produtos, sem vendas, sem comandas), carregando, erro de rede e sem permissão.
-- Revisão: rodar a skill `web-design-guidelines` nas telas antes de concluir cada PR de interface. Primeira revisão em 17/10/2026 (apresentação, entrar, área logada e componentes base).
+- Revisão: rodar a skill `web-design-guidelines` nas telas antes de concluir cada PR de interface. Primeira revisão em 17/10/2026 (apresentação, entrar, área logada e componentes base); segunda em 17/10/2026 (caixa, venda, comandas, produtos, estoque, histórico e dashboard), com os achados corrigidos.
 
 ## Manutenção
 

@@ -131,7 +131,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 
 ## Próxima entrega
 
-Login entregue no PR #2 (falta o teste ponta a ponta com o primeiro usuário do dono). Próxima: tokens visuais, apresentação e tela de funcionários.
+Login no PR #2, visual e funcionários no PR #3. Operação da loja (caixa, produtos, estoque, venda no balcão, comandas, pagamento, histórico e dashboard) no PR seguinte, com as tabelas já criadas no Supabase de desenvolvimento. Falta o teste ponta a ponta com o primeiro usuário do dono e as variáveis de ambiente. Depois: testes E2E, PWA, configurações da loja e produção com autorização.
 
 ## Manutenção
 
