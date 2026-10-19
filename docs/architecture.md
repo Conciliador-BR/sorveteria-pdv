@@ -35,10 +35,12 @@ sorveteria-pdv/
 │   └── rules/                    # parallel-subagent-driven-development.md
 ├── .claude/skills/ + skills-lock.json   # skills Vercel locais (instaladas)
 ├── drizzle/                      # SQL gerado e revisado
+├── public/                       # ícones do app instalável (icone-192, icone-512, icone-maskable-512)
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx              # apresentação (pública)
 │   │   ├── entrar/page.tsx       # login
+│   │   ├── manifest.ts, apple-icon.png  # app instalável (PWA): nome, cores, ícones; abre em /entrar
 │   │   └── (sistema)/            # área logada; layout confere sessão
 │   │       ├── layout.tsx
 │   │       ├── caixa/page.tsx, caixa/fechamento/[id]/page.tsx
