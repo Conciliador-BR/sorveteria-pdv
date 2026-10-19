@@ -1,6 +1,6 @@
 # Qualidade
 
-> Estado em 16/10/2026: todos os comandos abaixo existem e passam (32 testes: fronteiras do servidor, regras de login e permissões, autorização dos `exigir*` e da action de login com mocks). Testes de regras de negócio entram com cada funcionalidade.
+> Estado em 17/10/2026: todos os comandos abaixo existem e passam (93 testes: fronteiras do servidor, login e permissões, regras de dinheiro, troco, peso, caixa, estoque, carrinho e pagamento, filtros e CSV do histórico, gráficos do dashboard). Ainda não há teste de integração com banco nem E2E: as Server Actions de venda e caixa foram revisadas, mas não rodaram contra o Supabase.
 
 ## Comandos
 

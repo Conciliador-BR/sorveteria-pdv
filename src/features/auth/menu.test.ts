@@ -14,14 +14,13 @@ const funcionario: PerfilAcesso = {
 const rotulos = (perfil: PerfilAcesso) => itensDoMenu(perfil).map((item) => item.rotulo);
 
 describe("itensDoMenu", () => {
-  it("mostra só o básico ao funcionário sem permissões extras", () => {
-    expect(rotulos(funcionario)).toEqual(["Caixa", "Vender", "Comandas"]);
+  it("mostra só o básico ao funcionário sem permissões extras, com as próprias vendas", () => {
+    expect(rotulos(funcionario)).toEqual(["Caixa", "Vender", "Comandas", "Histórico"]);
   });
 
   it("acrescenta cada item conforme a permissão ligada", () => {
     expect(rotulos({ ...funcionario, podeLancarEstoque: true })).toContain("Estoque");
     expect(rotulos({ ...funcionario, podeGerenciarProdutos: true })).toContain("Produtos");
-    expect(rotulos({ ...funcionario, podeVerHistorico: true })).toContain("Histórico");
   });
 
   it("não mostra itens do dono a funcionário com todas as permissões", () => {
