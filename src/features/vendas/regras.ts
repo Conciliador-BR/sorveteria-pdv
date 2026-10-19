@@ -22,15 +22,15 @@ export function calcularItem(produto: { nome: string; tipoVenda: "unidade" | "pe
   const porPeso = produto.tipoVenda === "peso";
   if (porPeso === "quantidade" in item) throw new ErroItem(`Informe ${porPeso ? "o peso" : "a quantidade"} de ${produto.nome}.`);
   if ("quantidade" in item) {
-    return { quantidade: item.quantidade, pesoGramas: null, totalCentavos: totalDoItem({ tipoVenda: "unidade", precoCentavos: produto.precoCentavos, quantidade: item.quantidade }) };
+    return { quantidade: item.quantidade, pesoGramas: null, pesoPeloValor: false, totalCentavos: totalDoItem({ tipoVenda: "unidade", precoCentavos: produto.precoCentavos, quantidade: item.quantidade }) };
   }
   if ("pesoGramas" in item) {
-    return { quantidade: 1, pesoGramas: item.pesoGramas, totalCentavos: totalDoItem({ tipoVenda: "peso", precoCentavos: produto.precoCentavos, pesoGramas: item.pesoGramas }) };
+    return { quantidade: 1, pesoGramas: item.pesoGramas, pesoPeloValor: false, totalCentavos: totalDoItem({ tipoVenda: "peso", precoCentavos: produto.precoCentavos, pesoGramas: item.pesoGramas }) };
   }
   if (produto.precoCentavos <= 0) throw new ErroItem(`${produto.nome} está sem preço do kg. Digite o peso.`);
   const pesoGramas = gramasPorValor(produto.precoCentavos, item.valorCentavos);
   if (pesoGramas > PESO_MAXIMO_GRAMAS) throw new ErroItem(`O valor de ${produto.nome} passa de 100 kg. Confira o que foi digitado.`);
-  return { quantidade: 1, pesoGramas, totalCentavos: item.valorCentavos };
+  return { quantidade: 1, pesoGramas, pesoPeloValor: true, totalCentavos: item.valorCentavos };
 }
 
 export function totalDaVenda(itens: { totalCentavos: number }[]) {

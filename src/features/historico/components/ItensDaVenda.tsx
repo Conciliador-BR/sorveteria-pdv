@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/Card";
-import { formatarPeso, formatarReais } from "@/lib/dinheiro";
+import { formatarPesoDoItem, formatarReais } from "@/lib/dinheiro";
 import type { DetalheVenda } from "../queries";
 
 export function ItensDaVenda({ itens }: { itens: DetalheVenda["itens"] }) {
@@ -31,7 +31,7 @@ export function ItensDaVenda({ itens }: { itens: DetalheVenda["itens"] }) {
                       <span className="block text-sm font-normal text-texto-suave">Lançado por {item.lancadoPor}</span>
                     </th>
                     <td className="px-4 py-3 text-right tabular-nums">
-                      {item.tipoVenda === "peso" && item.pesoGramas ? formatarPeso(item.pesoGramas) : `${item.quantidade} un`}
+                      {item.tipoVenda === "peso" && item.pesoGramas ? formatarPesoDoItem(item.pesoGramas, item.pesoPeloValor) : `${item.quantidade} un`}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
                       {formatarReais(item.precoUnitarioCentavos)}

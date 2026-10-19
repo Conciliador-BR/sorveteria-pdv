@@ -104,13 +104,13 @@ describe("calcularItem (regra usada pelo servidor)", () => {
   const picole = { nome: "Picolé", tipoVenda: "unidade" as const, precoCentavos: 800 };
 
   it("por unidade e por gramas calcula pelo cadastro", () => {
-    expect(calcularItem(picole, { quantidade: 3 })).toEqual({ quantidade: 3, pesoGramas: null, totalCentavos: 2400 });
-    expect(calcularItem(sorveteKg, { pesoGramas: 350 })).toEqual({ quantidade: 1, pesoGramas: 350, totalCentavos: 2097 });
+    expect(calcularItem(picole, { quantidade: 3 })).toEqual({ quantidade: 3, pesoGramas: null, pesoPeloValor: false, totalCentavos: 2400 });
+    expect(calcularItem(sorveteKg, { pesoGramas: 350 })).toEqual({ quantidade: 1, pesoGramas: 350, pesoPeloValor: false, totalCentavos: 2097 });
   });
 
   it("pelo valor da balança cobra o valor e estima as gramas", () => {
-    expect(calcularItem(sorveteKg, { valorCentavos: 2000 })).toEqual({ quantidade: 1, pesoGramas: 334, totalCentavos: 2000 });
-    expect(calcularItem(sorveteKg, { valorCentavos: 1 })).toEqual({ quantidade: 1, pesoGramas: 1, totalCentavos: 1 });
+    expect(calcularItem(sorveteKg, { valorCentavos: 2000 })).toEqual({ quantidade: 1, pesoGramas: 334, pesoPeloValor: true, totalCentavos: 2000 });
+    expect(calcularItem(sorveteKg, { valorCentavos: 1 })).toEqual({ quantidade: 1, pesoGramas: 1, pesoPeloValor: true, totalCentavos: 1 });
   });
 
   it("recusa valor em produto sem preço do kg e acima de 100 kg", () => {

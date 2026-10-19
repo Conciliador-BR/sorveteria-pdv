@@ -75,7 +75,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 
 **Venda, comanda e pagamento**
 
-- Valores monetários em centavos inteiros; peso em gramas. Item por peso = preço do kg × gramas ÷ 1000, arredondado ao centavo mais próximo (meio centavo para cima). Quando o funcionário digita o valor da balança, o item vale esse valor e as gramas são estimadas (valor × 1000 ÷ preço do kg, arredondado, mínimo 1 g) só para o estoque; por isso preço × gramas pode não fechar exatamente com o total. Produto por peso sem preço do kg não aceita o valor.
+- Valores monetários em centavos inteiros; peso em gramas. Item por peso = preço do kg × gramas ÷ 1000, arredondado ao centavo mais próximo (meio centavo para cima). Quando o funcionário digita o valor da balança, o item vale esse valor e as gramas são estimadas (valor × 1000 ÷ preço do kg, arredondado, mínimo 1 g) só para o estoque; por isso preço × gramas pode não fechar exatamente com o total. Produto por peso sem preço do kg não aceita o valor. O item guarda que foi informado pelo valor, e o histórico e a comanda mostram o peso como estimado ("≈ 334 g (pelo valor)").
 - O preço e o nome do produto são copiados para o item da venda; mudanças posteriores não alteram vendas antigas.
 - Comanda é uma venda com status `aberta`; cada item registra quem lançou e quando.
 - Troco = valor recebido em dinheiro − parte em dinheiro da venda; nunca negativo. Valor recebido menor que a parte em dinheiro bloqueia a confirmação.

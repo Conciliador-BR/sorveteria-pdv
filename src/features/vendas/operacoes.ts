@@ -32,7 +32,7 @@ export async function montarItens(tx: Tx, itens: ItemPedido[], vendaId: string, 
       if (erro instanceof ErroItem) throw new ErroVenda(erro.message);
       throw erro;
     }
-    const { quantidade, pesoGramas, totalCentavos } = calculado;
+    const { quantidade, pesoGramas, pesoPeloValor, totalCentavos } = calculado;
     if (totalCentavos > LIMITE_CENTAVOS) throw new ErroVenda(`O item ${produto.nome} passou do limite por venda.`);
     return {
       vendaId,
@@ -41,6 +41,7 @@ export async function montarItens(tx: Tx, itens: ItemPedido[], vendaId: string, 
       tipoVenda: produto.tipoVenda,
       quantidade,
       pesoGramas,
+      pesoPeloValor,
       precoUnitarioCentavos: produto.precoCentavos,
       totalCentavos,
       lancadoPor,

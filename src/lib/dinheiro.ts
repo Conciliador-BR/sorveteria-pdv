@@ -41,3 +41,8 @@ export function troco(recebidoCentavos: number, parteDinheiroCentavos: number) {
 export function formatarPeso(gramas: number) {
   return gramas >= 1000 ? `${(gramas / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 3 })} kg` : `${gramas} g`;
 }
+
+// Peso gravado num item de venda: estimado quando o funcionário digitou o valor da balança.
+export function formatarPesoDoItem(gramas: number, peloValor: boolean) {
+  return peloValor ? `≈ ${formatarPeso(gramas)} (pelo valor)` : formatarPeso(gramas);
+}
