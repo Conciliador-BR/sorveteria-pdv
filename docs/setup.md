@@ -49,19 +49,21 @@ PRODUCT.md, README.md, AGENTS.md (com o bloco de regras gerado pelo Next preserv
 | `pnpm lint` | Validado | Sem erros |
 | `pnpm typecheck` | Validado | Sem erros após `next typegen` |
 | `pnpm lint:rules` | Validado | Self-check das regras locais aprovado |
-| `pnpm test` | Validado | 3 arquivos, 8 testes aprovados (env, logger, pool do banco) |
-| `pnpm build` | Validado | Build Turbopack concluído; rotas `/` e `/_not-found` estáticas |
-| `pnpm db:generate` | Validado | "0 tables… nothing to migrate" (schema ainda vazio, sem conexão) |
+| `pnpm test` | Validado | 7 arquivos, 32 testes aprovados (env, logger, pool do banco, usuário do login, permissões, `exigir*` e action de login) |
+| `pnpm build` | Validado | Build Turbopack concluído; `/` estática; `/entrar`, `/caixa` e `/dashboard` dinâmicas; proxy ativo |
+| `pnpm db:generate` | Validado | "1 tables… No schema changes" (schema e SQL de `drizzle/` em sincronia, sem conexão) |
 | `pnpm audit --prod` | Validado | Nenhuma vulnerabilidade conhecida |
 | `pnpm audit` (dev) | Validado com ressalvas | 2 advisories só de desenvolvimento: `braces` (alta, via `eslint-config-next`, sem versão corrigida publicada) e `esbuild` ≤0.24.2 (moderada, via `drizzle-kit`). Não afetam o app em produção; acompanhar atualizações |
 | Aplicação respondendo em porta local | Validado | `pnpm start -p 3217` respondeu HTTP 200 com a página provisória; processo encerrado |
-| Conexão real com o Supabase | Pendente | Sem `DATABASE_URL` nesta sessão |
+| Migrations `0000_funcionarios` e `0001_usuario_formato_e_restrict` no `sorveteria-dev` | Validado | Aplicadas pelo conector em 16/10/2026 e registradas em `drizzle.__drizzle_migrations`; advisor de segurança só aponta "RLS sem políticas" (INFO), que é o bloqueio intencional da Data API |
+| Login ponta a ponta | Pendente | Falta o dono criar o primeiro usuário e cadastrar as variáveis de ambiente |
 | Descoberta de skills e agentes | Pendente | Conferir numa sessão nova do Claude Code |
 
 ## Pendências e próxima entrega
 
 1. Dono: rodar o prompt 10 na máquina (RTK, Ponytail, Caveman, Superpowers, Context7, Graphify).
-2. Próxima tarefa do MVP: login com Supabase Auth e tabela `funcionarios` com permissões.
+2. Dono: criar o próprio login no `sorveteria-dev` em Authentication → Users com o e-mail `mateus@sorveteria.local` (o usuário do login é a parte antes do `@`: 3 a 32 de `a-z0-9._-`) e Auto Confirm. Em seguida o agente insere a linha em `funcionarios` com o mesmo `id`, `usuario = mateus` e `papel = dono`; sem essa linha o login responde "Usuário ou senha incorretos". Depois, cadastrar `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` no `.env.local`.
+3. Próxima tarefa do MVP: tokens visuais, apresentação e tela de funcionários.
 
 ## Revisão do bootstrap (16/10/2026)
 

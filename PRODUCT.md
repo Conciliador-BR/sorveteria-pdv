@@ -24,7 +24,7 @@ Permissões extras: `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_canc
 2. **Abrir caixa:** funcionário confirma a própria senha e informa o fundo de troco (obrigatório) → caixa aberto.
 3. **Venda no balcão:** escolher produtos (por unidade ou por peso em gramas) → total → pagamento → venda registrada.
 4. **Comanda:** abrir comanda com nome ou número ("Família Silva", "Mesa 4") → lançar itens ao longo do tempo, por qualquer funcionário com caixa aberto → total atualizado → fechar e cobrar.
-5. **Pagamento:** dinheiro (valor recebido e troco calculado), Pix (confirmação manual) ou cartão (débito ou crédito, escolhendo a bandeira); pagamento dividido entre formas.
+5. **Pagamento:** dinheiro (valor recebido e troco calculado na hora), Pix (confirmação manual) ou cartão: card "Débito" ou "Crédito" → cards das bandeiras → toque na bandeira → finalizar; pagamento dividido entre formas.
 6. **Sangria e suprimento:** retirar ou colocar dinheiro na gaveta, com motivo.
 7. **Fechar caixa:** confirmar senha → informar o dinheiro contado → ver esperado, contado e diferença → resumo por forma de pagamento e bandeira.
 8. **Estoque:** cadastrar produto; lançar entrada ou saída com motivo; ver saldo e alerta de mínimo.
@@ -55,7 +55,7 @@ Cronograma de referência (cada entrega é um ou mais PRs aprovados pelo dono):
 | 3 | 03 a 09/nov | PDV, produto por peso, comandas, pagamento, cancelamento |
 | 4 | 10 a 16/nov | Histórico, dashboard, E2E, revisão de segurança, PWA, produção com autorização |
 
-Se faltar tempo, saem nesta ordem: exportação CSV, modo escuro, parcelamento, gráfico por hora. Caixa, venda, comanda, pagamento, estoque e permissões não saem.
+Se faltar tempo, saem nesta ordem: exportação CSV, modo escuro, gráfico por hora. Caixa, venda, comanda, pagamento, estoque e permissões não saem.
 
 ## Fora de escopo
 
@@ -80,8 +80,8 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Comanda é uma venda com status `aberta`; cada item registra quem lançou e quando.
 - Troco = valor recebido em dinheiro − parte em dinheiro da venda; nunca negativo. Valor recebido menor que a parte em dinheiro bloqueia a confirmação.
 - A soma dos pagamentos deve ser igual ao total para concluir.
-- Bandeiras iniciais. Débito: Visa, Maestro (Mastercard), Elo. Crédito: Visa, Mastercard, Elo, Amex, Hipercard (o "P-Card" do pedido, confirmado pelo dono em 16/10/2026). Lista editável pelo dono.
-- Parcelas no crédito: opção que o dono liga ou desliga, com máximo configurável; padrão 1x.
+- Bandeiras iniciais, cada uma um card na tela. Débito: Visa, Mastercard, Elo. Crédito: Visa, Mastercard, Elo, Hipercard, Amex (o "P-Card" do pedido é o Hipercard, confirmado pelo dono em 16/10/2026). Lista editável pelo dono.
+- Sem parcelamento: o "cortar" do pedido era "card" (confirmado pelo dono em 16/10/2026).
 - Venda concluída não é editada: corrige-se cancelando (com permissão e motivo) e vendendo de novo. Cancelamento devolve estoque e sai dos totais do caixa.
 
 **Estoque**
@@ -112,9 +112,8 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 
 | Item | Tipo | Impacto | Próximo passo |
 |---|---|---|---|
-| "Cortar" no cartão é parcelar no crédito | Hipótese reversível | Campo de parcelas | Dono confirma |
 | Sorvete vendido por peso (self-service por kg) | Hipótese reversível | Tipo de produto "peso" | Dono confirma |
-| Um caixa por funcionário, cada um com sua conferência | Hipótese que muda regra | Modelo de caixa | Dono confirma antes da entrega do caixa |
+| Um caixa por funcionário, cada um com sua conferência | Decidido pelo dono em 16/10/2026 | Modelo de caixa | — |
 | Nome e logo da loja | Pendente | Apresentação e layout | Dono envia |
 | Variáveis de ambiente do Supabase no host e no `.env.local` do dono | Pendente externo | Rodar o app com banco real | Dono cadastra quando o login estiver pronto |
 
@@ -132,7 +131,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 
 ## Próxima entrega
 
-Login com Supabase Auth e tabela `funcionarios` com permissões (o bootstrap já foi feito; ver docs/setup.md).
+Login entregue no PR #2 (falta o teste ponta a ponta com o primeiro usuário do dono). Próxima: tokens visuais, apresentação e tela de funcionários.
 
 ## Manutenção
 

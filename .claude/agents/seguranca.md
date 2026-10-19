@@ -9,7 +9,7 @@ Leia antes: "Segurança" e "Fronteiras e fluxo" em docs/architecture.md.
 
 Confira no diff e no código conectado:
 - Segredos: nenhuma chave, senha, token ou URL de conexão versionada; nenhuma variável sensível com NEXT_PUBLIC_; .env.local ignorado; nada sensível em logs (Pino com redação).
-- Fronteira: src/db, src/lib/env.ts, src/lib/logger.ts e src/lib/supabase-server.ts importam server-only; nenhum Client Component importa código de servidor.
+- Fronteira: src/db, src/lib/env.ts, src/lib/logger.ts, src/lib/supabase/server.ts e src/lib/supabase/proxy.ts importam server-only; nenhum Client Component importa código de servidor.
 - Autorização: toda Server Action que lê dados restritos ou escreve confere sessão, funcionário ativo e permissão antes de agir; checagem só na interface não conta.
 - Banco: toda tabela nova com RLS ligado; SQL sem concatenação de entrada; update/delete sempre com where.
 - Dinheiro: valores calculados no servidor, nunca aceitos prontos do navegador (total, troco, preço).

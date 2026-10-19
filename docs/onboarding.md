@@ -47,18 +47,20 @@ pnpm dev
 
 ## Ambiente
 
-Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`). As `SUPABASE_*` entram no `.env.example` junto da entrega do login.
+Variáveis (todas só no servidor; nenhuma com `NEXT_PUBLIC_`).
 
 | Variável | Onde obter no Supabase | Uso |
 |---|---|---|
 | `DATABASE_URL` | Connect → connection string do pooler (modo transação) | Consultas do app |
 | `DATABASE_URL_UNPOOLED` | Connect → conexão direta ou pooler em modo sessão | Migrations |
 | `SUPABASE_URL` | Project Settings → API | Auth no servidor |
-| `SUPABASE_ANON_KEY` | Project Settings → API keys (chave pública/publishable) | Auth no servidor |
-| `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API keys (chave secreta) | Só para criar/editar logins de funcionário |
+| `SUPABASE_PUBLISHABLE_KEY` | Project Settings → API keys (chave publishable, `sb_publishable_…`) | Auth no servidor |
+| `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API keys (chave secreta) | Só para criar/editar logins de funcionário (entra com a tela de funcionários) |
 | `LOG_LEVEL` | — (padrão `info`) | Nível dos logs do servidor |
 
 `.env.local` fica fora do Git. `.env.example` tem os nomes e só defaults não sensíveis.
+
+O cookie de sessão é `Secure` quando o app roda em modo produção (`pnpm start`). Para testar no tablet pela rede local (`http://192.168…`), use `pnpm dev`; em produção o site é HTTPS.
 
 ## Banco
 
