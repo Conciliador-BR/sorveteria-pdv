@@ -83,6 +83,11 @@ describe("carrinho", () => {
     expect(itensParaEnvio(linhas)).toEqual([{ produtoId: "p2", valorCentavos: 2000 }]);
   });
 
+  it("produto por peso sem preço do kg começa pelo peso mesmo com o modo valor escolhido", () => {
+    const [linha] = adicionarAoCarrinho([], { ...sorveteKg, precoCentavos: 0 }, "c", "valor");
+    expect(linha.modoPeso).toBe("gramas");
+  });
+
   it("trocar o modo usa só o campo do modo escolhido", () => {
     let linhas = definirPeso(adicionarAoCarrinho([], sorveteKg, "c"), "c", 350);
     linhas = definirModoPeso(linhas, "c", "valor");

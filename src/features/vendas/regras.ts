@@ -88,7 +88,9 @@ export function adicionarAoCarrinho(linhas: LinhaCarrinho[], produto: ProdutoVen
     const existente = linhas.find((linha) => linha.produto.id === produto.id);
     if (existente) return alterarQuantidade(linhas, existente.chave, existente.quantidade + 1);
   }
-  return [...linhas, { chave, produto, quantidade: 1, pesoGramas: null, modoPeso, valorCentavos: null }];
+  // Sem preço do kg não há como estimar as gramas: a linha começa sempre pelo peso.
+  const modo = produto.precoCentavos > 0 ? modoPeso : "gramas";
+  return [...linhas, { chave, produto, quantidade: 1, pesoGramas: null, modoPeso: modo, valorCentavos: null }];
 }
 
 export function alterarQuantidade(linhas: LinhaCarrinho[], chave: string, quantidade: number) {
