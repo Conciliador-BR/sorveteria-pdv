@@ -70,7 +70,13 @@ O cookie de sessão é `Secure` quando o app roda em modo produção (`pnpm star
 
 ## Verificar
 
-`pnpm check` roda lint, tipos, regras locais, testes e build. Não precisa de banco nem de credenciais. Testes que dependem do Supabase de desenvolvimento ficam separados e são indicados em `docs/quality.md` quando existirem.
+`pnpm check` roda lint, tipos, regras locais, testes e build. Não precisa de banco nem de credenciais. Testes que dependem do Supabase de desenvolvimento ficam separados; veja `docs/quality.md`.
+
+Testes de ponta a ponta (E2E, o navegador clicando nas telas como uma pessoa), na máquina do dono:
+
+1. No `.env.local`, além das variáveis do `sorveteria-dev`, preencha `E2E_DONO_USUARIO`/`E2E_DONO_SENHA` (seu login de dono) e, se quiser testar permissões, `E2E_FUNCIONARIO_USUARIO`/`E2E_FUNCIONARIO_SENHA` (um funcionário de teste sem permissões extras).
+2. Uma vez por máquina: `pnpm exec playwright install chromium` (baixa o navegador de teste).
+3. `pnpm test:e2e`. Ele sobe o `pnpm dev` sozinho (ou usa o que já estiver rodando na porta 3000) e grava dados de teste no `sorveteria-dev`; nunca rode contra produção.
 
 ## Agentes
 

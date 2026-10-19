@@ -37,6 +37,8 @@
 | Context7 | Reutilizar conexão do cliente | Máquina do dono | Pendente: sem conexão nesta sessão; `.mcp.json` não criado |
 | Supabase (conector claude.ai) | Conector da conta do dono | Sessões na nuvem | Conectado em 16/10/2026; projetos `sorveteria-dev` e `sorveteria-prod` visíveis. Agentes usam só o dev |
 | React Native skills | Não instalado | — | Produto é só web |
+| @playwright/test 1.63.0 (devDependency, script `test:e2e`) | Testes E2E em `e2e/`. Fonte: npm registry (`npm view @playwright/test`), 18/10/2026. Fixado em 1.63.0 (publicada em 04/09/2026) porque a 1.64.x tem menos de 2 semanas (1.64.0 em 07/10, 1.64.1 em 14/10/2026) | Projeto | Smoke público validado na nuvem (ver Verificações); fluxos com banco pendentes |
+| Chromium para o Playwright | Máquina do dono: `pnpm exec playwright install chromium`. Nuvem: Chromium 141 (141.0.7390.37, build 1194) já instalado em `/opt/pw-browsers`, usado via `PW_CHROMIUM_PATH=/opt/pw-browsers/chromium` sem `playwright install` | Máquina do dono / nuvem | Nuvem validada; máquina do dono pendente |
 
 ## Documentação criada
 
@@ -56,6 +58,7 @@ PRODUCT.md, README.md, AGENTS.md (com o bloco de regras gerado pelo Next preserv
 | `pnpm audit` (dev) | Validado com ressalvas | 2 advisories só de desenvolvimento: `braces` (alta, via `eslint-config-next`, sem versão corrigida publicada) e `esbuild` ≤0.24.2 (moderada, via `drizzle-kit`). Não afetam o app em produção; acompanhar atualizações |
 | Aplicação respondendo em porta local | Validado | `pnpm start -p 3217` respondeu HTTP 200 com a página provisória; processo encerrado |
 | Migrations `0000_funcionarios` e `0001_usuario_formato_e_restrict` no `sorveteria-dev` | Validado | Aplicadas pelo conector em 16/10/2026 e registradas em `drizzle.__drizzle_migrations`; advisor de segurança só aponta "RLS sem políticas" (INFO), que é o bloqueio intencional da Data API |
+| `pnpm test:e2e` (nuvem, 18/10/2026) | Validado parcialmente | `PW_CHROMIUM_PATH=/opt/pw-browsers/chromium`: 2 aprovados (apresentação no tablet e no desktop), 34 pulados por falta de `DATABASE_URL`, `SUPABASE_*` e `E2E_*`. Com valores fictícios de `SUPABASE_URL`/`SUPABASE_PUBLISHABLE_KEY` só no comando, os 10 testes de `e2e/publico.spec.ts` passaram. `pnpm dev` encerrado pelo Playwright ao fim |
 | Login ponta a ponta | Pendente | Falta o dono criar o primeiro usuário e cadastrar as variáveis de ambiente |
 | Descoberta de skills e agentes | Pendente | Conferir numa sessão nova do Claude Code |
 
