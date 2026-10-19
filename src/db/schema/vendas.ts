@@ -71,6 +71,15 @@ export const vendaItens = pgTable("venda_itens", {
   index("venda_itens_produto_idx").on(t.produtoId),
 ]).enableRLS();
 
+// Um registro por envio de "Lançar na comanda", com o id gerado na tela: se o mesmo envio
+// chegar duas vezes (internet instável), a chave repetida impede lançar os itens de novo.
+export const comandaLancamentos = pgTable("comanda_lancamentos", {
+  id: uuid("id").primaryKey(),
+  vendaId: uuid("venda_id").notNull().references(() => vendas.id, { onDelete: "restrict" }),
+  lancadoPor: uuid("lancado_por").notNull().references(() => funcionarios.id, { onDelete: "restrict" }),
+  criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("comanda_lancamentos_venda_idx").on(t.vendaId)]).enableRLS();
+
 export const formaPagamento = pgEnum("forma_pagamento", ["dinheiro", "pix", "debito", "credito"]);
 
 export const pagamentos = pgTable("pagamentos", {

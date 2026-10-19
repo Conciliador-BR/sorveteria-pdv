@@ -20,7 +20,7 @@ export const pagamentosSchema = z.array(pagamentoSchema).min(1, "Escolha a forma
 
 export const vendaBalcaoSchema = z.object({ id: z.uuid(), itens: itensSchema, pagamentos: pagamentosSchema });
 export const abrirComandaSchema = z.object({ identificacao: z.string().trim().min(1, "Dê um nome ou número à comanda.").max(40) });
-export const lancarNaComandaSchema = z.object({ vendaId: z.uuid(), itens: itensSchema });
+export const lancarNaComandaSchema = z.object({ id: z.uuid(), vendaId: z.uuid(), itens: itensSchema });
 export const cobrarComandaSchema = z.object({ vendaId: z.uuid(), pagamentos: pagamentosSchema });
 export const removerItemSchema = z.object({ itemId: z.uuid() });
 export const cancelarVendaSchema = z.object({ vendaId: z.uuid(), motivo: z.string().trim().min(3, "Diga o motivo.").max(200) });

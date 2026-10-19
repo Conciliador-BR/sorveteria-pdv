@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { violouUnico } from "@/db/erros";
-import { auditoria, caixas, vendaItens, vendas } from "@/db/schema";
+import { auditoria, caixas, comandaLancamentos, vendaItens, vendas } from "@/db/schema";
 import { exigirFuncionario, exigirPermissao } from "@/features/auth/sessao";
 import { buscarCaixaAberto } from "@/features/caixa/queries";
 import { formatarReais } from "@/lib/dinheiro";
@@ -151,11 +151,25 @@ export async function lancarNaComanda(anterior: EstadoFormulario, formData: Form
   try {
     await getDb().transaction(async (tx) => {
       await travarComandaAberta(tx, dados.data.vendaId);
+      // O id vem da tela: um envio repetido do mesmo lançamento esbarra na chave e não lança de novo.
+      await tx.insert(comandaLancamentos).values({ id: dados.data.id, vendaId: dados.data.vendaId, lancadoPor: funcionario.id });
       const itens = await montarItens(tx, dados.data.itens, dados.data.vendaId, funcionario.id);
       await tx.insert(vendaItens).values(itens);
       await atualizarTotal(tx, dados.data.vendaId);
     });
   } catch (erro) {
+    if (violouUnico(erro)) {
+      const [ja] = await getDb()
+        .select({ id: comandaLancamentos.id })
+        .from(comandaLancamentos)
+        .where(and(eq(comandaLancamentos.id, dados.data.id), eq(comandaLancamentos.vendaId, dados.data.vendaId)))
+        .limit(1);
+      if (ja) {
+        revalidatePath(`/comandas/${dados.data.vendaId}`);
+        return { ok: "Itens lançados na comanda.", envio };
+      }
+      return { erro: "Não foi possível lançar os itens. Tente de novo.", envio };
+    }
     // A comanda pode ter sido cobrada ou cancelada em outro aparelho: a tela recarrega com o estado atual.
     revalidatePath(`/comandas/${dados.data.vendaId}`);
     return tratarErro(erro, envio);
