@@ -2,21 +2,23 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { exigirFuncionario } from "@/features/auth/sessao";
 import { buscarCaixaAberto } from "@/features/caixa/queries";
+import { PainelComandas } from "@/features/vendas/components/PainelComandas";
 import { PdvBalcao } from "@/features/vendas/components/PdvBalcao";
 import { SemCaixaAviso } from "@/features/vendas/components/SemCaixaAviso";
-import { listarBandeirasAtivas, listarProdutosParaVenda } from "@/features/vendas/queries";
+import { listarBandeirasAtivas, listarComandasAbertas, listarProdutosParaVenda } from "@/features/vendas/queries";
 
-export const metadata: Metadata = { title: "Vender · Sorveteria PDV" };
+export const metadata: Metadata = { title: "Vender e comandas · Sorveteria PDV" };
 
 export default async function VenderPage() {
   const funcionario = await exigirFuncionario();
-  const caixa = await buscarCaixaAberto(funcionario.id);
+  const [caixa, comandas] = await Promise.all([buscarCaixaAberto(funcionario.id), listarComandasAbertas()]);
 
   if (!caixa) {
     return (
       <>
-        <PageHeader titulo="Vender" />
-        <SemCaixaAviso />
+        <PageHeader titulo="Vender e comandas" />
+        <SemCaixaAviso texto="Abra o seu caixa antes de vender ou lançar em comandas." />
+        <PainelComandas comandas={comandas} podeAbrir={false} />
       </>
     );
   }
@@ -24,8 +26,14 @@ export default async function VenderPage() {
   const [produtos, bandeiras] = await Promise.all([listarProdutosParaVenda(), listarBandeirasAtivas()]);
   return (
     <>
-      <PageHeader titulo="Vender" descricao="Toque nos produtos, confira o total e cobre." />
-      <PdvBalcao produtos={produtos} bandeiras={bandeiras} />
+      <PageHeader titulo="Vender e comandas" descricao="Venda no balcão aqui embaixo ou toque numa comanda para lançar e cobrar." />
+      <PainelComandas comandas={comandas} podeAbrir />
+      <section aria-labelledby="titulo-balcao" className="flex flex-col gap-3">
+        <h2 id="titulo-balcao" className="text-xl font-semibold">
+          Venda no balcão
+        </h2>
+        <PdvBalcao produtos={produtos} bandeiras={bandeiras} />
+      </section>
     </>
   );
 }

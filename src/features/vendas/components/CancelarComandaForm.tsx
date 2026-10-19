@@ -15,7 +15,7 @@ export function CancelarComandaForm({ vendaId }: { vendaId: string }) {
   const [aberto, setAberto] = useState(false);
   const [estado, acao, enviando] = useActionState(async (anterior: EstadoFormulario, formData: FormData) => {
     const resultado = await cancelarVenda(anterior, formData);
-    if (resultado.ok) router.push("/comandas");
+    if (resultado.ok) router.push("/vender");
     return resultado;
   }, {} as EstadoFormulario);
   const { formRef, enviar } = useEnvioSemReset(acao, estado);

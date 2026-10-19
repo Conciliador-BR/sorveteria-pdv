@@ -44,8 +44,8 @@ sorveteria-pdv/
 │   │   └── (sistema)/            # área logada; layout confere sessão
 │   │       ├── layout.tsx
 │   │       ├── caixa/page.tsx, caixa/fechamento/[id]/page.tsx
-│   │       ├── vender/page.tsx
-│   │       ├── comandas/page.tsx, comandas/[id]/page.tsx
+│   │       ├── vender/page.tsx       # balcão e comandas abertas na mesma tela
+│   │       ├── comandas/page.tsx (leva a /vender), comandas/[id]/page.tsx
 │   │       ├── produtos/page.tsx
 │   │       ├── estoque/page.tsx
 │   │       ├── vendas/page.tsx, vendas/[id]/page.tsx, vendas/csv/route.ts

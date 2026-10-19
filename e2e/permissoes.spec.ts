@@ -7,7 +7,7 @@ import { entrar, menuPrincipal, novaPagina, tituloDaPagina } from "./telas";
 // Sem a permissão, exigirPermissao/exigirDono redirecionam para /caixa (src/features/auth/sessao.ts).
 
 const SO_COM_PERMISSAO = ["Estoque", "Produtos", "Dashboard", "Funcionários", "Configurações"];
-const DE_TODOS = ["Caixa", "Vender", "Comandas", "Histórico"];
+const DE_TODOS = ["Caixa", "Vender e comandas", "Histórico"];
 
 test.describe("funcionário sem permissões extras", () => {
   const motivo = motivoParaPular([...VARIAVEIS_BANCO, "E2E_FUNCIONARIO_USUARIO", "E2E_FUNCIONARIO_SENHA"]);

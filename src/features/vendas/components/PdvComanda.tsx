@@ -54,7 +54,7 @@ export function PdvComanda({ vendaId, totalCentavos, produtos, bandeiras, itensL
   if (cobranca.venda) {
     return (
       <ConfirmacaoVenda titulo="Comanda cobrada" venda={cobranca.venda} refTitulo={focarAoMontar}>
-        <Link href="/comandas" className={estiloBotao({ tamanho: "lg", className: "w-full" })}>
+        <Link href="/vender" className={estiloBotao({ tamanho: "lg", className: "w-full" })}>
           Voltar às comandas
         </Link>
       </ConfirmacaoVenda>

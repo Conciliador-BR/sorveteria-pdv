@@ -92,7 +92,7 @@ Específico do produto:
 
 ## Layout e revisão
 
-- Breakpoints: celular (área do dono), tablet a partir de 768 px (balcão: produtos e carrinho lado a lado, carrinho fixo ao rolar; Comandas fica no menu) e desktop a partir de 1280 px (mesmas duas colunas, mais largas).
+- Breakpoints: celular (área do dono), tablet a partir de 768 px (balcão: produtos e carrinho lado a lado, carrinho fixo ao rolar; comandas abertas numa faixa acima dos produtos, na mesma tela Vender) e desktop a partir de 1280 px (mesmas duas colunas, mais largas).
 - Área logada: menu lateral recolhível, barra superior com nome do funcionário, situação do caixa e botão sair. Implementado sem recolher o menu lateral e sem a situação do caixa (entra com o caixa).
 - Estados a cobrir em cada tela: vazio (sem produtos, sem vendas, sem comandas), carregando, erro de rede e sem permissão.
 - Revisão: rodar a skill `web-design-guidelines` nas telas antes de concluir cada PR de interface. Primeira revisão em 17/10/2026 (apresentação, entrar, área logada e componentes base); segunda em 17/10/2026 (caixa, venda, comandas, produtos, estoque, histórico e dashboard), com os achados corrigidos.
