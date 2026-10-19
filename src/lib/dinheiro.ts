@@ -28,6 +28,12 @@ export function totalPorPeso(precoKgCentavos: number, gramas: number) {
   return Math.floor((precoKgCentavos * gramas + 500) / 1000);
 }
 
+// Caminho inverso, para quando o funcionário digita o valor que a balança mostrou:
+// gramas aproximadas (para o estoque) a partir do preço do kg. Pelo menos 1 g.
+export function gramasPorValor(precoKgCentavos: number, valorCentavos: number) {
+  return Math.max(1, Math.round((valorCentavos * 1000) / precoKgCentavos));
+}
+
 export function troco(recebidoCentavos: number, parteDinheiroCentavos: number) {
   return Math.max(0, recebidoCentavos - parteDinheiroCentavos);
 }

@@ -3,6 +3,8 @@ import { z } from "zod";
 const itemSchema = z.union([
   z.object({ produtoId: z.uuid(), quantidade: z.number().int().min(1).max(999) }),
   z.object({ produtoId: z.uuid(), pesoGramas: z.number().int().min(1).max(100_000) }),
+  // Produto por peso cobrado pelo valor que a balança mostrou.
+  z.object({ produtoId: z.uuid(), valorCentavos: z.number().int().min(1).max(10_000_000) }),
 ]);
 
 const centavos = z.number().int().min(0).max(10_000_000);

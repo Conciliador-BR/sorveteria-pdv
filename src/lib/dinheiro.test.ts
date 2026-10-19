@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { digitosParaCentavos, formatarPeso, formatarReais, lerReais, totalPorPeso, troco } from "./dinheiro";
+import { digitosParaCentavos, formatarPeso, formatarReais, gramasPorValor, lerReais, totalPorPeso, troco } from "./dinheiro";
 
 describe("dinheiro", () => {
   it("formata em reais", () => {
@@ -30,6 +30,12 @@ describe("dinheiro", () => {
 
   it("calcula 350 g a R$ 59,90/kg = R$ 20,97 (critério de aceite)", () => {
     expect(totalPorPeso(5990, 350)).toBe(2097);
+  });
+
+  it("estima as gramas pelo valor da balança", () => {
+    expect(gramasPorValor(5990, 2097)).toBe(350);
+    expect(gramasPorValor(5990, 2000)).toBe(334);
+    expect(gramasPorValor(5990, 1)).toBe(1);
   });
 
   it("arredonda meio centavo para cima", () => {

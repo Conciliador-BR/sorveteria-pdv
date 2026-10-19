@@ -92,7 +92,7 @@ export function PdvBalcao({ produtos, bandeiras }: PdvBalcaoProps) {
           >
             Cobrar
           </Button>
-          {carrinho.linhas.length > 0 && !carrinho.pronto ? <p className="text-sm text-texto-suave">Falta digitar o peso de algum item.</p> : null}
+          {carrinho.linhas.length > 0 && !carrinho.pronto ? <p className="text-sm text-texto-suave">Falta digitar o peso ou o valor de algum item.</p> : null}
         </Carrinho>
       </div>
     </div>
