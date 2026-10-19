@@ -14,6 +14,15 @@ type CarrinhoProps = {
   children?: ReactNode;
 };
 
+// Mesmo produto por peso em várias linhas (um copo cada): "copo 1", "copo 2"... para os rótulos não se repetirem.
+function sufixoDoCopo(linhas: EstadoCarrinho["linhas"], indice: number) {
+  const { produto } = linhas[indice];
+  if (produto.tipoVenda !== "peso") return undefined;
+  const mesmas = linhas.filter((linha) => linha.produto.id === produto.id);
+  if (mesmas.length < 2) return undefined;
+  return `copo ${linhas.slice(0, indice + 1).filter((linha) => linha.produto.id === produto.id).length}`;
+}
+
 export function Carrinho({ titulo, rotuloTotal, carrinho, vazio, children }: CarrinhoProps) {
   return (
     <section aria-labelledby="titulo-carrinho" className="flex flex-col gap-3 rounded-card border border-borda bg-superficie p-4 shadow-suave">
@@ -24,12 +33,15 @@ export function Carrinho({ titulo, rotuloTotal, carrinho, vazio, children }: Car
         <p className="py-4 text-texto-suave">{vazio}</p>
       ) : (
         <ul className="flex flex-col">
-          {carrinho.linhas.map((linha) => (
+          {carrinho.linhas.map((linha, indice) => (
             <LinhaDoCarrinho
               key={linha.chave}
               linha={linha}
+              sufixo={sufixoDoCopo(carrinho.linhas, indice)}
               aoAlterarQuantidade={(quantidade) => carrinho.alterarQuantidade(linha.chave, quantidade)}
               aoDefinirPeso={(peso) => carrinho.definirPeso(linha.chave, peso)}
+              aoDefinirModoPeso={(modo) => carrinho.definirModoPeso(linha.chave, modo)}
+              aoDefinirValorPeso={(valor) => carrinho.definirValorPeso(linha.chave, valor)}
               aoRemover={() => carrinho.remover(linha.chave)}
             />
           ))}

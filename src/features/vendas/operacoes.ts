@@ -2,7 +2,7 @@ import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
 import type { getDb } from "@/db";
 import { bandeiras, estoqueMovimentos, pagamentos, produtos, vendaItens } from "@/db/schema";
-import { totalDoItem, type PagamentoInformado } from "./regras";
+import { calcularItem, ErroItem, type PagamentoInformado } from "./regras";
 import type { ItemPedido } from "./schemas";
 
 export type Tx = Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0];
@@ -12,7 +12,8 @@ export class ErroVenda extends Error {}
 // Teto de um item e de uma venda: o mesmo dos pagamentos (R$ 100.000,00).
 export const LIMITE_CENTAVOS = 10_000_000;
 
-// Preço, nome e tipo vêm do cadastro, nunca do navegador.
+// Preço, nome e tipo vêm do cadastro, nunca do navegador. Exceção: no modo valor o total é o que o
+// funcionário digitou da balança (as gramas gravadas são estimadas).
 export async function montarItens(tx: Tx, itens: ItemPedido[], vendaId: string, lancadoPor: string) {
   const ids = [...new Set(itens.map((item) => item.produtoId))];
   const cadastro = await tx
@@ -24,15 +25,14 @@ export async function montarItens(tx: Tx, itens: ItemPedido[], vendaId: string, 
   return itens.map((item) => {
     const produto = porId.get(item.produtoId);
     if (!produto) throw new ErroVenda("Um dos produtos não está mais disponível. Atualize a tela.");
-    const porPeso = produto.tipoVenda === "peso";
-    if (porPeso !== "pesoGramas" in item) throw new ErroVenda(`Informe ${porPeso ? "o peso" : "a quantidade"} de ${produto.nome}.`);
-    const quantidade = "quantidade" in item ? item.quantidade : 1;
-    const pesoGramas = "pesoGramas" in item ? item.pesoGramas : null;
-    const totalCentavos = totalDoItem(
-      pesoGramas === null
-        ? { tipoVenda: "unidade", precoCentavos: produto.precoCentavos, quantidade }
-        : { tipoVenda: "peso", precoCentavos: produto.precoCentavos, pesoGramas },
-    );
+    let calculado: ReturnType<typeof calcularItem>;
+    try {
+      calculado = calcularItem(produto, item);
+    } catch (erro) {
+      if (erro instanceof ErroItem) throw new ErroVenda(erro.message);
+      throw erro;
+    }
+    const { quantidade, pesoGramas, pesoPeloValor, totalCentavos } = calculado;
     if (totalCentavos > LIMITE_CENTAVOS) throw new ErroVenda(`O item ${produto.nome} passou do limite por venda.`);
     return {
       vendaId,
@@ -41,6 +41,7 @@ export async function montarItens(tx: Tx, itens: ItemPedido[], vendaId: string, 
       tipoVenda: produto.tipoVenda,
       quantidade,
       pesoGramas,
+      pesoPeloValor,
       precoUnitarioCentavos: produto.precoCentavos,
       totalCentavos,
       lancadoPor,

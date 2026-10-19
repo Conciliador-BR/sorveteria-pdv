@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { digitosParaCentavos, formatarPeso, formatarReais, lerReais, totalPorPeso, troco } from "./dinheiro";
+import { digitosParaCentavos, formatarPeso, formatarPesoDoItem, formatarReais, gramasPorValor, lerReais, totalPorPeso, troco } from "./dinheiro";
 
 describe("dinheiro", () => {
   it("formata em reais", () => {
@@ -32,8 +32,19 @@ describe("dinheiro", () => {
     expect(totalPorPeso(5990, 350)).toBe(2097);
   });
 
+  it("estima as gramas pelo valor da balança", () => {
+    expect(gramasPorValor(5990, 2097)).toBe(350);
+    expect(gramasPorValor(5990, 2000)).toBe(334);
+    expect(gramasPorValor(5990, 1)).toBe(1);
+  });
+
   it("arredonda meio centavo para cima", () => {
     expect(totalPorPeso(1001, 500)).toBe(501);
+  });
+
+  it("marca o peso estimado pelo valor da balança", () => {
+    expect(formatarPesoDoItem(334, true)).toBe("≈ 334 g (pelo valor)");
+    expect(formatarPesoDoItem(350, false)).toBe("350 g");
   });
 
   it("formata peso", () => {

@@ -2,10 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   novoIdVenda,
   adicionarAoCarrinho,
+  calcularItem,
+  ErroItem,
   alterarQuantidade,
   carrinhoPronto,
   conferirPagamentos,
+  definirModoPeso,
   definirPeso,
+  definirValorPeso,
   formatarDataHora,
   itensParaEnvio,
   tempoAberta,
@@ -70,10 +74,58 @@ describe("carrinho", () => {
     expect(itensParaEnvio(linhas)).toEqual([{ produtoId: "p2", pesoGramas: 350 }]);
   });
 
+  it("no modo valor cobra o que a balança mostrou e envia o valor", () => {
+    let linhas = adicionarAoCarrinho([], sorveteKg, "c", "valor");
+    expect(carrinhoPronto(linhas)).toBe(false);
+    linhas = definirValorPeso(linhas, "c", 2000);
+    expect(carrinhoPronto(linhas)).toBe(true);
+    expect(totalDoCarrinho(linhas)).toBe(2000);
+    expect(itensParaEnvio(linhas)).toEqual([{ produtoId: "p2", valorCentavos: 2000 }]);
+  });
+
+  it("produto por peso sem preço do kg começa pelo peso mesmo com o modo valor escolhido", () => {
+    const [linha] = adicionarAoCarrinho([], { ...sorveteKg, precoCentavos: 0 }, "c", "valor");
+    expect(linha.modoPeso).toBe("gramas");
+  });
+
+  it("trocar o modo usa só o campo do modo escolhido", () => {
+    let linhas = definirPeso(adicionarAoCarrinho([], sorveteKg, "c"), "c", 350);
+    linhas = definirModoPeso(linhas, "c", "valor");
+    expect(carrinhoPronto(linhas)).toBe(false);
+    expect(totalDoCarrinho(linhas)).toBe(0);
+    linhas = definirModoPeso(linhas, "c", "gramas");
+    expect(itensParaEnvio(linhas)).toEqual([{ produtoId: "p2", pesoGramas: 350 }]);
+  });
+
   it("quantidade zero remove a linha", () => {
     const linhas = adicionarAoCarrinho([], casquinha, "a");
     expect(alterarQuantidade(linhas, "a", 0)).toEqual([]);
     expect(itensParaEnvio(alterarQuantidade(linhas, "a", 3))).toEqual([{ produtoId: "p1", quantidade: 3 }]);
+  });
+});
+
+describe("calcularItem (regra usada pelo servidor)", () => {
+  const sorveteKg = { nome: "Sorvete kg", tipoVenda: "peso" as const, precoCentavos: 5990 };
+  const picole = { nome: "Picolé", tipoVenda: "unidade" as const, precoCentavos: 800 };
+
+  it("por unidade e por gramas calcula pelo cadastro", () => {
+    expect(calcularItem(picole, { quantidade: 3 })).toEqual({ quantidade: 3, pesoGramas: null, pesoPeloValor: false, totalCentavos: 2400 });
+    expect(calcularItem(sorveteKg, { pesoGramas: 350 })).toEqual({ quantidade: 1, pesoGramas: 350, pesoPeloValor: false, totalCentavos: 2097 });
+  });
+
+  it("pelo valor da balança cobra o valor e estima as gramas", () => {
+    expect(calcularItem(sorveteKg, { valorCentavos: 2000 })).toEqual({ quantidade: 1, pesoGramas: 334, pesoPeloValor: true, totalCentavos: 2000 });
+    expect(calcularItem(sorveteKg, { valorCentavos: 1 })).toEqual({ quantidade: 1, pesoGramas: 1, pesoPeloValor: true, totalCentavos: 1 });
+  });
+
+  it("recusa valor em produto sem preço do kg e acima de 100 kg", () => {
+    expect(() => calcularItem({ ...sorveteKg, precoCentavos: 0 }, { valorCentavos: 2000 })).toThrow(ErroItem);
+    expect(() => calcularItem(sorveteKg, { valorCentavos: 600_000 })).toThrow("passa de 100 kg");
+  });
+
+  it("recusa forma que não combina com o tipo do produto", () => {
+    expect(() => calcularItem(picole, { valorCentavos: 100 })).toThrow("Informe a quantidade");
+    expect(() => calcularItem(sorveteKg, { quantidade: 1 })).toThrow("Informe o peso");
   });
 });
 
