@@ -83,10 +83,11 @@ export function GradeProdutos({ produtos, aoEscolher, refBusca }: GradeProdutosP
                   <button
                     type="button"
                     onClick={() => escolher(produto)}
-                    className="flex min-h-20 w-full flex-col items-start justify-between gap-1 rounded-card border-2 border-borda bg-superficie p-3 text-left shadow-suave transition-colors hover:border-primaria hover:bg-primaria-suave active:translate-y-px"
+                    className="group relative flex min-h-24 w-full flex-col items-start justify-between gap-2 overflow-hidden rounded-card border border-borda bg-superficie p-3.5 text-left shadow-suave transition-all duration-150 hover:-translate-y-0.5 hover:border-primaria/50 hover:shadow-elevada active:scale-[0.98]"
                   >
-                    <span className="font-semibold">{produto.nome}</span>
-                    <span className="text-sm font-semibold text-primaria-escura tabular-nums">
+                    <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-linear-90 from-primaria via-sucesso to-acento opacity-0 transition-opacity group-hover:opacity-100" />
+                    <span className="font-semibold leading-snug">{produto.nome}</span>
+                    <span className="rounded-full bg-primaria-suave px-2.5 py-0.5 text-sm font-bold text-primaria-escura tabular-nums">
                       {formatarReais(produto.precoCentavos)}
                       {produto.tipoVenda === "peso" ? (
                         <>

@@ -1,6 +1,6 @@
 # Design e acessibilidade
 
-> Estado em 17/10/2026: **tokens e componentes base implementados**. Fonte de verdade dos valores: `src/app/globals.css` (bloco `@theme` do Tailwind) e os componentes em `src/components/ui/` e `src/components/layout/`. Este documento guarda a direção e as regras; quando um valor mudar, mude no código e só ajuste aqui a regra, sem copiar valores.
+> Estado em 19/10/2026: **visual moderno aplicado** (menu lateral azul-noite, botões em degradê, títulos em Plus Jakarta Sans, apresentação completa com hook e chamadas para ação). Tokens e componentes base desde 17/10/2026. Fonte de verdade dos valores: `src/app/globals.css` (bloco `@theme` do Tailwind) e os componentes em `src/components/ui/` e `src/components/layout/`. Este documento guarda a direção e as regras; quando um valor mudar, mude no código e só ajuste aqui a regra, sem copiar valores.
 
 ## Direção
 
@@ -21,12 +21,16 @@
 | `sucesso`, `sucesso-escuro`, `sucesso-suave` | Menta: preenchimento com texto `texto`; texto verde usa `sucesso-escuro` |
 | `perigo`, `perigo-escuro`, `perigo-suave` | Framboesa: erros, falta no caixa, cancelar |
 | `fundo`, `superficie`, `borda`, `borda-forte`, `texto`, `texto-suave` | Baunilha, branco, areia (divisórias), contorno de campo (3:1), chocolate e cacau |
+| `tinta`, `tinta-clara` | Azul-noite: menu lateral, gaveta do celular, painel do login e faixas escuras da apresentação. Sobre ela, texto branco (ou branco com 60% de opacidade ou mais) e foco em `acento` |
 
-- Escala de texto: `text-xs` 12, `text-sm` 14, `text-base` 16, `text-xl` 20, `text-2xl` 24, `text-3xl` 32 e `text-total` 48 (total da venda e troco). As demais classes de tamanho do Tailwind foram desligadas.
-- Raios: `rounded-campo` (inputs), `rounded-botao`, `rounded-card`, `rounded-modal`. Sombra: `shadow-suave`.
-- Fontes (via `next/font/google` em `src/app/layout.tsx`): `font-sans` = Inter (padrão do corpo; use `tabular-nums` em valores) e `font-titulo` = Poppins 600/700 (aplicada em `h1`–`h3`).
+- Escala de texto: `text-xs` 12, `text-sm` 14, `text-base` 16, `text-xl` 20, `text-2xl` 24, `text-3xl` 32 e `text-total` 48 (total da venda e troco); `text-4xl` 40, `text-5xl` 56 e `text-6xl` 64 só nos títulos da apresentação. As demais classes de tamanho do Tailwind foram desligadas (não existe `text-lg`).
+- Raios: `rounded-campo` 12, `rounded-botao` 14, `rounded-card` 20, `rounded-modal` 28. Sombras em azul-noite: `shadow-suave` (cards e campos), `shadow-elevada` (destaques, hover de card, login), `shadow-brilho-primaria` e `shadow-brilho-secundaria` (botões primário e "Cobrar").
+- Animações: `animate-surgir` (entrada da primeira dobra) e `animate-flutuar` (cartões da ilustração); use sempre com `motion-safe:`.
+- Fontes (via `next/font/google` em `src/app/layout.tsx`): `font-sans` = Inter (padrão do corpo; use `tabular-nums` em valores) e `font-titulo` = Plus Jakarta Sans, fonte variável (aplicada em `h1`–`h3` com peso 700 e espaçamento −0,02em).
 - Foco: contorno global de 3 px em `primaria-escura` com afastamento de 2 px em `:focus-visible`. Movimento: transições de 150 ms, zeradas por `prefers-reduced-motion`.
-- Gradiente da apresentação: `bg-linear-135 from-primaria via-sucesso to-acento`. Nenhum texto fica direto sobre o gradiente (menta e manga não dão contraste com branco nem com chocolate em todo o trecho); o conteúdo vai num cartão branco.
+- Degradês: botões vão de `primaria` a `primaria-escura` e de `secundaria` a `secundaria-escura` (texto branco passa nas duas pontas). A faixa colorida `from-primaria via-sucesso to-acento` é só decoração (topo dos cards do painel); nenhum texto fica sobre ela. Texto em degradê só em título grande (`from-secundaria to-primaria-escura`, 3:1 ou mais).
+- Foco sobre azul-noite: os links do menu e botões em fundo escuro usam `focus-visible:outline-acento` (9,04:1), porque o contorno padrão `primaria-escura` some no escuro.
+- Apresentação (`src/app/page.tsx` + `src/features/apresentacao/components/`): cabeçalho fixo com "Entrar", primeira dobra com promessa, "Acessar o sistema" e "Ver como funciona", ilustração da tela de vendas em HTML (`role="img"`, valores fictícios), antes/depois, recursos, três passos, faixa do painel do dono, dúvidas em `<details>` e chamada final.
 
 **Componentes** (um por arquivo, sem regra de negócio):
 
@@ -55,7 +59,13 @@ Calculados pela fórmula de luminância relativa da WCAG 2.x em 17/10/2026. Mín
 | `texto` sobre `sucesso` | 7,41 | Menta sempre com texto escuro |
 | `texto` sobre `borda` | 12,24 | Badge neutro |
 | `borda-forte` sobre `superficie` / `fundo` | 3,93 / 3,76 | Contorno dos campos (não texto) |
-| `secundaria` sobre `secundaria-suave` | 4,06 | Ícone da marca (não texto) |
+| `secundaria` sobre `secundaria-suave` | 4,06 | Ícone de destaque (não texto) |
+| branco sobre `tinta` (100% / 80% / 75% / 60%) | 15,89 / 10,53 / 9,40 / 6,53 | Menu lateral (ativo / inativo), textos das faixas escuras |
+| `acento` sobre `tinta` | 9,04 | Foco e destaques no escuro, ícone do item ativo (`tinta` sobre `acento`) |
+| `tinta` sobre `sucesso` | 7,58 | Marcas de "ok" no escuro |
+| `secundaria-escura` sobre `fundo` | 6,33 | Chapéu das seções da apresentação (`secundaria` daria 4,46) |
+| `secundaria` sobre `fundo` | 4,46 | Só em título grande (texto em degradê) |
+| branco sobre `sucesso-escuro` | 5,98 | Ponta do degradê da chamada final |
 
 Ajustes feitos em relação à direção original: morango `#F0567A` dava 3,32:1 com branco e virou `secundaria` mais escura; framboesa `#D93A4A` dava 4,32:1 como texto sobre o fundo e foi escurecida; a areia `#EDE3D6` (1,27:1) ficou só para divisórias, e os campos ganharam `borda-forte`. Menta e manga com texto branco não passam (2,10 e 1,76) e por isso usam texto chocolate.
 

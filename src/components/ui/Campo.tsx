@@ -36,7 +36,7 @@ export function Campo({
         aria-invalid={invalido}
         aria-describedby={descritoPor}
         className={cn(
-          "min-h-12 w-full rounded-campo border-2 border-borda-forte bg-superficie px-3 text-base text-texto",
+          "min-h-12 w-full rounded-campo border-2 border-borda-forte bg-superficie px-3.5 text-base text-texto shadow-suave focus-visible:border-primaria focus-visible:shadow-[0_0_0_4px_rgb(14_124_155/0.15)]",
           "transition-colors placeholder:text-texto-suave hover:border-texto-suave",
           "aria-invalid:border-perigo",
           className,

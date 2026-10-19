@@ -35,7 +35,9 @@ export function GraficoColunas({ barras, legenda, rotuloColuna }: GraficoColunas
       <p aria-hidden="true" className="text-sm text-texto-suave">
         Maior: <span className="font-semibold text-texto tabular-nums">{formatarReais(maximo)}</span>
       </p>
-      <table className="sr-only">
+      {/* A tabela cresce até caber o conteúdo mesmo com sr-only; o div em volta é que fica com 1 px. */}
+      <div className="sr-only">
+        <table>
         <caption>{legenda}</caption>
         <thead>
           <tr>
@@ -51,7 +53,8 @@ export function GraficoColunas({ barras, legenda, rotuloColuna }: GraficoColunas
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }

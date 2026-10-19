@@ -17,7 +17,7 @@ export function Selecao({ rotulo, erro, id, className, children, ...props }: Sel
         aria-invalid={erro ? true : undefined}
         aria-describedby={idErro}
         className={cn(
-          "min-h-12 w-full rounded-campo border-2 border-borda-forte bg-superficie px-3 text-base text-texto aria-invalid:border-perigo",
+          "min-h-12 w-full rounded-campo border-2 border-borda-forte bg-superficie px-3.5 text-base text-texto shadow-suave transition-shadow focus-visible:border-primaria focus-visible:shadow-[0_0_0_4px_rgb(14_124_155/0.15)] aria-invalid:border-perigo",
           className,
         )}
         {...props}

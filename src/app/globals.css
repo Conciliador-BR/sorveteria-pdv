@@ -33,15 +33,20 @@
   --color-perigo-escuro: #a92a36;
   --color-perigo-suave: #fdecee;
 
-  --color-fundo: #fff9f2;
+  --color-fundo: #fbf7f2;
   --color-superficie: #ffffff;
   /* Areia: divisórias decorativas. Contorno de campo usa borda-forte (3:1 ou mais). */
-  --color-borda: #ede3d6;
+  --color-borda: #ece3d8;
   --color-borda-forte: #8c7e73;
   --color-texto: #2b2220;
   --color-texto-suave: #6e615c;
 
-  /* Escala de texto: 12, 14, 16 (base), 20, 24, 32 e 48 (total da venda). */
+  /* Tinta: azul-noite do menu lateral e das faixas escuras da apresentação.
+     Branco sobre ela: 15,89:1; manga sobre ela: 9,04:1 (foco e destaques no escuro). */
+  --color-tinta: #0b2530;
+  --color-tinta-clara: #133846;
+
+  /* Escala de texto: 12, 14, 16 (base), 20, 24, 32 e 48 (total da venda); 40 a 64 só na apresentação. */
   --text-*: initial;
   --text-xs: 0.75rem;
   --text-xs--line-height: 1rem;
@@ -57,14 +62,49 @@
   --text-3xl--line-height: 2.5rem;
   --text-total: 3rem;
   --text-total--line-height: 1.1;
+  /* Só para títulos da apresentação (40, 56 e 64 px). */
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 1.1;
+  --text-5xl: 3.5rem;
+  --text-5xl--line-height: 1.05;
+  --text-6xl: 4rem;
+  --text-6xl--line-height: 1.02;
 
-  /* Raios: campo 8 px, botão 12 px, card 16 px, modal 24 px. */
-  --radius-campo: 0.5rem;
-  --radius-botao: 0.75rem;
-  --radius-card: 1rem;
-  --radius-modal: 1.5rem;
+  /* Raios: campo 12 px, botão 14 px, card 20 px, modal 28 px. */
+  --radius-campo: 0.75rem;
+  --radius-botao: 0.875rem;
+  --radius-card: 1.25rem;
+  --radius-modal: 1.75rem;
 
-  --shadow-suave: 0 1px 2px rgb(43 34 32 / 0.06), 0 8px 24px rgb(43 34 32 / 0.08);
+  /* Sombras em azul-noite (não em preto) para combinar com a paleta. */
+  --shadow-suave: 0 1px 2px rgb(11 37 48 / 0.05), 0 6px 20px -6px rgb(11 37 48 / 0.1);
+  --shadow-elevada: 0 2px 6px rgb(11 37 48 / 0.06), 0 28px 56px -16px rgb(11 37 48 / 0.25);
+  --shadow-brilho-primaria: 0 10px 24px -10px rgb(14 124 155 / 0.7);
+  --shadow-brilho-secundaria: 0 10px 24px -10px rgb(204 61 100 / 0.7);
+
+  --animate-flutuar: flutuar 6s ease-in-out infinite;
+  --animate-surgir: surgir 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  @keyframes flutuar {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes surgir {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   --default-transition-duration: 150ms;
 }
@@ -72,12 +112,13 @@
 /* Fontes carregadas por next/font em src/app/layout.tsx. */
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-titulo: var(--font-poppins), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-titulo: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
   :root {
     color-scheme: light;
+    scroll-behavior: smooth;
     /* A barra superior da área logada é fixa (64 px): o foco rolado não fica escondido atrás dela. */
     scroll-padding-top: 5rem;
   }
@@ -92,7 +133,8 @@
   h2,
   h3 {
     font-family: var(--font-titulo);
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
 
