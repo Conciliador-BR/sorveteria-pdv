@@ -12,6 +12,19 @@ test("apresentação abre com título e link para entrar", async ({ page }) => {
   await expect(acessar).toHaveAttribute("href", "/entrar");
 });
 
+test("app instalável: manifesto e ícones respondem", async ({ page, request }) => {
+  await page.goto("/");
+  const href = await page.locator('link[rel="manifest"]').getAttribute("href");
+  expect(href).toBe("/manifest.webmanifest");
+  const manifesto = await (await request.get(href!)).json();
+  expect(manifesto).toMatchObject({ start_url: "/entrar", display: "standalone" });
+  for (const { src } of manifesto.icons as { src: string }[]) {
+    const icone = await request.get(src);
+    expect(icone.ok(), src).toBe(true);
+    expect(icone.headers()["content-type"]).toBe("image/png");
+  }
+});
+
 // /entrar e a área logada leem a sessão com o Supabase Auth do servidor. Sem SUPABASE_URL e
 // SUPABASE_PUBLISHABLE_KEY essas páginas respondem 500 ("Invalid or missing environment variable");
 // só a apresentação abre sem as variáveis (docs/architecture.md, "Login e sessão").

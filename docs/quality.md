@@ -50,7 +50,7 @@ Dois projetos: **tablet** (768×1024, o balcão) roda tudo; **desktop** (1280×8
 
 | Arquivo | Cobre | Precisa de |
 |---|---|---|
-| `e2e/publico.spec.ts` | Apresentação com título e link "Acessar o sistema" | Nada (roda sempre) |
+| `e2e/publico.spec.ts` | Apresentação com título e link "Acessar o sistema"; manifesto do app instalável e ícones PNG | Nada (roda sempre) |
 | | `/entrar` com campos Usuário e Senha rotulados; `/caixa`, `/vender` e `/dashboard` sem sessão levam ao login | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (sem elas essas páginas respondem 500) |
 | `e2e/operacao.spec.ts` | Fluxo serial do dono: login → caixa novo com fundo R$ 300,00 → produto por unidade (R$ 25,80) e por kg (R$ 59,90) → entrada de 10 un no estoque → venda com R$ 30,00 e troco R$ 4,20 → 350 g = R$ 20,97 no crédito Hipercard → comanda cobrada no Pix → sangria R$ 10,00 → fechamento com falta de R$ 5,00 e observação obrigatória, resumo por forma e bandeira → histórico e detalhe → saldo 8 un → dashboard | `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `E2E_DONO_USUARIO`, `E2E_DONO_SENHA` |
 | `e2e/permissoes.spec.ts` | Funcionário sem permissões extras não vê Estoque/Produtos/Dashboard/Funcionários e volta para `/caixa` ao abrir essas URLs; dono vê o menu completo | As do banco + `E2E_FUNCIONARIO_*` (funcionário) ou `E2E_DONO_*` (dono) |

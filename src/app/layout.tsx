@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 
@@ -19,6 +19,12 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Sorveteria PDV",
   description: "Sistema de vendas da sorveteria",
+  appleWebApp: { title: "Sorveteria" },
+};
+
+// Cor da barra do navegador e do app instalado (--color-primaria).
+export const viewport: Viewport = {
+  themeColor: "#0e7c9b",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
