@@ -33,6 +33,7 @@ function estaAtivo(caminho: string, href: string) {
   return caminho === href || caminho.startsWith(`${href}/`);
 }
 
+// Menu sobre o azul-noite (lateral e gaveta): foco em manga, que contrasta com o fundo escuro.
 export function ListaMenu({ itens, aoNavegar }: { itens: ItemMenu[]; aoNavegar?: () => void }) {
   const caminho = usePathname();
 
@@ -48,11 +49,21 @@ export function ListaMenu({ itens, aoNavegar }: { itens: ItemMenu[]; aoNavegar?:
               onClick={aoNavegar}
               aria-current={ativo ? "page" : undefined}
               className={cn(
-                "flex min-h-12 items-center gap-3 rounded-botao px-3 font-medium transition-colors",
-                ativo ? "bg-primaria text-superficie" : "text-texto hover:bg-primaria-suave hover:text-primaria-escura",
+                "group relative flex min-h-12 items-center gap-3 rounded-botao px-3 font-medium transition-colors focus-visible:outline-acento",
+                ativo
+                  ? "bg-superficie/12 text-superficie"
+                  : "text-superficie/75 hover:bg-superficie/6 hover:text-superficie",
               )}
             >
-              <Icone aria-hidden="true" className="size-5 shrink-0" />
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "grid size-8 shrink-0 place-items-center rounded-campo transition-colors",
+                  ativo ? "bg-acento text-tinta" : "bg-superficie/6",
+                )}
+              >
+                <Icone className="size-[1.125rem]" />
+              </span>
               {item.rotulo}
             </Link>
           </li>

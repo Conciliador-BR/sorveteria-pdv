@@ -30,12 +30,17 @@ export function MenuCelular({ itens, nomeLoja }: { itens: ItemMenu[]; nomeLoja: 
         onClick={(evento) => {
           if (evento.target === evento.currentTarget) fechar();
         }}
-        className="m-0 h-dvh max-h-dvh w-72 max-w-[85vw] bg-superficie p-0 text-texto shadow-suave backdrop:bg-texto/40"
+        className="m-0 h-dvh max-h-dvh w-72 max-w-[85vw] bg-tinta p-0 text-superficie shadow-elevada backdrop:bg-tinta/50 backdrop:backdrop-blur-sm"
       >
         <div className="flex h-full flex-col gap-4 p-4">
           <div className="flex items-center justify-between gap-2">
-            <Marca nome={nomeLoja} />
-            <Button variante="fantasma" className="px-3" aria-label="Fechar menu" onClick={fechar}>
+            <Marca nome={nomeLoja} fundo="escuro" />
+            <Button
+              variante="fantasma"
+              className="px-3 text-superficie hover:bg-superficie/10 focus-visible:outline-acento"
+              aria-label="Fechar menu"
+              onClick={fechar}
+            >
               <X aria-hidden="true" className="size-6" />
             </Button>
           </div>

@@ -5,10 +5,13 @@ import { cn } from "@/lib/utils";
 export type VarianteBotao = "primario" | "cobrar" | "secundario" | "perigo" | "fantasma";
 export type TamanhoBotao = "md" | "lg";
 
+// Primário e cobrar têm degradê e brilho colorido; o texto branco passa AA nas duas pontas do degradê.
 const variantes: Record<VarianteBotao, string> = {
-  primario: "bg-primaria text-superficie hover:bg-primaria-escura",
-  cobrar: "bg-secundaria text-superficie hover:bg-secundaria-escura",
-  secundario: "border-2 border-primaria bg-superficie text-primaria-escura hover:bg-primaria-suave",
+  primario:
+    "bg-linear-135 from-primaria to-primaria-escura text-superficie shadow-brilho-primaria hover:from-primaria-escura hover:to-primaria-escura",
+  cobrar:
+    "bg-linear-135 from-secundaria to-secundaria-escura text-superficie shadow-brilho-secundaria hover:from-secundaria-escura hover:to-secundaria-escura",
+  secundario: "border-2 border-primaria/70 bg-superficie text-primaria-escura shadow-suave hover:border-primaria hover:bg-primaria-suave",
   perigo: "bg-perigo text-superficie hover:bg-perigo-escuro",
   fantasma: "bg-transparent text-texto hover:bg-primaria-suave",
 };
@@ -27,7 +30,7 @@ export function estiloBotao({
 }: { variante?: VarianteBotao; tamanho?: TamanhoBotao; className?: string } = {}) {
   return cn(
     "inline-flex items-center justify-center gap-2 rounded-botao font-semibold select-none",
-    "transition-colors active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60",
+    "transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none",
     variantes[variante],
     tamanhos[tamanho],
     className,

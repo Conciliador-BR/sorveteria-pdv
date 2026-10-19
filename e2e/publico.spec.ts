@@ -7,7 +7,7 @@ import { tituloDaPagina } from "./telas";
 test("apresentação abre com título e link para entrar", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle("Sorveteria PDV");
-  await expect(tituloDaPagina(page)).toHaveText("Vendas, caixa e estoque da sorveteria num lugar só.");
+  await expect(tituloDaPagina(page)).toHaveText("A fila anda rápido. O caixa fecha certinho.");
   const acessar = page.getByRole("link", { name: "Acessar o sistema" });
   await expect(acessar).toHaveAttribute("href", "/entrar");
 });
