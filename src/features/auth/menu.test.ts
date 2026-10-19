@@ -44,6 +44,7 @@ describe("itensDoMenu", () => {
       "Histórico",
       "Dashboard",
       "Funcionários",
+      "Configurações",
     ]);
   });
 
