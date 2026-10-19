@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Tokens visuais da Sorveteria PDV: fonte de verdade (docs/design.md aponta para cá).
+ * A paleta padrão do Tailwind é desligada (`--color-*: initial`), então só estas cores existem
+ * nas classes. Contrastes conferidos (WCAG 2.x) estão registrados em docs/design.md.
+ */
+@theme {
+  --color-*: initial;
+
+  /* Azul-mar: botões principais, menu ativo, links. Branco sobre ela: 4,80:1. */
+  --color-primaria: #0e7c9b;
+  /* Azul profundo: hover e cabeçalhos. Branco sobre ela: 7,73:1. */
+  --color-primaria-escura: #0a5a72;
+  --color-primaria-suave: #e3f2f6;
+
+  /* Morango escurecido para texto branco passar AA (era #F0567A, 3,32:1). Agora 4,75:1. */
+  --color-secundaria: #cc3d64;
+  --color-secundaria-escura: #a82a50;
+  --color-secundaria-suave: #fde8ee;
+
+  /* Manga: sempre com texto chocolate por cima (8,84:1); branco não passa. */
+  --color-acento: #ffb547;
+  --color-acento-suave: #fff1db;
+
+  /* Menta: preenchimento com texto chocolate (7,41:1). Texto verde usa sucesso-escuro. */
+  --color-sucesso: #3cc8a8;
+  --color-sucesso-escuro: #17705d;
+  --color-sucesso-suave: #e6f7f2;
+
+  /* Framboesa escurecida (era #D93A4A, 4,32:1 sobre o fundo). Agora 5,12:1 no fundo. */
+  --color-perigo: #c53340;
+  --color-perigo-escuro: #a92a36;
+  --color-perigo-suave: #fdecee;
+
+  --color-fundo: #fff9f2;
+  --color-superficie: #ffffff;
+  /* Areia: divisórias decorativas. Contorno de campo usa borda-forte (3:1 ou mais). */
+  --color-borda: #ede3d6;
+  --color-borda-forte: #8c7e73;
+  --color-texto: #2b2220;
+  --color-texto-suave: #6e615c;
+
+  /* Escala de texto: 12, 14, 16 (base), 20, 24, 32 e 48 (total da venda). */
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 2.5rem;
+  --text-total: 3rem;
+  --text-total--line-height: 1.1;
+
+  /* Raios: campo 8 px, botão 12 px, card 16 px, modal 24 px. */
+  --radius-campo: 0.5rem;
+  --radius-botao: 0.75rem;
+  --radius-card: 1rem;
+  --radius-modal: 1.5rem;
+
+  --shadow-suave: 0 1px 2px rgb(43 34 32 / 0.06), 0 8px 24px rgb(43 34 32 / 0.08);
+
+  --default-transition-duration: 150ms;
 }
 
+/* Fontes carregadas por next/font em src/app/layout.tsx. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-titulo: var(--font-poppins), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: light;
+    /* A barra superior da área logada é fixa (64 px): o foco rolado não fica escondido atrás dela. */
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background-color: var(--color-fundo);
+    color: var(--color-texto);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-titulo);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary {
+    touch-action: manipulation;
+    /* Os controles têm estados próprios de hover e pressionado; o destaque cinza do toque sai. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Foco visível em qualquer controle navegado pelo teclado (7,39:1 sobre o fundo). */
+  :focus-visible {
+    outline: 3px solid var(--color-primaria-escura);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

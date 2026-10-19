@@ -1,11 +1,14 @@
+import { LogOut } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { sair } from "../actions";
 
 export function BotaoSair() {
   return (
     <form action={sair}>
-      <button type="submit" className="h-12 rounded-xl border border-foreground/20 px-4 font-medium">
+      <Button type="submit" variante="secundario">
+        <LogOut aria-hidden="true" className="size-5" />
         Sair
-      </button>
+      </Button>
     </form>
   );
 }

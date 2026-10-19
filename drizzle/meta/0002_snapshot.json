@@ -1,0 +1,229 @@
+{
+  "id": "a1799920-c188-493b-a910-1fe537032faf",
+  "prevId": "bdc1af58-7f61-4a4f-9446-01eef61939bd",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.funcionarios": {
+      "name": "funcionarios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "usuario": {
+          "name": "usuario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "papel": {
+          "name": "papel",
+          "type": "papel_funcionario",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'funcionario'"
+        },
+        "pode_lancar_estoque": {
+          "name": "pode_lancar_estoque",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "pode_gerenciar_produtos": {
+          "name": "pode_gerenciar_produtos",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "pode_cancelar_venda": {
+          "name": "pode_cancelar_venda",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "pode_ver_historico": {
+          "name": "pode_ver_historico",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "ativo": {
+          "name": "ativo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "funcionarios_id_users_id_fk": {
+          "name": "funcionarios_id_users_id_fk",
+          "tableFrom": "funcionarios",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "funcionarios_usuario_unique": {
+          "name": "funcionarios_usuario_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "usuario"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "funcionarios_usuario_formato": {
+          "name": "funcionarios_usuario_formato",
+          "value": "\"funcionarios\".\"usuario\" ~ '^[a-z0-9._-]{3,32}$'"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "public.auditoria": {
+      "name": "auditoria",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tabela": {
+          "name": "tabela",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registro_id": {
+          "name": "registro_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "acao": {
+          "name": "acao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dados": {
+          "name": "dados",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "funcionario_id": {
+          "name": "funcionario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "auditoria_registro_idx": {
+          "name": "auditoria_registro_idx",
+          "columns": [
+            {
+              "expression": "tabela",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "registro_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "auditoria_funcionario_id_funcionarios_id_fk": {
+          "name": "auditoria_funcionario_id_funcionarios_id_fk",
+          "tableFrom": "auditoria",
+          "tableTo": "funcionarios",
+          "columnsFrom": [
+            "funcionario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {
+    "public.papel_funcionario": {
+      "name": "papel_funcionario",
+      "schema": "public",
+      "values": [
+        "funcionario",
+        "dono"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

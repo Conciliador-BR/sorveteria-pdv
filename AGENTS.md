@@ -109,9 +109,9 @@ Instalar skills não executa suas ações. Não force animações, cache, deploy
 ## Convenções e contexto
 
 - Idioma: interface, nomes de domínio (tabelas, funções de regra de negócio), commits e PRs em português; termos do framework ficam como estão.
-- Dinheiro sempre em centavos inteiros (`*_centavos`), peso em gramas. Formatação só em `src/lib/dinheiro.ts` (criado na primeira tela com valores).
+- Dinheiro sempre em centavos inteiros (`*_centavos`), peso em gramas. Formatação e cálculo de troco/peso só em `src/lib/dinheiro.ts`.
 - Organização: rotas em `src/app/`, funcionalidades em `src/features/<funcionalidade>/`, componentes visuais genéricos em `src/components/ui/`. Um componente por arquivo, criado quando a tela que o usa for implementada. Detalhes em `docs/architecture.md`.
-- Estilo só com os tokens de `src/app/globals.css` (tema Tailwind). Nada de cor solta. Hoje esse arquivo e as fontes Geist ainda são do scaffold e serão trocados na entrega de tokens; até lá, a referência é `docs/design.md`.
+- Estilo só com os tokens de `src/app/globals.css` (tema Tailwind, paleta padrão desligada). Nada de cor solta. Componentes genéricos em `src/components/ui/` e moldura da área logada em `src/components/layout/`; regras em `docs/design.md`.
 - Banco: cliente do Drizzle sempre nomeado `db` (ou `getDb()`) e transação `tx`, para as guardas de `update/delete` do lint funcionarem. Cada `pgTable` usa `.enableRLS()`; a revisão confere o `ENABLE ROW LEVEL SECURITY` no SQL gerado.
 - Segredos: nunca leia, imprima ou copie valores de `.env*` para a conversa, logs ou histórico do shell; confira só se a variável existe. Variáveis de host são cadastradas pelo dono no painel.
 - Skills: novas skills só entram com aprovação do dono e revisão do agente `seguranca`, nunca com `-g -y`. `.claude/skills/` é código de terceiros: revise o diff a cada atualização.
