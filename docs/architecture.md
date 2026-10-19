@@ -60,7 +60,8 @@ sorveteria-pdv/
 │   │   ├── caixa/
 │   │   ├── vendas/               # venda no balcão, comanda, itens e pagamento (carrinho em useCarrinho.ts)
 │   │   ├── historico/            # filtros, lista, detalhe e CSV das vendas
-│   │   └── dashboard/
+│   │   ├── dashboard/
+│   │   └── configuracoes/        # nome da loja e bandeiras de cartão (exclusivo do dono)
 │   ├── components/
 │   │   ├── ui/                   # Button, MoneyInput, WeightInput, Keypad, Modal, Card, Badge, Table...
 │   │   └── layout/               # AppShell, Sidebar, Topbar, PageHeader
@@ -119,7 +120,7 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 2. **Data API bloqueada:** RLS ligado em todas as tabelas do schema `public`, sem políticas para `anon` e `authenticated`. Mesmo que alguém descubra a URL do projeto, não lê nem grava nada pela API REST. O acesso legítimo é o Drizzle no servidor.
 3. **Autorização por ação:** helper `exigirPermissao('pode_lancar_estoque')` (e `exigirDono()`) chamado no início de cada Server Action sensível; funcionário inativo é recusado.
 4. **Senha de novo no caixa:** abertura e fechamento reautenticam a senha do próprio funcionário no Supabase Auth antes de agir.
-5. **Criar funcionário:** Server Actions exclusivas do dono (`src/features/funcionarios/actions.ts`) usam a chave secreta (`SUPABASE_SERVICE_ROLE_KEY`, cliente em `src/lib/supabase/admin.ts`) para criar o login no Auth com `usuarioParaEmail`, trocar senha e desativar. Se gravar o perfil falhar, o login criado é apagado. O dono não pode tirar o próprio papel nem se desativar, e a loja nunca fica sem um dono ativo. Trocar a senha apaga as sessões do funcionário em `auth.sessions` (o token já emitido vale até expirar, no máximo 1 hora); desativar bloqueia na hora. Todos os donos têm poder igual, inclusive de trocar a senha um do outro. Toda criação, edição e troca de senha vai para `auditoria`.
+5. **Criar funcionário:** Server Actions exclusivas do dono (`src/features/funcionarios/actions.ts`) usam a chave secreta (`SUPABASE_SERVICE_ROLE_KEY`, cliente em `src/lib/supabase/admin.ts`) para criar o login no Auth com `usuarioParaEmail`, trocar senha e desativar. Se gravar o perfil falhar, o login criado é apagado. O dono não pode tirar o próprio papel nem se desativar, e a loja nunca fica sem um dono ativo. Trocar a senha apaga as sessões do funcionário em `auth.sessions` (o token já emitido vale até expirar, no máximo 1 hora); desativar bloqueia na hora. Todos os donos têm poder igual, inclusive de trocar a senha um do outro. Toda criação, edição e troca de senha vai para `auditoria`. Nas configurações (`src/features/configuracoes/actions.ts`, só `exigirDono()`), salvar o nome da loja e criar ou editar bandeira também gravam `auditoria` (antes e depois).
 6. **Logs:** Pino com redação de `password`/`senha`, tokens, cookies, `DATABASE_URL*` e chaves `SUPABASE_*` (primeiro nível e um nível abaixo). Logue só campos escolhidos, nunca objetos de erro ou configuração inteiros.
 7. **Ambientes:** Supabase de desenvolvimento (agentes podem migrar) e de produção (só migrations revisadas e autorizadas pelo dono).
 8. **Revisão:** o especialista `seguranca` revisa todo PR (chaves no diff, Server Action sem checagem, RLS faltando, dados sensíveis em log).
@@ -149,8 +150,8 @@ Plano de schema (Drizzle, em `src/db/schema/`). Tipos inferidos com `$inferSelec
 | `vendas` | `id`, `numero` (sequencial), `caixa_id`, `funcionario_id`, `tipo` (`balcao`/`comanda`), `identificacao`, `status` (`aberta`/`concluida`/`cancelada`), `total_centavos`, `troco_centavos`, `aberta_em`, `concluida_em`, `cancelada_por`, `cancelada_em`, `motivo_cancelamento` |
 | `venda_itens` | `id`, `venda_id`, `produto_id`, `nome_produto` (cópia), `tipo_venda`, `quantidade`, `peso_gramas`, `preco_unitario_centavos` (cópia), `total_centavos`, `lancado_por`, `criado_em` |
 | `pagamentos` | `id`, `venda_id`, `forma` (`dinheiro`/`pix`/`debito`/`credito`), `bandeira_id`, `valor_centavos`, `valor_recebido_centavos`, `criado_em` |
-| `bandeiras` | `id`, `nome`, `tipo` (`debito`/`credito`), `ativo`, `ordem` |
-| `configuracoes` | `nome_loja` |
+| `bandeiras` | `id`, `nome`, `tipo` (`debito`/`credito`), `ativo`, `ordem`; únicas por nome (sem diferenciar maiúsculas) e tipo. O dono cadastra, renomeia e desativa em `/configuracoes`; não se apagam, porque pagamentos apontam para elas. Desativada some dos cards de pagamento (e o servidor a recusa), mas continua no histórico e no filtro |
+| `configuracoes` | Linha única (`id` = 1, garantido por CHECK, semeada pela migration): `nome_loja` (1 a 60 caracteres ou vazio), `atualizado_em`. Sem nome, o menu mostra "Sorveteria PDV"; as telas públicas sempre mostram esse nome |
 | `auditoria` | `id`, `tabela`, `registro_id`, `acao`, `dados` (jsonb), `funcionario_id`, `criado_em` |
 
 Saldo de estoque: soma de `estoque_movimentos` por produto (consulta agregada). `quantidade` é inteiro: unidades ou gramas, conforme o `tipo_venda` do produto; por isso o tipo não muda depois que o produto tem venda ou estoque.

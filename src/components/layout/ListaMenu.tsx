@@ -6,6 +6,7 @@ import {
   IceCreamCone,
   LayoutDashboard,
   Package,
+  Settings,
   ShoppingCart,
   Users,
   Wallet,
@@ -25,6 +26,7 @@ const icones: Record<IconeMenu, LucideIcon> = {
   historico: History,
   dashboard: LayoutDashboard,
   funcionarios: Users,
+  configuracoes: Settings,
 };
 
 function estaAtivo(caminho: string, href: string) {

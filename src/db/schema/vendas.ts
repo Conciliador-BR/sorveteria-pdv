@@ -1,18 +1,23 @@
 import { sql } from "drizzle-orm";
-import { boolean, check, index, integer, pgEnum, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, index, integer, pgEnum, pgTable, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { caixas } from "./caixa";
 import { funcionarios } from "./funcionarios";
 import { produtos, tipoVenda } from "./produtos";
 
 export const tipoBandeira = pgEnum("tipo_bandeira", ["debito", "credito"]);
 
+// Editável pelo dono em /configuracoes; não se apaga (pagamentos apontam para ela), só se desativa.
+// O índice sem diferenciar maiúsculas impede "Visa" e "visa" no mesmo tipo.
 export const bandeiras = pgTable("bandeiras", {
   id: uuid("id").primaryKey().defaultRandom(),
   nome: text("nome").notNull(),
   tipo: tipoBandeira("tipo").notNull(),
   ordem: integer("ordem").notNull().default(0),
   ativo: boolean("ativo").notNull().default(true),
-}, (t) => [unique("bandeiras_nome_tipo_unico").on(t.nome, t.tipo)]).enableRLS();
+}, (t) => [
+  unique("bandeiras_nome_tipo_unico").on(t.nome, t.tipo),
+  uniqueIndex("bandeiras_nome_tipo_sem_caixa_unico").on(sql`lower(${t.nome})`, t.tipo),
+]).enableRLS();
 
 export const tipoVendaOrigem = pgEnum("tipo_venda_origem", ["balcao", "comanda"]);
 export const statusVenda = pgEnum("status_venda", ["aberta", "concluida", "cancelada"]);

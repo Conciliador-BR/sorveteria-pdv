@@ -8,7 +8,7 @@ import { ListaMenu } from "./ListaMenu";
 import { Marca } from "./Marca";
 
 // Gaveta do celular/tablet em <dialog> nativo: prende o foco, fecha com Esc e devolve o foco ao botão.
-export function MenuCelular({ itens }: { itens: ItemMenu[] }) {
+export function MenuCelular({ itens, nomeLoja }: { itens: ItemMenu[]; nomeLoja: string }) {
   const gaveta = useRef<HTMLDialogElement>(null);
   const fechar = () => gaveta.current?.close();
 
@@ -34,7 +34,7 @@ export function MenuCelular({ itens }: { itens: ItemMenu[] }) {
       >
         <div className="flex h-full flex-col gap-4 p-4">
           <div className="flex items-center justify-between gap-2">
-            <Marca />
+            <Marca nome={nomeLoja} />
             <Button variante="fantasma" className="px-3" aria-label="Fechar menu" onClick={fechar}>
               <X aria-hidden="true" className="size-6" />
             </Button>

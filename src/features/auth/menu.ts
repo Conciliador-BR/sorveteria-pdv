@@ -8,7 +8,8 @@ export type IconeMenu =
   | "produtos"
   | "historico"
   | "dashboard"
-  | "funcionarios";
+  | "funcionarios"
+  | "configuracoes";
 
 export type ItemMenu = { href: string; rotulo: string; icone: IconeMenu };
 
@@ -24,6 +25,7 @@ const itens: readonly (ItemMenu & { regra: Regra })[] = [
   { href: "/vendas", rotulo: "Histórico", icone: "historico", regra: "todos" },
   { href: "/dashboard", rotulo: "Dashboard", icone: "dashboard", regra: "dono" },
   { href: "/funcionarios", rotulo: "Funcionários", icone: "funcionarios", regra: "dono" },
+  { href: "/configuracoes", rotulo: "Configurações", icone: "configuracoes", regra: "dono" },
 ];
 
 // Esconder item é só conforto: cada página e Server Action confere a permissão de novo.

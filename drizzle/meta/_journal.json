@@ -36,6 +36,13 @@
       "when": 1792266259805,
       "tag": "0004_bandeiras_iniciais",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792417218699,
+      "tag": "0005_configuracoes_da_loja",
+      "breakpoints": true
     }
   ]
 }

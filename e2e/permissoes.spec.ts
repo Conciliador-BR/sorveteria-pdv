@@ -6,7 +6,7 @@ import { entrar, menuPrincipal, novaPagina, tituloDaPagina } from "./telas";
 // Pré-requisito: E2E_FUNCIONARIO_* é um funcionário ativo SEM nenhuma permissão extra.
 // Sem a permissão, exigirPermissao/exigirDono redirecionam para /caixa (src/features/auth/sessao.ts).
 
-const SO_COM_PERMISSAO = ["Estoque", "Produtos", "Dashboard", "Funcionários"];
+const SO_COM_PERMISSAO = ["Estoque", "Produtos", "Dashboard", "Funcionários", "Configurações"];
 const DE_TODOS = ["Caixa", "Vender", "Comandas", "Histórico"];
 
 test.describe("funcionário sem permissões extras", () => {
@@ -35,7 +35,7 @@ test.describe("funcionário sem permissões extras", () => {
     for (const rotulo of SO_COM_PERMISSAO) await expect(menu.getByRole("link", { name: rotulo, exact: true })).toHaveCount(0);
   });
 
-  for (const rota of ["/estoque", "/produtos", "/dashboard", "/funcionarios"]) {
+  for (const rota of ["/estoque", "/produtos", "/dashboard", "/funcionarios", "/configuracoes"]) {
     test(`acesso direto a ${rota} volta para o caixa`, async () => {
       await page.goto(rota);
       await expect(page).toHaveURL(/\/caixa$/);
