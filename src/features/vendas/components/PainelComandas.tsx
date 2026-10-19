@@ -17,7 +17,8 @@ export function PainelComandas({ comandas, podeAbrir }: PainelComandasProps) {
           <p className="rounded-card border border-borda bg-superficie p-4 text-texto-suave">Nenhuma comanda aberta agora.</p>
         ) : (
           // Faixa com rolagem lateral: muitas comandas não empurram os produtos para baixo.
-          <ul className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
+          // Folga em volta para o contorno de foco dos cartões não ser cortado pela rolagem.
+          <ul className="-m-1.5 flex snap-x gap-3 overflow-x-auto p-1.5 pb-3">
             {comandas.map((comanda) => (
               <li key={comanda.id} className="w-64 shrink-0 snap-start">
                 <CartaoComanda comanda={comanda} />
@@ -28,7 +29,8 @@ export function PainelComandas({ comandas, podeAbrir }: PainelComandasProps) {
       </div>
       {podeAbrir ? (
         <Card className="flex flex-col gap-3 p-4">
-          <h2 className="text-lg font-semibold">Abrir comanda</h2>
+          {/* No celular e no tablet o cartão fica enxuto (o botão já diz "Abrir comanda") para não empurrar os produtos. */}
+          <h2 className="sr-only text-lg font-semibold lg:not-sr-only">Abrir comanda</h2>
           <AbrirComandaForm />
         </Card>
       ) : null}

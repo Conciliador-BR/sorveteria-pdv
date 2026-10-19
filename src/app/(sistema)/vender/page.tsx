@@ -28,10 +28,8 @@ export default async function VenderPage() {
     <>
       <PageHeader titulo="Vender e comandas" descricao="Venda no balcão aqui embaixo ou toque numa comanda para lançar e cobrar." />
       <PainelComandas comandas={comandas} podeAbrir />
-      <section aria-labelledby="titulo-balcao" className="flex flex-col gap-3">
-        <h2 id="titulo-balcao" className="text-xl font-semibold">
-          Venda no balcão
-        </h2>
+      {/* Sem título visível: produtos, carrinho e pagamento já têm os próprios títulos. */}
+      <section aria-label="Venda no balcão">
         <PdvBalcao produtos={produtos} bandeiras={bandeiras} />
       </section>
     </>

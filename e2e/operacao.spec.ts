@@ -126,7 +126,7 @@ test.describe("operação da loja pelo dono", () => {
 
   test("comanda: abre, lança item, cobra no Pix e sai das abertas", async () => {
     await page.goto("/vender");
-    await page.getByLabel("Nome ou número").fill(COMANDA);
+    await page.getByLabel("Nome ou número da comanda").fill(COMANDA);
     await page.getByRole("button", { name: "Abrir comanda" }).click();
     await expect(page).toHaveURL(/\/comandas\/[0-9a-f-]{36}$/);
     await expect(tituloDaPagina(page)).toHaveText(`Comanda ${COMANDA}`);
