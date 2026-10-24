@@ -90,6 +90,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Motivos de entrada/saída: compra, perda/derreteu, consumo interno, ajuste de contagem, outro.
 - Produto tem "baixa automática na venda" (padrão: sim para unidade, não para peso, onde o controle é por balde).
 - Estoque negativo gera alerta, mas não bloqueia a venda.
+- A tela de estoque mostra o valor de cada saldo e o total geral pelo preço de venda (não há custo cadastrado); saldo negativo conta como zero.
 
 **Gerais**
 
