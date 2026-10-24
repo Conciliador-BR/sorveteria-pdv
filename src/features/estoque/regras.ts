@@ -1,3 +1,5 @@
+import { totalPorPeso } from "@/lib/dinheiro";
+
 export type LancamentoManual =
   | { tipo: "entrada"; motivo: "compra" | "outro"; quantidade: number }
   | { tipo: "saida"; motivo: "perda" | "consumo_interno" | "outro"; quantidade: number }
@@ -24,4 +26,10 @@ export function formatarQuantidade(quantidade: number, tipoVenda: "unidade" | "p
   if (tipoVenda === "unidade") return `${quantidade} un`;
   const kg = quantidade / 1000;
   return `${kg.toLocaleString("pt-BR", { maximumFractionDigits: 3 })} kg`;
+}
+
+// Valor do saldo pelo preço de venda (não há custo cadastrado). Saldo negativo vale zero.
+export function valorEmEstoque(saldo: number, precoCentavos: number, tipoVenda: "unidade" | "peso") {
+  if (saldo <= 0) return 0;
+  return tipoVenda === "peso" ? totalPorPeso(precoCentavos, saldo) : saldo * precoCentavos;
 }
