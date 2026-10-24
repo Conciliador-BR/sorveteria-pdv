@@ -14,9 +14,9 @@ O produto deve registrar cada venda com data, hora, funcionário, itens e forma 
 |---|---|---|
 | Funcionário | Balcão, em computador ou tablet, com fila e mãos geladas | Abrir/fechar o próprio caixa, vender, abrir e cobrar comandas |
 | Funcionário com permissões extras | Mesmo contexto | O dono liga por funcionário: lançar estoque, gerenciar produtos, cancelar venda, ver histórico de todos |
-| Dono | Celular ou computador, dentro ou fora da loja | Tudo: dashboard, histórico, estoque, funcionários, permissões e configurações |
+| Dono | Celular ou computador, dentro ou fora da loja | Tudo: dashboard, precificação, histórico, estoque, funcionários, permissões e configurações |
 
-Permissões extras: `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_cancelar_venda`, `pode_ver_historico`. Dashboard, funcionários e configurações são exclusivos do dono.
+Permissões extras: `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_cancelar_venda`, `pode_ver_historico`. Dashboard, precificação, funcionários e configurações são exclusivos do dono.
 
 ## Fluxos da versão inicial
 
@@ -31,6 +31,7 @@ Permissões extras: `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_canc
 9. **Histórico:** filtrar vendas por período, funcionário, forma, bandeira e status; ver detalhe; exportar CSV.
 10. **Dashboard:** faturamento do dia, semana e mês; ticket médio; vendas por dia, hora, forma de pagamento, bandeira, produto e funcionário; fechamentos com diferença; estoque baixo.
 11. **Funcionários:** dono cria login, define papel e liga/desliga permissões extras; redefine senha; desativa sem apagar histórico.
+12. **Precificação (dono):** cadastrar insumos (preço e tamanho da embalagem), custos fixos do mês e máquinas (depreciação) → informar faturamento médio, imposto, taxa de cartão, parte das vendas no cartão, perdas e margem padrão → em cada produto, montar a ficha técnica (insumos e quantidades da receita e quanto ela rende) e digitar a margem desejada → ver custo, preço sugerido, lucro, markup equivalente e a margem do preço atual → opcionalmente "Usar este preço no caixa".
 
 ## MVP
 
@@ -91,6 +92,15 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Produto tem "baixa automática na venda" (padrão: sim para unidade, não para peso, onde o controle é por balde).
 - Estoque negativo gera alerta, mas não bloqueia a venda.
 
+**Precificação**
+
+- Item "Precificação" no menu, abaixo do Dashboard, só para o dono (nem `pode_gerenciar_produtos` dá acesso): custos e margem são informação do dono.
+- Custo do insumo = preço da embalagem ÷ quantidade (g, ml ou unidades). Custo do produto = soma dos insumos da receita ÷ rendimento (por unidade, ou por kg no produto por peso). Produto de revenda (picolé comprado pronto) usa ele mesmo como insumo.
+- Custos mensais = custos fixos + depreciação linear das máquinas ((compra − valor no fim) ÷ vida útil em meses). Entram no preço como percentual do faturamento médio informado.
+- Despesas sobre a venda = custos mensais ÷ faturamento + imposto + taxa da maquininha × parte das vendas no cartão + perdas.
+- Preço sugerido = custo ÷ (1 − despesas − margem), arredondado para cima ao centavo. A margem é sobre o preço de venda; a tela mostra o markup equivalente (quanto o preço está acima do custo) e explica a diferença. Despesas + margem ≥ 100% não têm preço.
+- A tela só sugere: o preço do caixa muda apenas com "Usar … no caixa", que o servidor recalcula, recusa se o valor mudou e grava na `auditoria`. Vendas antigas não mudam.
+
 **Gerais**
 
 - Interface em português do Brasil, moeda R$, datas `dd/mm/aaaa HH:mm`, fuso America/Sao_Paulo.
@@ -128,6 +138,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Funcionário sem `pode_lancar_estoque` não vê a tela de estoque e o servidor recusa o lançamento.
 - O histórico mostra número, data, hora, funcionário, itens, total e pagamento de cada venda; cancelada aparece com quem cancelou e o motivo.
 - Nenhuma chave do Supabase, URL de banco ou `service_role` aparece no bundle do navegador.
+- Precificação: casquinha com 100 g de base (balde de 1 kg a R$ 20,00) e 1 casquinha (caixa de 100 a R$ 30,00) custa R$ 2,30; com R$ 6.000 de fixos, uma máquina de R$ 30.000 em 5 anos, faturamento de R$ 50.000, imposto de 6%, taxa de 2% em metade das vendas e margem de 30%, o preço sugerido é R$ 4,60 (lucro R$ 1,38, markup 100%). Somar 30% no custo daria R$ 2,99 e só 3% de lucro. Funcionário não vê nem abre `/precificacao`.
 
 ## Próxima entrega
 
