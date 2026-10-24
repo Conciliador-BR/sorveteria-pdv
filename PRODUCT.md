@@ -21,7 +21,7 @@ Permissões extras: `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_canc
 ## Fluxos da versão inicial
 
 1. **Entrar:** apresentação → botão "Acessar o sistema" → login com usuário e senha → funcionário sem caixa aberto vai para "Abrir caixa"; dono vai para o dashboard.
-2. **Abrir caixa:** funcionário confirma a própria senha e informa o fundo de troco (obrigatório) → caixa aberto.
+2. **Abrir caixa:** funcionário confirma a própria senha e informa o fundo de troco (obrigatório) → caixa aberto → o sistema entra direto na **tela de vendas (modo caixa)**: tela cheia estilo caixa de supermercado, só com Vender (balcão e comandas) e Caixa (sangria, suprimento e fechamento), sem menu nem configurações. Esc (ou o botão "Sair") pergunta como sair: o dono sai sem fechar o caixa; o funcionário só sai fechando o caixa.
 3. **Venda no balcão:** escolher produtos (por unidade ou por peso, digitando as gramas ou o valor em reais que a balança mostrou) → total → pagamento → venda registrada.
 4. **Comanda:** abrir comanda com nome ou número ("Família Silva", "Mesa 4") → lançar itens ao longo do tempo, por qualquer funcionário com caixa aberto → total atualizado → fechar e cobrar.
 5. **Pagamento:** dinheiro (valor recebido e troco calculado na hora), Pix (confirmação manual) ou cartão: card "Débito" ou "Crédito" → cards das bandeiras → toque na bandeira → finalizar; pagamento dividido entre formas.
@@ -72,6 +72,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Caixa não fecha com comanda aberta vinculada a ele. Observação obrigatória quando houver diferença.
 - Caixa fechado não é editado; só o dono reabre, com registro.
 - Abertura e fechamento pedem a senha do próprio funcionário de novo.
+- Com o caixa aberto, o funcionário fica na tela de vendas: qualquer outra tela do sistema, mesmo digitada no endereço, volta para ela. Só fechando o caixa ele volta ao menu. O dono sai e volta quando quiser, com o caixa aberto.
 
 **Venda, comanda e pagamento**
 

@@ -78,7 +78,7 @@ export async function venderNoBalcao(anterior: EstadoVenda, formData: FormData):
       await baixarEstoque(tx, nova.id, funcionario.id);
       return { numero: nova.numero, totalCentavos, trocoCentavos: conferencia.trocoCentavos };
     });
-    revalidatePath("/caixa");
+    revalidatePath("/vender/caixa");
     return { ok: `Venda nº ${venda.numero} registrada.`, venda, envio };
   } catch (erro) {
     if (violouUnico(erro)) {
@@ -232,7 +232,7 @@ export async function cobrarComanda(anterior: EstadoVenda, formData: FormData): 
       return { numero: concluida.numero, totalCentavos, trocoCentavos: conferencia.trocoCentavos };
     });
     revalidatePath("/vender");
-    revalidatePath("/caixa");
+    revalidatePath("/vender/caixa");
     return { ok: `Comanda cobrada. Venda nº ${venda.numero}.`, venda, envio };
   } catch (erro) {
     revalidatePath(`/comandas/${dados.data.vendaId}`);
@@ -277,6 +277,6 @@ export async function cancelarVenda(anterior: EstadoFormulario, formData: FormDa
   revalidatePath("/vendas", "layout");
   revalidatePath("/dashboard");
   revalidatePath("/vender");
-  revalidatePath("/caixa");
+  revalidatePath("/vender/caixa");
   return { ok: "Venda cancelada.", envio };
 }

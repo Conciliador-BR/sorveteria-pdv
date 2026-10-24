@@ -33,11 +33,12 @@ export async function abrirCaixa(anterior: EstadoFormulario, formData: FormData)
     });
   } catch (erro) {
     // Índice único: o funcionário já tem um caixa aberto (por exemplo, dois cliques).
-    if (violouUnico(erro)) redirect("/caixa");
+    if (violouUnico(erro)) redirect("/vender");
     throw erro;
   }
   revalidatePath("/caixa");
-  redirect("/caixa");
+  // Caixa aberto: entra direto na tela de vendas (modo caixa).
+  redirect("/vender");
 }
 
 export async function registrarMovimentoCaixa(anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {
@@ -65,7 +66,7 @@ export async function registrarMovimentoCaixa(anterior: EstadoFormulario, formDa
     return true;
   });
   if (!registrado) return { erro: "Abra o caixa antes.", envio };
-  revalidatePath("/caixa");
+  revalidatePath("/vender/caixa");
   const nome = dados.data.tipo === "sangria" ? "Sangria" : "Suprimento";
   return { ok: `${nome} de ${formatarReais(dados.data.valor)} registrada.`, envio };
 }
@@ -128,7 +129,7 @@ export async function fecharCaixa(anterior: EstadoFechamento, formData: FormData
       envio,
     };
   }
-  revalidatePath("/caixa");
+  revalidatePath("/vender/caixa");
   redirect(`/caixa/fechamento/${resultado.caixaId}`);
 }
 
