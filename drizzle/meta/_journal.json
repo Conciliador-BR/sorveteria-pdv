@@ -43,6 +43,13 @@
       "when": 1792417218699,
       "tag": "0005_configuracoes_da_loja",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792856726402,
+      "tag": "0006_precificacao",
+      "breakpoints": true
     }
   ]
 }
