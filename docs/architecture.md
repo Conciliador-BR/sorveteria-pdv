@@ -41,11 +41,15 @@ sorveteria-pdv/
 │   │   ├── page.tsx              # apresentação (pública)
 │   │   ├── entrar/page.tsx       # login
 │   │   ├── manifest.ts, apple-icon.png  # app instalável (PWA): nome, cores, ícones; abre em /entrar
-│   │   └── (sistema)/            # área logada; layout confere sessão
+│   │   ├── (pdv)/                # modo caixa: tela cheia sem menu, só com o caixa do próprio funcionário aberto
+│   │   │   ├── layout.tsx            # PdvShell: barra com loja, caixa, abas Vender/Caixa e "Sair (Esc)"
+│   │   │   ├── vender/page.tsx       # balcão e comandas abertas na mesma tela
+│   │   │   ├── vender/caixa/page.tsx # resumo, sangria, suprimento e fechamento do caixa aberto
+│   │   │   └── comandas/[id]/page.tsx
+│   │   └── (sistema)/            # área logada com menu; layout confere sessão e prende no PDV o funcionário com caixa aberto
 │   │       ├── layout.tsx
-│   │       ├── caixa/page.tsx, caixa/fechamento/[id]/page.tsx
-│   │       ├── vender/page.tsx       # balcão e comandas abertas na mesma tela
-│   │       ├── comandas/page.tsx (leva a /vender), comandas/[id]/page.tsx
+│   │       ├── caixa/page.tsx (abrir caixa; com caixa aberto leva a /vender/caixa), caixa/fechamento/[id]/page.tsx
+│   │       ├── comandas/page.tsx (leva a /vender)
 │   │       ├── produtos/page.tsx
 │   │       ├── estoque/page.tsx
 │   │       ├── vendas/page.tsx, vendas/[id]/page.tsx, vendas/csv/route.ts
@@ -134,6 +138,7 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 - Cookie de sessão `httpOnly`, `sameSite=lax` e `secure` em produção (`src/lib/supabase/cookies.ts`): o JavaScript da página não lê o token.
 - Riscos aceitos: o limite de tentativas do Supabase Auth conta por IP, e todas as tentativas saem do mesmo servidor, então um ataque de senha pode bloquear o login da loja inteira por alguns minutos (limite próprio por usuário fica para depois); e a resposta de senha certa de funcionário desativado demora um pouco mais que a de senha errada.
 - `exigirFuncionario()`, `exigirPermissao()` e `exigirDono()` redirecionam: sem sessão vai para `/entrar`; sem permissão, para `/caixa`. O layout de `src/app/(sistema)/` protege as telas, e cada página e Server Action repete a checagem que lhe cabe (`getFuncionarioAtual` usa `cache` do React, então na renderização a repetição não consulta o banco duas vezes; em Server Action não há cache). Os `exigir*` vão na primeira linha, fora de `try/catch`: o redirect é uma exceção e um `catch` o engoliria.
+- **Modo caixa:** abrir o caixa leva a `/vender`, no grupo `src/app/(pdv)/`, que exige caixa aberto (sem caixa, volta para `/caixa`). O layout de `(sistema)` redireciona para `/vender` o funcionário (não dono) com caixa aberto, pela regra pura `ficaNaTelaDeVendas` (`src/features/auth/permissoes.ts`, testada); assim, digitar outro endereço não tira ninguém da venda. Fechar o caixa leva ao fechamento, já no `(sistema)`. Esc abre o aviso `SairDoPdv` (`<dialog>`): o dono pode "Sair sem fechar o caixa" (vai ao dashboard); o funcionário só tem "Fechar o caixa". Limite conhecido: o layout não roda de novo nas navegações internas do mesmo grupo (Next), então quem já está no `(sistema)` quando o caixa é aberto em outra aba, ou reaberto pelo dono, só é levado à venda na próxima entrada no grupo ou recarga. A trava é de tela: as Server Actions continuam valendo pelas permissões de cada uma.
 
 ## Dados e migrations
 

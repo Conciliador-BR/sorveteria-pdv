@@ -93,6 +93,7 @@ Específico do produto:
 ## Layout e revisão
 
 - Breakpoints: celular (área do dono), tablet a partir de 768 px (balcão: produtos e carrinho lado a lado, carrinho fixo ao rolar; comandas abertas numa faixa acima dos produtos, na tela Vender e comandas) e desktop a partir de 1280 px (mesmas duas colunas, mais largas).
+- Modo caixa (`src/components/layout/PdvShell.tsx` + `AbasPdv`): tela cheia sem menu lateral, com uma barra fina azul-noite no topo (loja, "Caixa aberto desde…" com ponto menta, quem está no caixa, abas Vender/Caixa em manga quando ativas e "Sair Esc"). O aviso de saída é um `<dialog>` com "Continuar vendendo" focado, "Fechar o caixa" e, só para o dono, "Sair sem fechar o caixa". Esc no campo de busca com texto só apaga a busca.
 - Área logada: menu lateral recolhível, barra superior com nome do funcionário, situação do caixa e botão sair. Implementado sem recolher o menu lateral e sem a situação do caixa (entra com o caixa).
 - Estados a cobrir em cada tela: vazio (sem produtos, sem vendas, sem comandas), carregando, erro de rede e sem permissão.
 - Revisão: rodar a skill `web-design-guidelines` nas telas antes de concluir cada PR de interface. Primeira revisão em 17/10/2026 (apresentação, entrar, área logada e componentes base); segunda em 17/10/2026 (caixa, venda, comandas, produtos, estoque, histórico e dashboard), com os achados corrigidos.

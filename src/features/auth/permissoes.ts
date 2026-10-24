@@ -27,3 +27,8 @@ export function temPermissao(perfil: PerfilAcesso, permissao: Permissao) {
 export function paginaInicial(perfil: PerfilAcesso) {
   return ehDono(perfil) ? "/dashboard" : "/caixa";
 }
+
+// Modo caixa: com o caixa aberto, o funcionário só sai da tela de vendas fechando o caixa; o dono sai quando quiser.
+export function ficaNaTelaDeVendas(perfil: PerfilAcesso, temCaixaAberto: boolean) {
+  return temCaixaAberto && !ehDono(perfil);
+}

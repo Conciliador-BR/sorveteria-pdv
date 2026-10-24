@@ -1,29 +1,21 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { exigirFuncionario } from "@/features/auth/sessao";
 import { buscarCaixaAberto } from "@/features/caixa/queries";
 import { PainelComandas } from "@/features/vendas/components/PainelComandas";
 import { PdvBalcao } from "@/features/vendas/components/PdvBalcao";
-import { SemCaixaAviso } from "@/features/vendas/components/SemCaixaAviso";
 import { listarBandeirasAtivas, listarComandasAbertas, listarProdutosParaVenda } from "@/features/vendas/queries";
 
 export const metadata: Metadata = { title: "Vender e comandas · Sorveteria PDV" };
 
 export default async function VenderPage() {
   const funcionario = await exigirFuncionario();
-  const [caixa, comandas] = await Promise.all([buscarCaixaAberto(funcionario.id), listarComandasAbertas()]);
+  // O layout não roda de novo em toda navegação: a página confere o caixa por conta própria.
+  const caixa = await buscarCaixaAberto(funcionario.id);
+  if (!caixa) redirect("/caixa");
 
-  if (!caixa) {
-    return (
-      <>
-        <PageHeader titulo="Vender e comandas" />
-        <SemCaixaAviso texto="Abra o seu caixa antes de vender ou lançar em comandas." />
-        <PainelComandas comandas={comandas} podeAbrir={false} />
-      </>
-    );
-  }
-
-  const [produtos, bandeiras] = await Promise.all([listarProdutosParaVenda(), listarBandeirasAtivas()]);
+  const [comandas, produtos, bandeiras] = await Promise.all([listarComandasAbertas(), listarProdutosParaVenda(), listarBandeirasAtivas()]);
   return (
     <>
       <PageHeader titulo="Vender e comandas" descricao="Venda no balcão aqui embaixo ou toque numa comanda para lançar e cobrar." />
