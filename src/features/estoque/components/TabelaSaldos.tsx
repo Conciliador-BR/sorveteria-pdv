@@ -38,7 +38,6 @@ export function TabelaSaldos({ saldos }: { saldos: SaldoProduto[] }) {
               <th scope="col" className="px-4 py-3 font-semibold">Produto</th>
               <th scope="col" className="px-4 py-3 text-right font-semibold">Saldo</th>
               <th scope="col" className="px-4 py-3 text-right font-semibold">Valor</th>
-              <th scope="col" className="px-4 py-3 text-right font-semibold">Mínimo</th>
               <th scope="col" className="px-4 py-3 font-semibold">Situação</th>
             </tr>
           </thead>
@@ -50,7 +49,6 @@ export function TabelaSaldos({ saldos }: { saldos: SaldoProduto[] }) {
                   <th scope="row" className="px-4 py-3 font-medium">{item.nome}</th>
                   <td className="px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums">{formatarQuantidade(item.saldo, item.tipoVenda)}</td>
                   <td className="px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums">{formatarReais(item.valor)}</td>
-                  <td className="px-4 py-3 text-right text-texto-suave whitespace-nowrap tabular-nums">{formatarQuantidade(item.estoqueMinimo, item.tipoVenda)}</td>
                   <td className="px-4 py-3">
                     <Badge tom={situacao.tom}>{situacao.rotulo}</Badge>
                   </td>
