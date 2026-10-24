@@ -148,7 +148,8 @@ Plano de schema (Drizzle, em `src/db/schema/`). Tipos inferidos com `$inferSelec
 |---|---|
 | `funcionarios` | `id` (= `auth.users.id`), `nome`, `usuario` (único), `papel` (`funcionario`/`dono`), `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_cancelar_venda`, `pode_ver_historico`, `ativo`, `criado_em` |
 | `categorias` | `id`, `nome`, `ordem`, `ativo` |
-| `produtos` | `id`, `nome`, `categoria_id`, `tipo_venda` (`unidade`/`peso`), `preco_centavos` (por unidade ou kg), `codigo`, `estoque_minimo`, `baixa_automatica`, `ativo` |
+| `produtos` | `id`, `nome`, `categoria_id`, `tipo_venda` (`unidade`/`peso`), `preco_centavos` (por unidade ou kg), `codigo`, `estoque_minimo`, `baixa_automatica`, `ativo`, `imagem` (id da galeria padrão em `public/produtos/galeria/`) ou `foto_id` (foto enviada); nunca os dois (CHECK) |
+| `produto_fotos` | `id`, `tipo` (`image/webp`/`jpeg`/`png`, conferido pelos primeiros bytes), `conteudo` (`bytea`, até 300 KB), `criado_em`. Entregue por `GET /fotos-produtos/[id]` só para quem está logado; trocar ou remover a foto apaga a antiga e cria `id` novo (cache longo sem imagem velha) |
 | `estoque_movimentos` | `id`, `produto_id`, `tipo` (`entrada`/`saida`/`ajuste`/`venda`/`cancelamento`), `quantidade` (numeric, sinal indica direção), `motivo`, `observacao`, `venda_id`, `funcionario_id`, `criado_em` |
 | `caixas` | `id`, `funcionario_id`, `status`, `aberto_em`, `fechado_em`, `fundo_centavos`, `esperado_centavos`, `contado_centavos`, `diferenca_centavos`, `observacao`, `sem_fundo`; índice único parcial: um `aberto` por funcionário |
 | `caixa_movimentos` | `id`, `caixa_id`, `tipo` (`sangria`/`suprimento`), `valor_centavos`, `motivo`, `funcionario_id`, `criado_em` |
@@ -187,6 +188,8 @@ Conexão: `DATABASE_URL` aponta para o pooler do Supabase (modo transação) e `
 | Drizzle no servidor + Data API bloqueada | Atende "nenhuma API exposta no front-end" e o default Drizzle | supabase-js com RLS por política no cliente | Toolkit `docs/06-project-defaults.md` | Se precisar de tempo real no navegador |
 | Supabase Auth | Login por funcionário no mesmo provedor do banco | Auth próprio ou outro provedor | Pedido do dono | Se o Supabase for trocado |
 | Lógica de negócio em TypeScript com transação Drizzle | Testável com Vitest; um lugar só para as regras | Funções SQL (RPC) no banco | Toolkit (Drizzle, transações) | Se surgir concorrência que exija lock no banco |
+| Fotos enviadas no Postgres (`bytea`), reduzidas no navegador para 480×480 | Poucas dezenas de KB por produto; sem bucket, chave ou política nova; a mesma transação salva produto e foto | Supabase Storage (bucket privado + chave secreta no servidor) | Pedido do dono, 24/10/2026 | Se as fotos passarem de alguns MB no total ou precisarem de CDN |
+| Galeria padrão como SVG no repositório | Versionada, sem banco e sem marca registrada: ilustrações próprias + Fluent UI Emoji (MIT, licença em `public/produtos/galeria/`) | Fotos de banco de imagens | Pedido do dono, 24/10/2026 | — |
 | Centavos inteiros | Evitar erro de ponto flutuante | `numeric` com decimais no app | Toolkit, "valores monetários" | — |
 
 ## Manutenção

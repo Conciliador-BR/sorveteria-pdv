@@ -1,7 +1,7 @@
 import "server-only";
 import { asc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { categorias, produtos } from "@/db/schema";
+import { categorias, produtoFotos, produtos } from "@/db/schema";
 
 export async function listarCategorias() {
   return getDb()
@@ -24,6 +24,8 @@ export async function listarProdutos(opcoes: { somenteAtivos?: boolean } = {}) {
       estoqueMinimo: produtos.estoqueMinimo,
       baixaAutomatica: produtos.baixaAutomatica,
       ativo: produtos.ativo,
+      imagem: produtos.imagem,
+      fotoId: produtos.fotoId,
     })
     .from(produtos)
     .leftJoin(categorias, eq(produtos.categoriaId, categorias.id))
@@ -33,3 +35,13 @@ export async function listarProdutos(opcoes: { somenteAtivos?: boolean } = {}) {
 }
 
 export type ProdutoLista = Awaited<ReturnType<typeof listarProdutos>>[number];
+
+// Foto enviada, para a rota que entrega a imagem ao navegador.
+export async function buscarFotoProduto(id: string) {
+  const [foto] = await getDb()
+    .select({ tipo: produtoFotos.tipo, conteudo: produtoFotos.conteudo })
+    .from(produtoFotos)
+    .where(eq(produtoFotos.id, id))
+    .limit(1);
+  return foto ?? null;
+}

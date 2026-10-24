@@ -13,6 +13,8 @@ export async function listarProdutosParaVenda() {
       codigo: produtos.codigo,
       tipoVenda: produtos.tipoVenda,
       precoCentavos: produtos.precoCentavos,
+      imagem: produtos.imagem,
+      fotoId: produtos.fotoId,
       categoria: categorias.nome,
     })
     .from(produtos)
