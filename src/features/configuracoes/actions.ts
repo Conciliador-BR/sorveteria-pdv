@@ -7,7 +7,7 @@ import { violouUnico } from "@/db/erros";
 import { auditoria, bandeiras, configuracoes } from "@/db/schema";
 import { exigirDono } from "@/features/auth/sessao";
 import { errosPorCampo, lerFormulario, proximoEnvio, type EstadoFormulario } from "@/lib/formulario";
-import { editarBandeiraSchema, nomeLojaSchema, novaBandeiraSchema } from "./schemas";
+import { dadosFiscaisSchema, editarBandeiraSchema, nomeLojaSchema, novaBandeiraSchema } from "./schemas";
 
 const BANDEIRA_REPETIDA = "Já existe uma bandeira com esse nome nesse tipo.";
 
@@ -37,6 +37,43 @@ export async function salvarNomeLoja(anterior: EstadoFormulario, formData: FormD
   // O nome aparece no menu de todas as telas da área logada.
   revalidatePath("/", "layout");
   return { ok: "Nome da loja salvo.", envio };
+}
+
+export async function salvarDadosFiscais(anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {
+  const dono = await exigirDono();
+  const envio = proximoEnvio(anterior);
+  const dados = dadosFiscaisSchema.safeParse(lerFormulario(formData));
+  if (!dados.success) return { campos: errosPorCampo(dados.error), envio };
+
+  await getDb().transaction(async (tx) => {
+    const [antes] = await tx
+      .select({
+        emitirNfce: configuracoes.emitirNfce,
+        razaoSocial: configuracoes.razaoSocial,
+        cnpj: configuracoes.cnpj,
+        inscricaoEstadual: configuracoes.inscricaoEstadual,
+        endereco: configuracoes.endereco,
+        uf: configuracoes.uf,
+      })
+      .from(configuracoes)
+      .where(eq(configuracoes.id, 1))
+      .for("update")
+      .limit(1);
+    await tx
+      .insert(configuracoes)
+      .values({ id: 1, ...dados.data })
+      .onConflictDoUpdate({ target: configuracoes.id, set: { ...dados.data, atualizadoEm: sql`now()` } });
+    await tx.insert(auditoria).values({
+      tabela: "configuracoes",
+      registroId: "1",
+      acao: "editar",
+      dados: { antes: antes ?? null, depois: dados.data },
+      funcionarioId: dono.id,
+    });
+  });
+
+  revalidatePath("/configuracoes");
+  return { ok: dados.data.emitirNfce ? "Dados salvos. As próximas vendas emitem NFC-e (em modo de teste)." : "Dados salvos. Emissão de NFC-e desligada.", envio };
 }
 
 export async function criarBandeira(anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {

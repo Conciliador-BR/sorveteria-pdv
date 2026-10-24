@@ -61,7 +61,8 @@ sorveteria-pdv/
 │   │   ├── vendas/               # venda no balcão, comanda, itens e pagamento (carrinho em useCarrinho.ts)
 │   │   ├── historico/            # filtros, lista, detalhe e CSV das vendas
 │   │   ├── dashboard/
-│   │   └── configuracoes/        # nome da loja e bandeiras de cartão (exclusivo do dono)
+│   │   ├── configuracoes/        # nome da loja, dados fiscais e bandeiras de cartão (exclusivo do dono)
+│   │   └── fiscal/               # NFC-e simulada, recibo e DANFE de 80 mm (/comprovante/[id])
 │   ├── components/
 │   │   ├── ui/                   # Button, MoneyInput, WeightInput, Keypad, Modal, Card, Badge, Table...
 │   │   └── layout/               # AppShell, Sidebar, Topbar, PageHeader
@@ -151,7 +152,8 @@ Plano de schema (Drizzle, em `src/db/schema/`). Tipos inferidos com `$inferSelec
 | `venda_itens` | `id`, `venda_id`, `produto_id`, `nome_produto` (cópia), `tipo_venda`, `quantidade`, `peso_gramas`, `preco_unitario_centavos` (cópia), `total_centavos`, `lancado_por`, `criado_em` |
 | `pagamentos` | `id`, `venda_id`, `forma` (`dinheiro`/`pix`/`debito`/`credito`), `bandeira_id`, `valor_centavos`, `valor_recebido_centavos`, `criado_em` |
 | `bandeiras` | `id`, `nome`, `tipo` (`debito`/`credito`), `ativo`, `ordem`; únicas por nome (sem diferenciar maiúsculas) e tipo. O dono cadastra, renomeia e desativa em `/configuracoes`; não se apagam, porque pagamentos apontam para elas. Desativada some dos cards de pagamento (e o servidor a recusa), mas continua no histórico e no filtro |
-| `configuracoes` | Linha única (`id` = 1, garantido por CHECK, semeada pela migration): `nome_loja` (1 a 60 caracteres ou vazio), `atualizado_em`. Sem nome, o menu mostra "Sorveteria PDV"; as telas públicas sempre mostram esse nome |
+| `configuracoes` | Linha única (`id` = 1, garantido por CHECK, semeada pela migration): `nome_loja` (1 a 60 caracteres ou vazio), `emitir_nfce` e dados do emitente (`razao_social`, `cnpj` numérico ou alfanumérico sem máscara, `inscricao_estadual`, `endereco`, `uf`; CHECK exige todos com a emissão ligada), `atualizado_em`. Sem nome, o menu mostra "Sorveteria PDV"; as telas públicas sempre mostram esse nome |
+| `notas_fiscais` | Uma NFC-e por venda (`venda_id` único): `ambiente` (hoje só `homologacao`), `serie`, `numero`, `chave_acesso` (44 caracteres, única), `protocolo` (vazio na simulação; obrigatório em produção por CHECK), `emitente` (cópia em JSON), `emitida_em`, `emitida_por`. Emitida em `src/features/fiscal/emissao.ts` logo depois da transação da venda; falha só gera log e o comprovante oferece emitir de novo |
 | `auditoria` | `id`, `tabela`, `registro_id`, `acao`, `dados` (jsonb), `funcionario_id`, `criado_em` |
 
 Saldo de estoque: soma de `estoque_movimentos` por produto (consulta agregada). `quantidade` é inteiro: unidades ou gramas, conforme o `tipo_venda` do produto; por isso o tipo não muda depois que o produto tem venda ou estoque.
@@ -181,6 +183,7 @@ Conexão: `DATABASE_URL` aponta para o pooler do Supabase (modo transação) e `
 | Drizzle no servidor + Data API bloqueada | Atende "nenhuma API exposta no front-end" e o default Drizzle | supabase-js com RLS por política no cliente | Toolkit `docs/06-project-defaults.md` | Se precisar de tempo real no navegador |
 | Supabase Auth | Login por funcionário no mesmo provedor do banco | Auth próprio ou outro provedor | Pedido do dono | Se o Supabase for trocado |
 | Lógica de negócio em TypeScript com transação Drizzle | Testável com Vitest; um lugar só para as regras | Funções SQL (RPC) no banco | Toolkit (Drizzle, transações) | Se surgir concorrência que exija lock no banco |
+| NFC-e simulada, sem emissor contratado | Entregar a tela e o fluxo sem credenciais; nada sai com valor fiscal | Integrar já com Focus NFe, PlugNotas ou NFE.io | Pedido do dono, 24/10/2026 | Quando o dono tiver certificado A1, CSC e conta no emissor |
 | Centavos inteiros | Evitar erro de ponto flutuante | `numeric` com decimais no app | Toolkit, "valores monetários" | — |
 
 ## Manutenção

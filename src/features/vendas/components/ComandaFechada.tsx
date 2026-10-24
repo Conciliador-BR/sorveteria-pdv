@@ -4,7 +4,7 @@ import { estiloBotao } from "@/components/ui/Button";
 import { ConfirmacaoVenda } from "./ConfirmacaoVenda";
 
 type ComandaFechadaProps = {
-  comanda: { numero: number; status: "aberta" | "concluida" | "cancelada"; totalCentavos: number; trocoCentavos: number };
+  comanda: { id: string; numero: number; status: "aberta" | "concluida" | "cancelada"; totalCentavos: number; trocoCentavos: number };
 };
 
 // Comanda que já saiu de "aberta": cobrada (mostra o resumo e o troco) ou cancelada.

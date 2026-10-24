@@ -59,7 +59,7 @@ Se faltar tempo, saem nesta ordem: exportação CSV, modo escuro, gráfico por h
 
 ## Fora de escopo
 
-Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é confirmado à mão), delivery, fidelidade, impressão em impressora térmica, múltiplas lojas.
+Emissão real de NFC-e na SEFAZ (por enquanto só simulada; ver "Comprovante e nota fiscal"), integração automática com maquininha ou banco (Pix é confirmado à mão), delivery, fidelidade, múltiplas lojas.
 
 ## Requisitos
 
@@ -116,6 +116,21 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 | Um caixa por funcionário, cada um com sua conferência | Decidido pelo dono em 16/10/2026 | Modelo de caixa | — |
 | Nome e logo da loja | Pendente | Apresentação e layout | Dono envia |
 | Variáveis de ambiente do Supabase no host e no `.env.local` do dono | Pendente externo | Rodar o app com banco real | Dono cadastra quando o login estiver pronto |
+
+## Comprovante e nota fiscal
+
+Pedido do dono em 24/10/2026: poder imprimir o comprovante da nota fiscal na venda, se estiver ativado em Configurações.
+
+- **Documento certo:** venda no balcão para consumidor final usa **NFC-e** (Nota Fiscal de Consumidor Eletrônica, modelo 65). O papel impresso é o **DANFE NFC-e**. NF-e (modelo 55) é para venda entre empresas.
+- **Configurações (só dono):** liga/desliga "Emitir NFC-e nas vendas" e os dados da empresa: razão social, CNPJ (aceita o CNPJ alfanumérico, válido desde julho de 2026), inscrição estadual, endereço e UF. Ligar exige todos os dados.
+- **Desligado:** ao finalizar a venda, o botão "Imprimir comprovante" imprime um **recibo simples**, com o aviso "Não é documento fiscal".
+- **Ligado:** ao concluir a venda (balcão ou comanda), o sistema emite a NFC-e. O botão imprime o DANFE NFC-e. Se a emissão falhar, a venda continua valendo e o comprovante oferece "Emitir NFC-e" para tentar de novo.
+- **Hoje a emissão é simulada (homologação):** gera número, série e chave de acesso no formato oficial, mas não fala com a SEFAZ. Todo DANFE sai com "EMITIDA EM AMBIENTE DE HOMOLOGAÇÃO – SEM VALOR FISCAL", sem protocolo e sem QR Code. Nada sai com valor fiscal até o emissor real ser ligado.
+- **Impressão:** página própria de 80 mm (impressora térmica comum) pelo navegador; abre o diálogo de impressão sozinha ao sair da venda. Também é possível reimprimir pelo detalhe da venda no histórico.
+- **Quem vê:** o mesmo de "Detalhe da venda": o próprio funcionário da venda ou quem tem `pode_ver_historico`.
+- Venda cancelada continua com o comprovante, marcado "VENDA CANCELADA". O cancelamento da NFC-e na SEFAZ entra com o emissor real.
+
+Para emitir de verdade, só o dono pode providenciar: CNPJ com inscrição estadual ativa e regime tributário confirmados com o contador; certificado digital A1 da empresa; credenciamento para NFC-e e o CSC (código de segurança do contribuinte) na SEFAZ-ES; conta num emissor (ex.: Focus NFe, PlugNotas, NFE.io), com custo mensal; e, por produto, NCM e dados de imposto definidos pelo contador.
 
 ## Critérios de aceitação
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import { z } from "zod";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { estiloBotao } from "@/components/ui/Button";
@@ -31,10 +31,16 @@ export default async function VendaPage({ params }: { params: Promise<{ id: stri
       <PageHeader
         titulo={`Venda nº ${venda.numero}`}
         acoes={
-          <Link href="/vendas" className={estiloBotao({ variante: "fantasma" })}>
-            <ArrowLeft aria-hidden="true" className="size-5" />
-            Histórico
-          </Link>
+          <>
+            <Link href="/vendas" className={estiloBotao({ variante: "fantasma" })}>
+              <ArrowLeft aria-hidden="true" className="size-5" />
+              Histórico
+            </Link>
+            <Link href={`/comprovante/${venda.id}`} className={estiloBotao({ variante: "secundario" })}>
+              <Printer aria-hidden="true" className="size-5" />
+              Comprovante
+            </Link>
+          </>
         }
       />
       <CabecalhoVenda venda={venda} />
