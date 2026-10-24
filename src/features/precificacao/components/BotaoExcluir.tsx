@@ -10,10 +10,12 @@ type BotaoExcluirProps = {
   id: string;
   /** Texto do primeiro botão ("Excluir insumo", "Tirar da ficha"). */
   rotulo: string;
+  /** Nome para leitor de tela quando o texto visível é curto ("Tirar Leite da ficha"). */
+  nomeAcessivel?: string;
 };
 
 // Exclusão em dois toques: o primeiro pede confirmação, o segundo envia.
-export function BotaoExcluir({ acao, id, rotulo }: BotaoExcluirProps) {
+export function BotaoExcluir({ acao, id, rotulo, nomeAcessivel }: BotaoExcluirProps) {
   const [estado, enviar, enviando] = useActionState(acao, {} as EstadoFormulario);
   const [confirmando, setConfirmando] = useState(false);
 
@@ -31,7 +33,7 @@ export function BotaoExcluir({ acao, id, rotulo }: BotaoExcluirProps) {
           </Button>
         </div>
       ) : (
-        <Button variante="fantasma" className="self-start text-perigo" onClick={() => setConfirmando(true)}>
+        <Button variante="fantasma" className="self-start text-perigo" aria-label={nomeAcessivel} onClick={() => setConfirmando(true)}>
           {rotulo}
         </Button>
       )}

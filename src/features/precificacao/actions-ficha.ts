@@ -9,7 +9,7 @@ import { exigirDono } from "@/features/auth/sessao";
 import { formatarReais } from "@/lib/dinheiro";
 import { errosPorCampo, lerFormulario, proximoEnvio, type EstadoFormulario } from "@/lib/formulario";
 import { buscarParametros, custosMensais, listarItensFicha } from "./queries";
-import { analisarProduto } from "./regras";
+import { analisarProduto, PRECO_MAXIMO_CENTAVOS } from "./regras";
 import { aplicarPrecoSchema, idSchema, itemFichaSchema, produtoPrecificacaoSchema } from "./schemas";
 
 // Ficha técnica, rendimento, margem e aplicação do preço sugerido. Só o dono.
@@ -59,7 +59,7 @@ export async function salvarProdutoPrecificacao(anterior: EstadoFormulario, form
 
   // O preço mostrado na tela; o servidor recalcula e só aplica se for o mesmo.
   const precoTela = aplicar ? aplicarPrecoSchema.safeParse(entrada) : null;
-  if (precoTela && !precoTela.success) return { erro: "Não há preço sugerido para aplicar. Confira a ficha técnica.", envio };
+  if (precoTela && !precoTela.success) return { erro: "Não há preço sugerido que possa ir para o caixa. Confira a ficha técnica e os percentuais.", envio };
 
   // Leituras fora da transação: o pool é pequeno e a conta não depende de trava.
   let preco: number | null = null;
@@ -82,6 +82,7 @@ export async function salvarProdutoPrecificacao(anterior: EstadoFormulario, form
       custos.total,
     ).preco;
     if (preco === null) return { erro: "Não há preço sugerido para aplicar. Confira a ficha técnica e os percentuais.", envio };
+    if (preco > PRECO_MAXIMO_CENTAVOS) return { erro: "O preço sugerido passa de R$ 100.000,00. Confira a ficha técnica e os percentuais.", envio };
     if (preco !== precoTela.data.precoCentavos) {
       return { erro: `Os custos mudaram e o preço sugerido agora é ${formatarReais(preco)}. Confira e aplique de novo.`, envio };
     }

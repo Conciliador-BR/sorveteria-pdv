@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { lerReais } from "@/lib/dinheiro";
 import { vazioViraNulo } from "@/lib/formulario";
-import { lerPercentual } from "./regras";
+import { lerPercentual, PRECO_MAXIMO_CENTAVOS } from "./regras";
 
 const LIMITE_REAIS = 100_000_000; // R$ 1.000.000,00: cabe com folga no integer.
 
@@ -82,5 +82,5 @@ export const produtoPrecificacaoSchema = z.object({
 // O preço que a tela mostrou: o servidor recalcula e recusa se mudou nesse meio-tempo.
 export const aplicarPrecoSchema = z.object({
   produtoId: z.uuid("Produto inválido. Recarregue a página."),
-  precoCentavos: z.coerce.number().int().min(1).max(100_000_00),
+  precoCentavos: z.coerce.number().int().min(1).max(PRECO_MAXIMO_CENTAVOS),
 });

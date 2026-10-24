@@ -1,6 +1,6 @@
 # Qualidade
 
-> Estado em 19/10/2026: todos os comandos da tabela existem e passam (111 testes: fronteiras do servidor, login e permissões, regras de dinheiro, troco, peso, caixa, estoque, carrinho e pagamento, filtros e CSV do histórico, gráficos do dashboard, configurações da loja e bandeiras). Os testes E2E (Playwright) existem: na nuvem, sem as variáveis do Supabase, só o smoke da apresentação roda; o de login e redirecionamento passou com valores fictícios de `SUPABASE_*` (sem sessão, o servidor não chama o Supabase). O fluxo da loja e as permissões ainda não rodaram contra o Supabase de desenvolvimento. Não há teste de integração com banco.
+> Estado em 24/10/2026: todos os comandos da tabela existem e passam (143 testes: fronteiras do servidor, login e permissões, regras de dinheiro, troco, peso, caixa, estoque, carrinho e pagamento, filtros e CSV do histórico, gráficos do dashboard, configurações da loja e bandeiras, cálculo da precificação e permissão de dono nas ações dela). Os testes E2E (Playwright) existem: na nuvem, sem as variáveis do Supabase, só o smoke da apresentação roda; o de login e redirecionamento passou com valores fictícios de `SUPABASE_*` (sem sessão, o servidor não chama o Supabase). O fluxo da loja e as permissões ainda não rodaram contra o Supabase de desenvolvimento. Não há teste de integração com banco.
 
 ## Comandos
 

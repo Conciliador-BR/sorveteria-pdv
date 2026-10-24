@@ -23,7 +23,7 @@ export function FichaTecnica({ produtoId, itens, insumos }: { produtoId: string;
                 {item.quantidade} {rotuloUnidade(item.unidade)}
               </span>
               <span className="ml-auto tabular-nums">{formatarReais(Math.round(custoItem(item)))}</span>
-              <BotaoExcluir acao={removerItemFicha} id={item.id} rotulo="Tirar" />
+              <BotaoExcluir acao={removerItemFicha} id={item.id} rotulo="Tirar" nomeAcessivel={`Tirar ${item.nome} da ficha`} />
             </li>
           ))}
           <li className="flex justify-between gap-3 py-2 font-semibold">

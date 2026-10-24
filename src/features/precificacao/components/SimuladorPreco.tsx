@@ -15,6 +15,7 @@ import {
   lucroDoPreco,
   markupPercentual,
   percentualParaCampo,
+  PRECO_MAXIMO_CENTAVOS,
   precoSugerido,
   type ItemFicha,
   type TipoVenda,
@@ -59,6 +60,7 @@ export function SimuladorPreco({ produto, itens, rendimentoInicial, margemPropri
   if (custo === null) aviso = itens.length === 0 ? "Monte a ficha técnica acima para calcular o preço." : "Informe quanto a receita rende.";
   else if (margemDigitada === null) aviso = "Digite a margem como número, por exemplo 30 ou 42,5.";
   else if (preco === null) aviso = "Despesas mais margem chegam a 100% ou mais: não existe preço que cubra. Diminua a margem.";
+  else if (preco > PRECO_MAXIMO_CENTAVOS) aviso = "O preço sugerido passa de R$ 100.000,00. Confira a receita, o rendimento e os percentuais.";
 
   return (
     <form action={acao} className="flex flex-col gap-4" noValidate>
@@ -117,7 +119,7 @@ export function SimuladorPreco({ produto, itens, rendimentoInicial, margemPropri
         <Button type="submit" name="aplicar" value="nao" variante="secundario" carregando={enviando} textoCarregando="Salvando…">
           Salvar rendimento e margem
         </Button>
-        {preco !== null && preco !== produto.precoCentavos ? (
+        {!aviso && preco !== null && preco !== produto.precoCentavos ? (
           <Button type="submit" name="aplicar" value="sim" carregando={enviando} textoCarregando="Salvando…">
             Usar {formatarReais(preco)} no caixa
           </Button>

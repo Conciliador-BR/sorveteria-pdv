@@ -2,6 +2,8 @@
 // Os custos por unidade podem ter frações de centavo; só o preço final é arredondado.
 
 export const PERCENTUAL_MAXIMO = 10_000;
+// Mesmo teto do preço no cadastro de produtos (R$ 100.000,00).
+export const PRECO_MAXIMO_CENTAVOS = 100_000_00;
 
 export type UnidadeInsumo = "g" | "ml" | "un";
 export type TipoVenda = "unidade" | "peso";
