@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { exigirFuncionario } from "@/features/auth/sessao";
 import { buscarCaixaAberto } from "@/features/caixa/queries";
 import { PainelComandas } from "@/features/vendas/components/PainelComandas";
@@ -18,10 +17,11 @@ export default async function VenderPage() {
   const [comandas, produtos, bandeiras] = await Promise.all([listarComandasAbertas(), listarProdutosParaVenda(), listarBandeirasAtivas()]);
   return (
     <>
-      <PageHeader titulo="Vender e comandas" descricao="Venda no balcão aqui embaixo ou toque numa comanda para lançar e cobrar." />
+      {/* PDV sem cabeçalho de página: o título fica só para leitores de tela. */}
+      <h1 className="sr-only">Vender e comandas</h1>
       <PainelComandas comandas={comandas} podeAbrir />
       {/* Sem título visível: produtos, carrinho e pagamento já têm os próprios títulos. */}
-      <section aria-label="Venda no balcão">
+      <section aria-label="Venda no balcão" className="md:min-h-0 md:flex-1">
         <PdvBalcao produtos={produtos} bandeiras={bandeiras} />
       </section>
     </>

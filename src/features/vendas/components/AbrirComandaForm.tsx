@@ -16,9 +16,9 @@ export function AbrirComandaForm() {
   return (
     <form ref={formRef} onSubmit={enviar} className="flex flex-col gap-3" noValidate>
       <RetornoFormulario estado={estado} />
-      {/* Campo e botão lado a lado no tablet; empilhados no celular e na coluna do computador. */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end lg:flex-col lg:items-stretch">
-        <div className="min-w-0 flex-1">
+      {/* Campo e botão lado a lado a partir do tablet; empilhados no celular. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="min-w-0 flex-1 lg:w-64">
           <Campo
             name="identificacao"
             rotulo="Nome ou número da comanda"
@@ -29,7 +29,7 @@ export function AbrirComandaForm() {
             erro={estado.campos?.identificacao}
           />
         </div>
-        <Button type="submit" tamanho="lg" carregando={enviando} textoCarregando="Abrindo…">
+        <Button type="submit" carregando={enviando} textoCarregando="Abrindo…">
           Abrir comanda
         </Button>
       </div>
