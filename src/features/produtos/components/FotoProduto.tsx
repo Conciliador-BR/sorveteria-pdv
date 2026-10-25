@@ -1,17 +1,38 @@
 import { IceCreamCone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { enderecoFoto } from "../galeria";
 
-type FotoProdutoProps = { className?: string };
+type FotoProdutoProps = {
+  /** Sem imagem escolhida (ou sem produto), mostra um desenho neutro na mesma área. */
+  produto?: { imagem: string | null; fotoId: string | null };
+  className?: string;
+};
 
-// Espaço da foto do produto nos cartões de venda. Enquanto o produto não tiver foto, mostra um desenho neutro.
-// A foto (padrão ou enviada no cadastro) entra aqui, ocupando a mesma área.
-export function FotoProduto({ className }: FotoProdutoProps) {
+// Foto do produto nos cartões de venda, na lista e no cadastro. Decorativa: o nome do produto já aparece ao lado.
+// Imagem da galeria fica inteira sobre o fundo suave; foto enviada preenche a área.
+export function FotoProduto({ produto, className }: FotoProdutoProps) {
+  const endereco = produto ? enderecoFoto(produto) : null;
   return (
     <span
       aria-hidden="true"
-      className={cn("grid aspect-[16/9] w-full place-items-center bg-linear-135 from-primaria-suave to-acento-suave text-primaria/60", className)}
+      className={cn(
+        "grid aspect-[16/9] w-full place-items-center overflow-hidden bg-linear-135 from-primaria-suave to-acento-suave text-primaria/60",
+        className,
+      )}
     >
-      <IceCreamCone className="size-8" />
+      {endereco ? (
+        // eslint-disable-next-line @next/next/no-img-element -- SVG da galeria e foto já reduzida: o otimizador do Next não ajuda aqui.
+        <img
+          src={endereco}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          className={produto?.fotoId ? "size-full object-cover" : "size-[78%] object-contain drop-shadow-sm"}
+        />
+      ) : (
+        <IceCreamCone className="size-8" />
+      )}
     </span>
   );
 }

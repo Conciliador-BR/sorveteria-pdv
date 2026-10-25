@@ -112,7 +112,7 @@ export function GradeProdutos({ produtos, aoEscolher, refBusca }: GradeProdutosP
                 onClick={() => escolher(produto)}
                 className="group flex h-full w-full flex-col overflow-hidden rounded-card border border-borda bg-superficie text-left shadow-suave transition-all duration-150 hover:-translate-y-0.5 hover:border-primaria/50 hover:shadow-elevada active:scale-[0.98]"
               >
-                <FotoProduto />
+                <FotoProduto produto={produto} />
                 <span className="flex flex-1 flex-col justify-between gap-2 p-3">
                   <span className="font-semibold leading-snug">{produto.nome}</span>
                   <span className="self-start rounded-full bg-primaria-suave px-2.5 py-0.5 text-sm font-bold text-primaria-escura tabular-nums">
