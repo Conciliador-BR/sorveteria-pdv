@@ -1,6 +1,6 @@
 {
-  "id": "74417027-62fd-4f7f-8370-7a77a4dd5a8e",
-  "prevId": "4af10f18-649e-4e97-a274-c0137bf4b3df",
+  "id": "b046e1d5-46b0-4215-bb6d-30b2c97e91b6",
+  "prevId": "3ddc58d5-4bc2-4394-a6fe-ed93068e1c6a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -862,6 +862,87 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
+    "public.comanda_lancamentos": {
+      "name": "comanda_lancamentos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "venda_id": {
+          "name": "venda_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lancado_por": {
+          "name": "lancado_por",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "comanda_lancamentos_venda_idx": {
+          "name": "comanda_lancamentos_venda_idx",
+          "columns": [
+            {
+              "expression": "venda_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "comanda_lancamentos_venda_id_vendas_id_fk": {
+          "name": "comanda_lancamentos_venda_id_vendas_id_fk",
+          "tableFrom": "comanda_lancamentos",
+          "tableTo": "vendas",
+          "columnsFrom": [
+            "venda_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "comanda_lancamentos_lancado_por_funcionarios_id_fk": {
+          "name": "comanda_lancamentos_lancado_por_funcionarios_id_fk",
+          "tableFrom": "comanda_lancamentos",
+          "tableTo": "funcionarios",
+          "columnsFrom": [
+            "lancado_por"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
     "public.pagamentos": {
       "name": "pagamentos",
       "schema": "",
@@ -1025,6 +1106,13 @@
           "primaryKey": false,
           "notNull": false
         },
+        "peso_pelo_valor": {
+          "name": "peso_pelo_valor",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "preco_unitario_centavos": {
           "name": "preco_unitario_centavos",
           "type": "integer",
@@ -1135,6 +1223,10 @@
         "venda_itens_peso_coerente": {
           "name": "venda_itens_peso_coerente",
           "value": "(\"venda_itens\".\"tipo_venda\" = 'peso') = (\"venda_itens\".\"peso_gramas\" is not null and \"venda_itens\".\"peso_gramas\" > 0)"
+        },
+        "venda_itens_peso_pelo_valor_coerente": {
+          "name": "venda_itens_peso_pelo_valor_coerente",
+          "value": "not \"venda_itens\".\"peso_pelo_valor\" or \"venda_itens\".\"tipo_venda\" = 'peso'"
         },
         "venda_itens_valores_positivos": {
           "name": "venda_itens_valores_positivos",
@@ -1420,452 +1512,6 @@
         }
       },
       "isRLSEnabled": true
-    },
-    "public.custos_fixos": {
-      "name": "custos_fixos",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "nome": {
-          "name": "nome",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "valor_mensal_centavos": {
-          "name": "valor_mensal_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "custos_fixos_valor_positivo": {
-          "name": "custos_fixos_valor_positivo",
-          "value": "\"custos_fixos\".\"valor_mensal_centavos\" >= 0"
-        }
-      },
-      "isRLSEnabled": true
-    },
-    "public.ficha_tecnica_itens": {
-      "name": "ficha_tecnica_itens",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "produto_id": {
-          "name": "produto_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "insumo_id": {
-          "name": "insumo_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "quantidade": {
-          "name": "quantidade",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "ficha_tecnica_itens_produto_insumo_unico": {
-          "name": "ficha_tecnica_itens_produto_insumo_unico",
-          "columns": [
-            {
-              "expression": "produto_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "insumo_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "ficha_tecnica_itens_insumo_idx": {
-          "name": "ficha_tecnica_itens_insumo_idx",
-          "columns": [
-            {
-              "expression": "insumo_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "ficha_tecnica_itens_produto_id_produtos_id_fk": {
-          "name": "ficha_tecnica_itens_produto_id_produtos_id_fk",
-          "tableFrom": "ficha_tecnica_itens",
-          "tableTo": "produtos",
-          "columnsFrom": [
-            "produto_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "ficha_tecnica_itens_insumo_id_insumos_id_fk": {
-          "name": "ficha_tecnica_itens_insumo_id_insumos_id_fk",
-          "tableFrom": "ficha_tecnica_itens",
-          "tableTo": "insumos",
-          "columnsFrom": [
-            "insumo_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "ficha_tecnica_itens_quantidade_positiva": {
-          "name": "ficha_tecnica_itens_quantidade_positiva",
-          "value": "\"ficha_tecnica_itens\".\"quantidade\" > 0"
-        }
-      },
-      "isRLSEnabled": true
-    },
-    "public.insumos": {
-      "name": "insumos",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "nome": {
-          "name": "nome",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "unidade": {
-          "name": "unidade",
-          "type": "unidade_insumo",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "embalagem_quantidade": {
-          "name": "embalagem_quantidade",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "embalagem_preco_centavos": {
-          "name": "embalagem_preco_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "atualizado_em": {
-          "name": "atualizado_em",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "insumos_nome_sem_caixa_unico": {
-          "name": "insumos_nome_sem_caixa_unico",
-          "columns": [
-            {
-              "expression": "lower(\"nome\")",
-              "asc": true,
-              "isExpression": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "insumos_embalagem_quantidade_positiva": {
-          "name": "insumos_embalagem_quantidade_positiva",
-          "value": "\"insumos\".\"embalagem_quantidade\" > 0"
-        },
-        "insumos_embalagem_preco_positivo": {
-          "name": "insumos_embalagem_preco_positivo",
-          "value": "\"insumos\".\"embalagem_preco_centavos\" >= 0"
-        }
-      },
-      "isRLSEnabled": true
-    },
-    "public.maquinas": {
-      "name": "maquinas",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "nome": {
-          "name": "nome",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "valor_compra_centavos": {
-          "name": "valor_compra_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "valor_residual_centavos": {
-          "name": "valor_residual_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "vida_util_meses": {
-          "name": "vida_util_meses",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "maquinas_valores_validos": {
-          "name": "maquinas_valores_validos",
-          "value": "\"maquinas\".\"valor_residual_centavos\" >= 0 and \"maquinas\".\"valor_residual_centavos\" <= \"maquinas\".\"valor_compra_centavos\""
-        },
-        "maquinas_vida_util_positiva": {
-          "name": "maquinas_vida_util_positiva",
-          "value": "\"maquinas\".\"vida_util_meses\" > 0"
-        }
-      },
-      "isRLSEnabled": true
-    },
-    "public.precificacao_parametros": {
-      "name": "precificacao_parametros",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "default": 1
-        },
-        "faturamento_mensal_centavos": {
-          "name": "faturamento_mensal_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "imposto_percentual": {
-          "name": "imposto_percentual",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "taxa_cartao_percentual": {
-          "name": "taxa_cartao_percentual",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "parte_cartao_percentual": {
-          "name": "parte_cartao_percentual",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "perdas_percentual": {
-          "name": "perdas_percentual",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "margem_padrao_percentual": {
-          "name": "margem_padrao_percentual",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 3000
-        },
-        "regime_imposto": {
-          "name": "regime_imposto",
-          "type": "regime_imposto",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'percentual'"
-        },
-        "anexo_simples": {
-          "name": "anexo_simples",
-          "type": "anexo_simples",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'I'"
-        },
-        "receita_12_meses_centavos": {
-          "name": "receita_12_meses_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "das_mensal_centavos": {
-          "name": "das_mensal_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "atualizado_em": {
-          "name": "atualizado_em",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "precificacao_parametros_linha_unica": {
-          "name": "precificacao_parametros_linha_unica",
-          "value": "\"precificacao_parametros\".\"id\" = 1"
-        },
-        "precificacao_parametros_faturamento_positivo": {
-          "name": "precificacao_parametros_faturamento_positivo",
-          "value": "\"precificacao_parametros\".\"faturamento_mensal_centavos\" > 0"
-        },
-        "precificacao_parametros_receita_12_meses_positiva": {
-          "name": "precificacao_parametros_receita_12_meses_positiva",
-          "value": "\"precificacao_parametros\".\"receita_12_meses_centavos\" > 0"
-        },
-        "precificacao_parametros_das_positivo": {
-          "name": "precificacao_parametros_das_positivo",
-          "value": "\"precificacao_parametros\".\"das_mensal_centavos\" >= 0"
-        },
-        "precificacao_parametros_percentuais_faixa": {
-          "name": "precificacao_parametros_percentuais_faixa",
-          "value": "\"precificacao_parametros\".\"imposto_percentual\" between 0 and 9900 and \"precificacao_parametros\".\"taxa_cartao_percentual\" between 0 and 9900 and \"precificacao_parametros\".\"parte_cartao_percentual\" between 0 and 10000 and \"precificacao_parametros\".\"perdas_percentual\" between 0 and 9900 and \"precificacao_parametros\".\"margem_padrao_percentual\" between 0 and 9900"
-        }
-      },
-      "isRLSEnabled": true
-    },
-    "public.precificacao_produtos": {
-      "name": "precificacao_produtos",
-      "schema": "",
-      "columns": {
-        "produto_id": {
-          "name": "produto_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "rendimento": {
-          "name": "rendimento",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "margem_percentual": {
-          "name": "margem_percentual",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "precificacao_produtos_produto_id_produtos_id_fk": {
-          "name": "precificacao_produtos_produto_id_produtos_id_fk",
-          "tableFrom": "precificacao_produtos",
-          "tableTo": "produtos",
-          "columnsFrom": [
-            "produto_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "precificacao_produtos_rendimento_positivo": {
-          "name": "precificacao_produtos_rendimento_positivo",
-          "value": "\"precificacao_produtos\".\"rendimento\" > 0"
-        },
-        "precificacao_produtos_margem_faixa": {
-          "name": "precificacao_produtos_margem_faixa",
-          "value": "\"precificacao_produtos\".\"margem_percentual\" between 0 and 9900"
-        }
-      },
-      "isRLSEnabled": true
     }
   },
   "enums": {
@@ -1958,32 +1604,6 @@
       "values": [
         "balcao",
         "comanda"
-      ]
-    },
-    "public.anexo_simples": {
-      "name": "anexo_simples",
-      "schema": "public",
-      "values": [
-        "I",
-        "II"
-      ]
-    },
-    "public.regime_imposto": {
-      "name": "regime_imposto",
-      "schema": "public",
-      "values": [
-        "percentual",
-        "simples",
-        "mei"
-      ]
-    },
-    "public.unidade_insumo": {
-      "name": "unidade_insumo",
-      "schema": "public",
-      "values": [
-        "g",
-        "ml",
-        "un"
       ]
     }
   },

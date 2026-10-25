@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatarQuantidade, movimentoDoLancamento, situacaoEstoque } from "./regras";
+import { formatarQuantidade, movimentoDoLancamento, situacaoEstoque, valorEmEstoque } from "./regras";
 
 describe("movimentoDoLancamento", () => {
   it("entrada soma e saída subtrai", () => {
@@ -25,5 +25,17 @@ describe("formatarQuantidade", () => {
   it("mostra unidades ou quilos", () => {
     expect(formatarQuantidade(12, "unidade")).toBe("12 un");
     expect(formatarQuantidade(2500, "peso")).toBe("2,5 kg");
+  });
+});
+
+describe("valorEmEstoque", () => {
+  it("multiplica o saldo pelo preço de venda", () => {
+    expect(valorEmEstoque(12, 850, "unidade")).toBe(10200);
+    expect(valorEmEstoque(2500, 6990, "peso")).toBe(17475);
+  });
+
+  it("saldo zerado ou negativo não vale nada", () => {
+    expect(valorEmEstoque(0, 850, "unidade")).toBe(0);
+    expect(valorEmEstoque(-3, 850, "unidade")).toBe(0);
   });
 });

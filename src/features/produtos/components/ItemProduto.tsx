@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { formatarReais } from "@/lib/dinheiro";
 import type { ProdutoLista } from "../queries";
+import { FotoProduto } from "./FotoProduto";
 import { ProdutoForm } from "./ProdutoForm";
 
 type ItemProdutoProps = {
@@ -16,6 +17,7 @@ export function ItemProduto({ produto, categorias }: ItemProdutoProps) {
     <Card className="p-4">
       <details>
         <summary className="flex min-h-12 cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1">
+          <FotoProduto produto={produto} className="size-12 shrink-0 rounded-campo" />
           <span className="font-semibold">{produto.nome}</span>
           <span className="font-semibold text-primaria-escura tabular-nums">
             {formatarReais(produto.precoCentavos)}

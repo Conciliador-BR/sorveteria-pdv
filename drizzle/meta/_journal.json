@@ -47,15 +47,36 @@
     {
       "idx": 6,
       "version": "7",
-      "when": 1792856726402,
-      "tag": "0006_precificacao",
+      "when": 1792435254847,
+      "tag": "0006_item_peso_pelo_valor",
       "breakpoints": true
     },
     {
       "idx": 7,
       "version": "7",
+      "when": 1792435755534,
+      "tag": "0007_lancamentos_da_comanda",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792856726402,
+      "tag": "0008_precificacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792883952769,
+      "tag": "0009_fotos_dos_produtos",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
       "when": 1792935788332,
-      "tag": "0007_imposto_regime",
+      "tag": "0010_imposto_regime",
       "breakpoints": true
     }
   ]
