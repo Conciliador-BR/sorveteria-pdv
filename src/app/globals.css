@@ -19,27 +19,28 @@
   --color-secundaria-escura: #a82a50;
   --color-secundaria-suave: #fde8ee;
 
-  /* Manga: sempre com texto chocolate por cima (8,84:1); branco não passa. */
+  /* Manga: sempre com texto escuro por cima (8,35:1); branco não passa. */
   --color-acento: #ffb547;
   --color-acento-suave: #fff1db;
 
-  /* Menta: preenchimento com texto chocolate (7,41:1). Texto verde usa sucesso-escuro. */
+  /* Menta: preenchimento com texto escuro (7,00:1). Texto verde usa sucesso-escuro. */
   --color-sucesso: #3cc8a8;
   --color-sucesso-escuro: #17705d;
   --color-sucesso-suave: #e6f7f2;
 
-  /* Framboesa escurecida (era #D93A4A, 4,32:1 sobre o fundo). Agora 5,12:1 no fundo. */
+  /* Framboesa escurecida (era #D93A4A, 4,32:1 sobre o fundo). Agora 4,90:1 no fundo. */
   --color-perigo: #c53340;
   --color-perigo-escuro: #a92a36;
   --color-perigo-suave: #fdecee;
 
-  --color-fundo: #fbf7f2;
+  /* Neutros frios (cinza-azulado) para conversar com o azul-noite do menu lateral. */
+  --color-fundo: #f3f5f7;
   --color-superficie: #ffffff;
-  /* Areia: divisórias decorativas. Contorno de campo usa borda-forte (3:1 ou mais). */
-  --color-borda: #ece3d8;
-  --color-borda-forte: #8c7e73;
-  --color-texto: #2b2220;
-  --color-texto-suave: #6e615c;
+  /* Névoa: divisórias decorativas. Contorno de campo usa borda-forte (3:1 ou mais). */
+  --color-borda: #e3e8ee;
+  --color-borda-forte: #7a8794;
+  --color-texto: #1f2a30;
+  --color-texto-suave: #56626c;
 
   /* Tinta: azul-noite do menu lateral e das faixas escuras da apresentação.
      Branco sobre ela: 15,89:1; manga sobre ela: 9,04:1 (foco e destaques no escuro). */
@@ -149,7 +150,7 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Foco visível em qualquer controle navegado pelo teclado (7,39:1 sobre o fundo). */
+  /* Foco visível em qualquer controle navegado pelo teclado (7,07:1 sobre o fundo). */
   :focus-visible {
     outline: 3px solid var(--color-primaria-escura);
     outline-offset: 2px;
