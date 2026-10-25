@@ -7,6 +7,7 @@ export type IconeMenu =
   | "produtos"
   | "historico"
   | "dashboard"
+  | "precificacao"
   | "funcionarios"
   | "configuracoes";
 
@@ -22,6 +23,8 @@ const itens: readonly (ItemMenu & { regra: Regra })[] = [
   // Todos veem as próprias vendas; quem tem `pode_ver_historico` vê as de todos.
   { href: "/vendas", rotulo: "Histórico", icone: "historico", regra: "todos" },
   { href: "/dashboard", rotulo: "Dashboard", icone: "dashboard", regra: "dono" },
+  // Custos e margem são do dono: nem quem gerencia produtos vê.
+  { href: "/precificacao", rotulo: "Precificação", icone: "precificacao", regra: "dono" },
   { href: "/funcionarios", rotulo: "Funcionários", icone: "funcionarios", regra: "dono" },
   { href: "/configuracoes", rotulo: "Configurações", icone: "configuracoes", regra: "dono" },
 ];

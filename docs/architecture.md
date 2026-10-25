@@ -54,6 +54,7 @@ sorveteria-pdv/
 │   │       ├── estoque/page.tsx
 │   │       ├── vendas/page.tsx, vendas/[id]/page.tsx, vendas/csv/route.ts
 │   │       ├── dashboard/page.tsx
+│   │       ├── precificacao/page.tsx   # abas por ?aba= (precos, insumos, custos, taxas)
 │   │       ├── funcionarios/page.tsx
 │   │       └── configuracoes/page.tsx
 │   ├── features/                 # um módulo por funcionalidade
@@ -65,6 +66,7 @@ sorveteria-pdv/
 │   │   ├── vendas/               # venda no balcão, comanda, itens e pagamento (carrinho em useCarrinho.ts)
 │   │   ├── historico/            # filtros, lista, detalhe e CSV das vendas
 │   │   ├── dashboard/
+│   │   ├── precificacao/         # insumos, ficha técnica, custos fixos, máquinas, parâmetros e preço sugerido (exclusivo do dono)
 │   │   └── configuracoes/        # nome da loja e bandeiras de cartão (exclusivo do dono)
 │   ├── components/
 │   │   ├── ui/                   # Button, MoneyInput, WeightInput, Keypad, Modal, Card, Badge, Table...
@@ -159,7 +161,15 @@ Plano de schema (Drizzle, em `src/db/schema/`). Tipos inferidos com `$inferSelec
 | `pagamentos` | `id`, `venda_id`, `forma` (`dinheiro`/`pix`/`debito`/`credito`), `bandeira_id`, `valor_centavos`, `valor_recebido_centavos`, `criado_em` |
 | `bandeiras` | `id`, `nome`, `tipo` (`debito`/`credito`), `ativo`, `ordem`; únicas por nome (sem diferenciar maiúsculas) e tipo. O dono cadastra, renomeia e desativa em `/configuracoes`; não se apagam, porque pagamentos apontam para elas. Desativada some dos cards de pagamento (e o servidor a recusa), mas continua no histórico e no filtro |
 | `configuracoes` | Linha única (`id` = 1, garantido por CHECK, semeada pela migration): `nome_loja` (1 a 60 caracteres ou vazio), `atualizado_em`. Sem nome, o menu mostra "Sorveteria PDV"; as telas públicas sempre mostram esse nome |
+| `insumos` | `id`, `nome` (único sem diferenciar maiúsculas), `unidade` (`g`/`ml`/`un`), `embalagem_quantidade`, `embalagem_preco_centavos`, `atualizado_em`. Não se exclui insumo que está numa ficha (FK `restrict`) |
+| `ficha_tecnica_itens` | `id`, `produto_id` (cascade), `insumo_id`, `quantidade` (na unidade do insumo); único por produto e insumo |
+| `precificacao_produtos` | `produto_id` (PK, cascade), `rendimento` (unidades, ou gramas no produto por peso), `margem_percentual` (vazio = padrão). Sem linha: rende 1 unidade ou 1 kg |
+| `custos_fixos` | `id`, `nome`, `valor_mensal_centavos` |
+| `maquinas` | `id`, `nome`, `valor_compra_centavos`, `valor_residual_centavos`, `vida_util_meses` |
+| `precificacao_parametros` | Linha única (`id` = 1, semeada): `faturamento_mensal_centavos`, `imposto_percentual`, `taxa_cartao_percentual`, `parte_cartao_percentual`, `perdas_percentual`, `margem_padrao_percentual`. Percentuais em centésimos de ponto (3000 = 30%). Imposto: `regime_imposto` (`percentual`/`simples`/`mei`), `anexo_simples` (`I`/`II`), `receita_12_meses_centavos`, `das_mensal_centavos`; tabelas do Simples em `src/features/precificacao/imposto.ts` |
 | `auditoria` | `id`, `tabela`, `registro_id`, `acao`, `dados` (jsonb), `funcionario_id`, `criado_em` |
+
+Precificação: cálculo puro em `src/features/precificacao/regras.ts`, usado pela tela (simulador ao vivo) e pelo servidor. O custo do produto não é copiado para `produtos`; `custoUnitarioDosProdutos()` (`queries.ts`) devolve o custo por unidade ou kg de quem tem ficha, para outras telas (ex.: valor do estoque) usarem `custo ?? preço`. Todas as Server Actions chamam `exigirDono()`; só "usar este preço" mexe em `produtos.preco_centavos`, numa transação com trava do produto e linha em `auditoria` (`origem: precificacao`). Os cadastros da precificação são planejamento e não vão para a auditoria.
 
 Saldo de estoque: soma de `estoque_movimentos` por produto (consulta agregada). `quantidade` é inteiro: unidades ou gramas, conforme o `tipo_venda` do produto; por isso o tipo não muda depois que o produto tem venda ou estoque.
 

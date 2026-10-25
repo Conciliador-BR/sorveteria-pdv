@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Calculator,
   History,
   IceCreamCone,
   LayoutDashboard,
@@ -23,6 +24,7 @@ const icones: Record<IconeMenu, LucideIcon> = {
   produtos: IceCreamCone,
   historico: History,
   dashboard: LayoutDashboard,
+  precificacao: Calculator,
   funcionarios: Users,
   configuracoes: Settings,
 };

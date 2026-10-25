@@ -42,6 +42,7 @@ describe("itensDoMenu", () => {
       "Produtos",
       "Histórico",
       "Dashboard",
+      "Precificação",
       "Funcionários",
       "Configurações",
     ]);
