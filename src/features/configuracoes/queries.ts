@@ -11,6 +11,24 @@ export async function buscarNomeLojaSalvo() {
   return linha?.nomeLoja ?? null;
 }
 
+export async function buscarDadosFiscais() {
+  const [linha] = await getDb()
+    .select({
+      emitirNfce: configuracoes.emitirNfce,
+      razaoSocial: configuracoes.razaoSocial,
+      cnpj: configuracoes.cnpj,
+      inscricaoEstadual: configuracoes.inscricaoEstadual,
+      endereco: configuracoes.endereco,
+      uf: configuracoes.uf,
+    })
+    .from(configuracoes)
+    .where(eq(configuracoes.id, 1))
+    .limit(1);
+  return linha ?? { emitirNfce: false, razaoSocial: null, cnpj: null, inscricaoEstadual: null, endereco: null, uf: null };
+}
+
+export type DadosFiscais = Awaited<ReturnType<typeof buscarDadosFiscais>>;
+
 // Para o cabeçalho da área logada: uma falha ao ler o nome não pode derrubar o balcão.
 export async function buscarNomeLoja() {
   try {

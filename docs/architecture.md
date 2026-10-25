@@ -67,7 +67,8 @@ sorveteria-pdv/
 │   │   ├── historico/            # filtros, lista, detalhe e CSV das vendas
 │   │   ├── dashboard/
 │   │   ├── precificacao/         # insumos, ficha técnica, custos fixos, máquinas, parâmetros e preço sugerido (exclusivo do dono)
-│   │   └── configuracoes/        # nome da loja e bandeiras de cartão (exclusivo do dono)
+│   │   ├── configuracoes/        # nome da loja, dados fiscais e bandeiras de cartão (exclusivo do dono)
+│   │   └── fiscal/               # NFC-e simulada, recibo e DANFE de 80 mm (/comprovante/[id])
 │   ├── components/
 │   │   ├── ui/                   # Button, MoneyInput, WeightInput, Keypad, Modal, Card, Badge, Table...
 │   │   └── layout/               # AppShell, Sidebar, Topbar, PageHeader
@@ -160,7 +161,8 @@ Plano de schema (Drizzle, em `src/db/schema/`). Tipos inferidos com `$inferSelec
 | `comanda_lancamentos` | `id` (gerado na tela, um por envio de "Lançar na comanda"; envio repetido esbarra na chave e não lança de novo), `venda_id`, `lancado_por`, `criado_em` |
 | `pagamentos` | `id`, `venda_id`, `forma` (`dinheiro`/`pix`/`debito`/`credito`), `bandeira_id`, `valor_centavos`, `valor_recebido_centavos`, `criado_em` |
 | `bandeiras` | `id`, `nome`, `tipo` (`debito`/`credito`), `ativo`, `ordem`; únicas por nome (sem diferenciar maiúsculas) e tipo. O dono cadastra, renomeia e desativa em `/configuracoes`; não se apagam, porque pagamentos apontam para elas. Desativada some dos cards de pagamento (e o servidor a recusa), mas continua no histórico e no filtro |
-| `configuracoes` | Linha única (`id` = 1, garantido por CHECK, semeada pela migration): `nome_loja` (1 a 60 caracteres ou vazio), `atualizado_em`. Sem nome, o menu mostra "Sorveteria PDV"; as telas públicas sempre mostram esse nome |
+| `configuracoes` | Linha única (`id` = 1, garantido por CHECK, semeada pela migration): `nome_loja` (1 a 60 caracteres ou vazio), `emitir_nfce` e dados do emitente (`razao_social`, `cnpj` numérico ou alfanumérico sem máscara, `inscricao_estadual`, `endereco`, `uf`; CHECK exige todos com a emissão ligada), `atualizado_em`. Sem nome, o menu mostra "Sorveteria PDV"; as telas públicas sempre mostram esse nome |
+| `notas_fiscais` | Uma NFC-e por venda (`venda_id` único): `ambiente` (hoje só `homologacao`), `serie`, `numero`, `chave_acesso` (44 caracteres, única), `protocolo` (vazio na simulação; obrigatório em produção por CHECK), `emitente` (cópia em JSON), `emitida_em`, `emitida_por`. Emitida em `src/features/fiscal/emissao.ts` logo depois da transação da venda; falha só gera log e o comprovante oferece emitir de novo |
 | `insumos` | `id`, `nome` (único sem diferenciar maiúsculas), `unidade` (`g`/`ml`/`un`), `embalagem_quantidade`, `embalagem_preco_centavos`, `atualizado_em`. Não se exclui insumo que está numa ficha (FK `restrict`) |
 | `ficha_tecnica_itens` | `id`, `produto_id` (cascade), `insumo_id`, `quantidade` (na unidade do insumo); único por produto e insumo |
 | `precificacao_produtos` | `produto_id` (PK, cascade), `rendimento` (unidades, ou gramas no produto por peso), `margem_percentual` (vazio = padrão). Sem linha: rende 1 unidade ou 1 kg |
@@ -200,6 +202,7 @@ Conexão: `DATABASE_URL` aponta para o pooler do Supabase (modo transação) e `
 | Lógica de negócio em TypeScript com transação Drizzle | Testável com Vitest; um lugar só para as regras | Funções SQL (RPC) no banco | Toolkit (Drizzle, transações) | Se surgir concorrência que exija lock no banco |
 | Fotos enviadas no Postgres (`bytea`), reduzidas no navegador para 480×480 | Poucas dezenas de KB por produto; sem bucket, chave ou política nova; a mesma transação salva produto e foto | Supabase Storage (bucket privado + chave secreta no servidor) | Pedido do dono, 24/10/2026 | Se as fotos passarem de alguns MB no total ou precisarem de CDN |
 | Galeria padrão como SVG no repositório | Versionada, sem banco e sem marca registrada: ilustrações próprias + Fluent UI Emoji (MIT, licença em `public/produtos/galeria/`) | Fotos de banco de imagens | Pedido do dono, 24/10/2026 | — |
+| NFC-e simulada, sem emissor contratado | Entregar a tela e o fluxo sem credenciais; nada sai com valor fiscal | Integrar já com Focus NFe, PlugNotas ou NFE.io | Pedido do dono, 24/10/2026 | Quando o dono tiver certificado A1, CSC e conta no emissor |
 | Centavos inteiros | Evitar erro de ponto flutuante | `numeric` com decimais no app | Toolkit, "valores monetários" | — |
 
 ## Manutenção

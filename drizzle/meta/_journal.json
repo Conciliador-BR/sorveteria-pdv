@@ -68,15 +68,22 @@
     {
       "idx": 9,
       "version": "7",
-      "when": 1792883952769,
-      "tag": "0009_fotos_dos_produtos",
+      "when": 1792883855290,
+      "tag": "0009_nota_fiscal",
       "breakpoints": true
     },
     {
       "idx": 10,
       "version": "7",
+      "when": 1792883952769,
+      "tag": "0010_fotos_dos_produtos",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
       "when": 1792935788332,
-      "tag": "0010_imposto_regime",
+      "tag": "0011_imposto_regime",
       "breakpoints": true
     }
   ]

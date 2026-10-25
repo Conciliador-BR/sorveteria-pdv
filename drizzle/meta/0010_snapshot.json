@@ -1,6 +1,6 @@
 {
-  "id": "74417027-62fd-4f7f-8370-7a77a4dd5a8e",
-  "prevId": "9276dfb1-623e-4183-83a1-ad52a8cf8ed7",
+  "id": "9276dfb1-623e-4183-83a1-ad52a8cf8ed7",
+  "prevId": "4fca943d-8cc3-42fc-81b4-4820ef19e200",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1521,6 +1521,43 @@
           "primaryKey": false,
           "notNull": false
         },
+        "emitir_nfce": {
+          "name": "emitir_nfce",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "razao_social": {
+          "name": "razao_social",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cnpj": {
+          "name": "cnpj",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inscricao_estadual": {
+          "name": "inscricao_estadual",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "endereco": {
+          "name": "endereco",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uf": {
+          "name": "uf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "atualizado_em": {
           "name": "atualizado_em",
           "type": "timestamp with time zone",
@@ -1542,6 +1579,18 @@
         "configuracoes_nome_loja_tamanho": {
           "name": "configuracoes_nome_loja_tamanho",
           "value": "char_length(\"configuracoes\".\"nome_loja\") between 1 and 60"
+        },
+        "configuracoes_cnpj_formato": {
+          "name": "configuracoes_cnpj_formato",
+          "value": "\"configuracoes\".\"cnpj\" ~ '^[0-9A-Z]{12}[0-9]{2}$'"
+        },
+        "configuracoes_uf_formato": {
+          "name": "configuracoes_uf_formato",
+          "value": "\"configuracoes\".\"uf\" ~ '^[A-Z]{2}$'"
+        },
+        "configuracoes_nfce_com_emitente": {
+          "name": "configuracoes_nfce_com_emitente",
+          "value": "not \"configuracoes\".\"emitir_nfce\" or (\"configuracoes\".\"razao_social\" is not null and \"configuracoes\".\"cnpj\" is not null and \"configuracoes\".\"inscricao_estadual\" is not null and \"configuracoes\".\"endereco\" is not null and \"configuracoes\".\"uf\" is not null)"
         }
       },
       "isRLSEnabled": true
@@ -1873,34 +1922,6 @@
           "notNull": true,
           "default": 3000
         },
-        "regime_imposto": {
-          "name": "regime_imposto",
-          "type": "regime_imposto",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'percentual'"
-        },
-        "anexo_simples": {
-          "name": "anexo_simples",
-          "type": "anexo_simples",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'I'"
-        },
-        "receita_12_meses_centavos": {
-          "name": "receita_12_meses_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "das_mensal_centavos": {
-          "name": "das_mensal_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
         "atualizado_em": {
           "name": "atualizado_em",
           "type": "timestamp with time zone",
@@ -1922,14 +1943,6 @@
         "precificacao_parametros_faturamento_positivo": {
           "name": "precificacao_parametros_faturamento_positivo",
           "value": "\"precificacao_parametros\".\"faturamento_mensal_centavos\" > 0"
-        },
-        "precificacao_parametros_receita_12_meses_positiva": {
-          "name": "precificacao_parametros_receita_12_meses_positiva",
-          "value": "\"precificacao_parametros\".\"receita_12_meses_centavos\" > 0"
-        },
-        "precificacao_parametros_das_positivo": {
-          "name": "precificacao_parametros_das_positivo",
-          "value": "\"precificacao_parametros\".\"das_mensal_centavos\" >= 0"
         },
         "precificacao_parametros_percentuais_faixa": {
           "name": "precificacao_parametros_percentuais_faixa",
@@ -1988,6 +2001,158 @@
         "precificacao_produtos_margem_faixa": {
           "name": "precificacao_produtos_margem_faixa",
           "value": "\"precificacao_produtos\".\"margem_percentual\" between 0 and 9900"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "public.notas_fiscais": {
+      "name": "notas_fiscais",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "venda_id": {
+          "name": "venda_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ambiente": {
+          "name": "ambiente",
+          "type": "ambiente_fiscal",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "serie": {
+          "name": "serie",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "numero": {
+          "name": "numero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chave_acesso": {
+          "name": "chave_acesso",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "protocolo": {
+          "name": "protocolo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "emitente": {
+          "name": "emitente",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emitida_em": {
+          "name": "emitida_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "emitida_por": {
+          "name": "emitida_por",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "notas_fiscais_emitida_em_idx": {
+          "name": "notas_fiscais_emitida_em_idx",
+          "columns": [
+            {
+              "expression": "emitida_em",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "notas_fiscais_venda_id_vendas_id_fk": {
+          "name": "notas_fiscais_venda_id_vendas_id_fk",
+          "tableFrom": "notas_fiscais",
+          "tableTo": "vendas",
+          "columnsFrom": [
+            "venda_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "notas_fiscais_emitida_por_funcionarios_id_fk": {
+          "name": "notas_fiscais_emitida_por_funcionarios_id_fk",
+          "tableFrom": "notas_fiscais",
+          "tableTo": "funcionarios",
+          "columnsFrom": [
+            "emitida_por"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "notas_fiscais_venda_id_unique": {
+          "name": "notas_fiscais_venda_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "venda_id"
+          ]
+        },
+        "notas_fiscais_chave_acesso_unique": {
+          "name": "notas_fiscais_chave_acesso_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "chave_acesso"
+          ]
+        },
+        "notas_fiscais_serie_numero_unico": {
+          "name": "notas_fiscais_serie_numero_unico",
+          "nullsNotDistinct": false,
+          "columns": [
+            "ambiente",
+            "serie",
+            "numero"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "notas_fiscais_chave_formato": {
+          "name": "notas_fiscais_chave_formato",
+          "value": "\"notas_fiscais\".\"chave_acesso\" ~ '^[0-9]{6}[0-9A-Z]{12}[0-9]{26}$'"
+        },
+        "notas_fiscais_producao_com_protocolo": {
+          "name": "notas_fiscais_producao_com_protocolo",
+          "value": "\"notas_fiscais\".\"ambiente\" = 'homologacao' or \"notas_fiscais\".\"protocolo\" is not null"
         }
       },
       "isRLSEnabled": true
@@ -2133,23 +2298,6 @@
         "comanda"
       ]
     },
-    "public.anexo_simples": {
-      "name": "anexo_simples",
-      "schema": "public",
-      "values": [
-        "I",
-        "II"
-      ]
-    },
-    "public.regime_imposto": {
-      "name": "regime_imposto",
-      "schema": "public",
-      "values": [
-        "percentual",
-        "simples",
-        "mei"
-      ]
-    },
     "public.unidade_insumo": {
       "name": "unidade_insumo",
       "schema": "public",
@@ -2157,6 +2305,14 @@
         "g",
         "ml",
         "un"
+      ]
+    },
+    "public.ambiente_fiscal": {
+      "name": "ambiente_fiscal",
+      "schema": "public",
+      "values": [
+        "homologacao",
+        "producao"
       ]
     }
   },

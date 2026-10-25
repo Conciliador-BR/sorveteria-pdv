@@ -8,7 +8,7 @@ vi.mock("@/features/auth/sessao", () => ({ exigirDono }));
 vi.mock("@/db", () => ({ getDb: () => ({ transaction }) }));
 vi.mock("next/cache", () => ({ revalidatePath }));
 
-const { criarBandeira, editarBandeira, salvarNomeLoja } = await import("./actions");
+const { criarBandeira, editarBandeira, salvarDadosFiscais, salvarNomeLoja } = await import("./actions");
 
 function formulario(campos: Record<string, string>) {
   const dados = new FormData();
@@ -19,6 +19,7 @@ function formulario(campos: Record<string, string>) {
 const id = "6f1c1b7e-8a5b-4b8e-9a52-0c9a8f6c2d11";
 const envios = [
   ["salvarNomeLoja", () => salvarNomeLoja({}, formulario({ nomeLoja: "Loja" }))],
+  ["salvarDadosFiscais", () => salvarDadosFiscais({}, formulario({ emitirNfce: "" }))],
   ["criarBandeira", () => criarBandeira({}, formulario({ nome: "Elo", tipo: "debito" }))],
   ["editarBandeira", () => editarBandeira({}, formulario({ id, nome: "Elo", ativo: "on" }))],
 ] as const;
@@ -38,6 +39,13 @@ describe("ações de configurações", () => {
   it("devolve o erro junto do campo sem gravar quando o nome é inválido", async () => {
     const estado = await salvarNomeLoja({ envio: 2 }, formulario({ nomeLoja: "  " }));
     expect(estado).toEqual({ campos: { nomeLoja: "Informe o nome da loja." }, envio: 3 });
+    expect(transaction).not.toHaveBeenCalled();
+  });
+
+  it("não liga a NFC-e sem os dados do emitente", async () => {
+    const estado = await salvarDadosFiscais({}, formulario({ emitirNfce: "on", cnpj: "11.222.333/0001-81" }));
+    expect(estado.campos).toMatchObject({ razaoSocial: "Informe a razão social.", uf: "Escolha a UF." });
+    expect(estado.campos?.cnpj).toBeUndefined();
     expect(transaction).not.toHaveBeenCalled();
   });
 

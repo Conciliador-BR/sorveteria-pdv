@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { errosPorCampo } from "@/lib/formulario";
-import { editarBandeiraSchema, nomeLojaSchema, novaBandeiraSchema } from "./schemas";
+import { dadosFiscaisSchema, editarBandeiraSchema, nomeLojaSchema, novaBandeiraSchema } from "./schemas";
 
 const erros = (resultado: { success: boolean; error?: Parameters<typeof errosPorCampo>[0] }) =>
   resultado.success || !resultado.error ? {} : errosPorCampo(resultado.error);
@@ -45,5 +45,53 @@ describe("editarBandeiraSchema", () => {
 
   it("recusa id que não é UUID", () => {
     expect(erros(editarBandeiraSchema.safeParse({ id: "1", nome: "Elo" }))).toHaveProperty("id");
+  });
+});
+
+describe("dadosFiscaisSchema", () => {
+  const completos = {
+    emitirNfce: "on",
+    razaoSocial: " Sorveteria do Morro Ltda ",
+    cnpj: "11.222.333/0001-81",
+    inscricaoEstadual: "082.123.45-6",
+    endereco: "Av. Beira Mar, 100 - Praia do Morro, Guarapari",
+    uf: "ES",
+  };
+
+  it("limpa máscaras e guarda só o necessário", () => {
+    expect(dadosFiscaisSchema.parse(completos)).toEqual({
+      emitirNfce: true,
+      razaoSocial: "Sorveteria do Morro Ltda",
+      cnpj: "11222333000181",
+      inscricaoEstadual: "082123456",
+      endereco: "Av. Beira Mar, 100 - Praia do Morro, Guarapari",
+      uf: "ES",
+    });
+  });
+
+  it("com a emissão desligada, aceita tudo vazio", () => {
+    expect(dadosFiscaisSchema.parse({ cnpj: "", uf: "" })).toEqual({
+      emitirNfce: false,
+      razaoSocial: null,
+      cnpj: null,
+      inscricaoEstadual: null,
+      endereco: null,
+      uf: null,
+    });
+  });
+
+  it("com a emissão ligada, exige todos os dados do emitente", () => {
+    expect(erros(dadosFiscaisSchema.safeParse({ emitirNfce: "on" }))).toEqual({
+      razaoSocial: "Informe a razão social.",
+      cnpj: "Informe o CNPJ.",
+      inscricaoEstadual: "Informe a inscrição estadual.",
+      endereco: "Informe o endereço.",
+      uf: "Escolha a UF.",
+    });
+  });
+
+  it("recusa CNPJ com dígito errado e inscrição com letras", () => {
+    const resultado = dadosFiscaisSchema.safeParse({ ...completos, cnpj: "11.222.333/0001-82", inscricaoEstadual: "ISENTO" });
+    expect(erros(resultado)).toEqual({ cnpj: "CNPJ inválido. Confira os números.", inscricaoEstadual: "Use só os números da inscrição estadual." });
   });
 });

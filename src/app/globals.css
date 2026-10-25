@@ -166,3 +166,16 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Comprovante (recibo ou DANFE NFC-e): página nomeada para a bobina de 80 mm, sem afetar outras impressões.
+   A largura do papel fica com o driver da impressora térmica; o conteúdo ocupa 72 mm (área útil). */
+@page cupom {
+  margin: 2mm;
+}
+
+@media print {
+  .cupom-pagina {
+    page: cupom;
+    background-color: var(--color-superficie);
+  }
+}

@@ -8,6 +8,7 @@ import { violouUnico } from "@/db/erros";
 import { auditoria, caixas, comandaLancamentos, vendaItens, vendas } from "@/db/schema";
 import { exigirFuncionario, exigirPermissao } from "@/features/auth/sessao";
 import { buscarCaixaAberto } from "@/features/caixa/queries";
+import { emitirNfceSeLigada } from "@/features/fiscal/emissao";
 import { formatarReais } from "@/lib/dinheiro";
 import { errosPorCampo, lerFormulario, proximoEnvio, type EstadoFormulario } from "@/lib/formulario";
 import { baixarEstoque, devolverEstoque, ErroVenda, gravarPagamentos, LIMITE_CENTAVOS, montarItens, type Tx } from "./operacoes";
@@ -22,7 +23,7 @@ import {
   vendaBalcaoSchema,
 } from "./schemas";
 
-export type EstadoVenda = EstadoFormulario & { venda?: { numero: number; totalCentavos: number; trocoCentavos: number } };
+export type EstadoVenda = EstadoFormulario & { venda?: { id: string; numero: number; totalCentavos: number; trocoCentavos: number } };
 
 const SEM_CAIXA = "Abra o seu caixa antes de vender.";
 
@@ -76,14 +77,15 @@ export async function venderNoBalcao(anterior: EstadoVenda, formData: FormData):
       await gravarPagamentos(tx, nova.id, dados.data.pagamentos);
       await tx.update(vendas).set({ totalCentavos, trocoCentavos: conferencia.trocoCentavos }).where(eq(vendas.id, nova.id));
       await baixarEstoque(tx, nova.id, funcionario.id);
-      return { numero: nova.numero, totalCentavos, trocoCentavos: conferencia.trocoCentavos };
+      return { id: nova.id, numero: nova.numero, totalCentavos, trocoCentavos: conferencia.trocoCentavos };
     });
+    await emitirNfceSeLigada(venda.id, funcionario.id);
     revalidatePath("/vender/caixa");
     return { ok: `Venda nº ${venda.numero} registrada.`, venda, envio };
   } catch (erro) {
     if (violouUnico(erro)) {
       const [ja] = await getDb()
-        .select({ numero: vendas.numero, totalCentavos: vendas.totalCentavos, trocoCentavos: vendas.trocoCentavos })
+        .select({ id: vendas.id, numero: vendas.numero, totalCentavos: vendas.totalCentavos, trocoCentavos: vendas.trocoCentavos })
         .from(vendas)
         .where(and(eq(vendas.id, dados.data.id), eq(vendas.funcionarioId, funcionario.id), eq(vendas.tipo, "balcao")))
         .limit(1);
@@ -229,8 +231,9 @@ export async function cobrarComanda(anterior: EstadoVenda, formData: FormData): 
         .where(eq(vendas.id, dados.data.vendaId))
         .returning({ numero: vendas.numero });
       await baixarEstoque(tx, dados.data.vendaId, funcionario.id);
-      return { numero: concluida.numero, totalCentavos, trocoCentavos: conferencia.trocoCentavos };
+      return { id: dados.data.vendaId, numero: concluida.numero, totalCentavos, trocoCentavos: conferencia.trocoCentavos };
     });
+    await emitirNfceSeLigada(venda.id, funcionario.id);
     revalidatePath("/vender");
     revalidatePath("/vender/caixa");
     return { ok: `Comanda cobrada. Venda nº ${venda.numero}.`, venda, envio };
