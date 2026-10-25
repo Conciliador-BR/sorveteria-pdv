@@ -10,6 +10,7 @@ export async function listarSaldos() {
       id: produtos.id,
       nome: produtos.nome,
       tipoVenda: produtos.tipoVenda,
+      precoCentavos: produtos.precoCentavos,
       estoqueMinimo: produtos.estoqueMinimo,
       saldo: sql<number>`coalesce(sum(${estoqueMovimentos.quantidade}), 0)::int`,
     })

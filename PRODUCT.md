@@ -27,7 +27,7 @@ Permissões extras: `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_canc
 5. **Pagamento:** dinheiro (valor recebido e troco calculado na hora), Pix (confirmação manual) ou cartão: card "Débito" ou "Crédito" → cards das bandeiras → toque na bandeira → finalizar; pagamento dividido entre formas.
 6. **Sangria e suprimento:** retirar ou colocar dinheiro na gaveta, com motivo.
 7. **Fechar caixa:** confirmar senha → informar o dinheiro contado → ver esperado, contado e diferença → resumo por forma de pagamento e bandeira.
-8. **Estoque:** cadastrar produto (com foto opcional: imagem pronta da galeria ou foto enviada pelo celular/computador, que aparece nos cartões da venda); lançar entrada ou saída com motivo; ver saldo e alerta de mínimo.
+8. **Estoque:** cadastrar produto (com foto opcional: imagem pronta da galeria ou foto enviada pelo celular/computador, que aparece nos cartões da venda); lançar entrada ou saída com motivo; ver saldo e valor em estoque (o alerta de mínimo fica no dashboard).
 9. **Histórico:** filtrar vendas por período, funcionário, forma, bandeira e status; ver detalhe; exportar CSV.
 10. **Dashboard:** faturamento do dia, semana e mês; ticket médio; vendas por dia, hora, forma de pagamento, bandeira, produto e funcionário; fechamentos com diferença; estoque baixo.
 11. **Funcionários:** dono cria login, define papel e liga/desliga permissões extras; redefine senha; desativa sem apagar histórico.
@@ -91,6 +91,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Motivos de entrada/saída: compra, perda/derreteu, consumo interno, ajuste de contagem, outro.
 - Produto tem "baixa automática na venda" (padrão: sim para unidade, não para peso, onde o controle é por balde).
 - Estoque negativo gera alerta, mas não bloqueia a venda.
+- A tela de estoque mostra o valor de cada saldo e o total geral pelo preço de venda (não há custo cadastrado); saldo negativo conta como zero. Na tabela, a situação é só "Negativo" ou "OK"; o estoque mínimo avisa no dashboard.
 
 **Gerais**
 
