@@ -20,7 +20,7 @@
 | `acento`, `acento-suave` | Manga: comandas abertas, avisos leves; sempre com texto `texto` por cima |
 | `sucesso`, `sucesso-escuro`, `sucesso-suave` | Menta: preenchimento com texto `texto`; texto verde usa `sucesso-escuro` |
 | `perigo`, `perigo-escuro`, `perigo-suave` | Framboesa: erros, falta no caixa, cancelar |
-| `fundo`, `superficie`, `borda`, `borda-forte`, `texto`, `texto-suave` | Baunilha, branco, areia (divisórias), contorno de campo (3:1), chocolate e cacau |
+| `fundo`, `superficie`, `borda`, `borda-forte`, `texto`, `texto-suave` | Cinza-névoa, branco, névoa (divisórias), contorno de campo (3:1), grafite e grafite suave. Neutros frios para combinar com o azul-noite do menu |
 | `tinta`, `tinta-clara` | Azul-noite: menu lateral, gaveta do celular, painel do login e faixas escuras da apresentação. Sobre ela, texto branco (ou branco com 60% de opacidade ou mais) e foco em `acento` |
 
 - Escala de texto: `text-xs` 12, `text-sm` 14, `text-base` 16, `text-xl` 20, `text-2xl` 24, `text-3xl` 32 e `text-total` 48 (total da venda e troco); `text-4xl` 40, `text-5xl` 56 e `text-6xl` 64 só nos títulos da apresentação. As demais classes de tamanho do Tailwind foram desligadas (não existe `text-lg`).
@@ -39,7 +39,7 @@
 
 ### Contrastes conferidos
 
-Calculados pela fórmula de luminância relativa da WCAG 2.x em 17/10/2026. Mínimo AA: 4,5:1 para texto, 3:1 para contorno de componente e ícone.
+Calculados pela fórmula de luminância relativa da WCAG 2.x em 17/10/2026; neutros refeitos em 25/10/2026, quando o fundo creme virou cinza frio. Mínimo AA: 4,5:1 para texto, 3:1 para contorno de componente e ícone.
 
 | Par (texto/elemento sobre fundo) | Razão | Uso |
 |---|---|---|
@@ -48,26 +48,26 @@ Calculados pela fórmula de luminância relativa da WCAG 2.x em 17/10/2026. Mín
 | branco sobre `secundaria` | 4,75 | Botão "Cobrar" |
 | branco sobre `secundaria-escura` | 6,75 | Hover do "Cobrar" |
 | branco sobre `perigo` / `perigo-escuro` | 5,35 / 6,84 | Botão de perigo e hover |
-| `texto` sobre `fundo` / `superficie` | 14,85 / 15,53 | Texto principal |
-| `texto-suave` sobre `fundo` / `superficie` | 5,69 / 5,95 | Texto secundário |
-| `primaria-escura` sobre `superficie` / `fundo` | 7,73 / 7,39 | Títulos, botão secundário, anel de foco |
+| `texto` sobre `fundo` / `superficie` | 13,42 / 14,66 | Texto principal |
+| `texto-suave` sobre `fundo` / `superficie` | 5,72 / 6,25 | Texto secundário |
+| `primaria-escura` sobre `superficie` / `fundo` | 7,73 / 7,07 | Títulos, botão secundário, anel de foco |
 | `primaria-escura` sobre `primaria-suave` | 6,73 | Hover de menu, aviso informativo, badge |
-| `perigo` sobre `perigo-suave` / `superficie` / `fundo` | 4,69 / 5,35 / 5,12 | Aviso de erro, erro do campo |
+| `perigo` sobre `perigo-suave` / `superficie` / `fundo` | 4,69 / 5,35 / 4,90 | Aviso de erro, erro do campo |
 | `sucesso-escuro` sobre `sucesso-suave` | 5,40 | Aviso de sucesso, badge |
 | `secundaria-escura` sobre `secundaria-suave` | 5,77 | Ícone de destaque da apresentação |
-| `texto` sobre `acento` / `acento-suave` | 8,84 / 13,94 | Manga sempre com texto escuro |
-| `texto` sobre `sucesso` | 7,41 | Menta sempre com texto escuro |
-| `texto` sobre `borda` | 12,24 | Badge neutro |
-| `borda-forte` sobre `superficie` / `fundo` | 3,93 / 3,76 | Contorno dos campos (não texto) |
+| `texto` sobre `acento` / `acento-suave` | 8,35 / 13,17 | Manga sempre com texto escuro |
+| `texto` sobre `sucesso` | 7,00 | Menta sempre com texto escuro |
+| `texto` sobre `borda` | 11,90 | Badge neutro |
+| `borda-forte` sobre `superficie` / `fundo` | 3,67 / 3,36 | Contorno dos campos (não texto) |
 | `secundaria` sobre `secundaria-suave` | 4,06 | Ícone de destaque (não texto) |
 | branco sobre `tinta` (100% / 80% / 75% / 60%) | 15,89 / 10,53 / 9,40 / 6,53 | Menu lateral (ativo / inativo), textos das faixas escuras |
 | `acento` sobre `tinta` | 9,04 | Foco e destaques no escuro, ícone do item ativo (`tinta` sobre `acento`) |
 | `tinta` sobre `sucesso` | 7,58 | Marcas de "ok" no escuro |
-| `secundaria-escura` sobre `fundo` | 6,33 | Chapéu das seções da apresentação (`secundaria` daria 4,46) |
-| `secundaria` sobre `fundo` | 4,46 | Só em título grande (texto em degradê) |
+| `secundaria-escura` sobre `fundo` | 6,17 | Chapéu das seções da apresentação (`secundaria` daria 4,35) |
+| `secundaria` sobre `fundo` | 4,35 | Só em título grande (texto em degradê) |
 | branco sobre `sucesso-escuro` | 5,98 | Ponta do degradê da chamada final |
 
-Ajustes feitos em relação à direção original: morango `#F0567A` dava 3,32:1 com branco e virou `secundaria` mais escura; framboesa `#D93A4A` dava 4,32:1 como texto sobre o fundo e foi escurecida; a areia `#EDE3D6` (1,27:1) ficou só para divisórias, e os campos ganharam `borda-forte`. Menta e manga com texto branco não passam (2,10 e 1,76) e por isso usam texto chocolate.
+Ajustes feitos em relação à direção original: morango `#F0567A` dava 3,32:1 com branco e virou `secundaria` mais escura; framboesa `#D93A4A` dava 4,32:1 como texto sobre o fundo e foi escurecida; a areia `#EDE3D6` (1,27:1) ficou só para divisórias, e os campos ganharam `borda-forte`. Menta e manga com texto branco não passam (2,10 e 1,76) e por isso usam texto escuro. Em 25/10/2026 os neutros quentes (baunilha `#FBF7F2`, areia, chocolate) viraram cinzas frios porque o creme brigava com o azul-noite do menu.
 
 Direção ainda não implementada:
 

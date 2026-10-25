@@ -11,7 +11,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/entrar",
     scope: "/",
     display: "standalone",
-    background_color: "#fff9f2",
+    background_color: "#f3f5f7",
     theme_color: "#0e7c9b",
     icons: [
       { src: "/icone-192.png", sizes: "192x192", type: "image/png" },
