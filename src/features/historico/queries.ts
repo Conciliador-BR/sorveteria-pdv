@@ -97,6 +97,7 @@ export async function detalheDaVenda(vendaId: string) {
         tipoVenda: vendaItens.tipoVenda,
         quantidade: vendaItens.quantidade,
         pesoGramas: vendaItens.pesoGramas,
+        pesoPeloValor: vendaItens.pesoPeloValor,
         precoUnitarioCentavos: vendaItens.precoUnitarioCentavos,
         totalCentavos: vendaItens.totalCentavos,
         lancadoPor: funcionarios.nome,

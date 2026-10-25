@@ -41,11 +41,15 @@ sorveteria-pdv/
 │   │   ├── page.tsx              # apresentação (pública)
 │   │   ├── entrar/page.tsx       # login
 │   │   ├── manifest.ts, apple-icon.png  # app instalável (PWA): nome, cores, ícones; abre em /entrar
-│   │   └── (sistema)/            # área logada; layout confere sessão
+│   │   ├── (pdv)/                # modo caixa: tela cheia sem menu, só com o caixa do próprio funcionário aberto
+│   │   │   ├── layout.tsx            # PdvShell: barra com loja, caixa, abas Vender/Caixa e "Sair (Esc)"
+│   │   │   ├── vender/page.tsx       # balcão e comandas abertas na mesma tela
+│   │   │   ├── vender/caixa/page.tsx # resumo, sangria, suprimento e fechamento do caixa aberto
+│   │   │   └── comandas/[id]/page.tsx
+│   │   └── (sistema)/            # área logada com menu; layout confere sessão e prende no PDV o funcionário com caixa aberto
 │   │       ├── layout.tsx
-│   │       ├── caixa/page.tsx, caixa/fechamento/[id]/page.tsx
-│   │       ├── vender/page.tsx
-│   │       ├── comandas/page.tsx, comandas/[id]/page.tsx
+│   │       ├── caixa/page.tsx (abrir caixa; com caixa aberto leva a /vender/caixa), caixa/fechamento/[id]/page.tsx
+│   │       ├── comandas/page.tsx (leva a /vender)
 │   │       ├── produtos/page.tsx
 │   │       ├── estoque/page.tsx
 │   │       ├── vendas/page.tsx, vendas/[id]/page.tsx, vendas/csv/route.ts
@@ -134,6 +138,7 @@ src/db (Drizzle, server-only) ── transação no PostgreSQL do Supabase
 - Cookie de sessão `httpOnly`, `sameSite=lax` e `secure` em produção (`src/lib/supabase/cookies.ts`): o JavaScript da página não lê o token.
 - Riscos aceitos: o limite de tentativas do Supabase Auth conta por IP, e todas as tentativas saem do mesmo servidor, então um ataque de senha pode bloquear o login da loja inteira por alguns minutos (limite próprio por usuário fica para depois); e a resposta de senha certa de funcionário desativado demora um pouco mais que a de senha errada.
 - `exigirFuncionario()`, `exigirPermissao()` e `exigirDono()` redirecionam: sem sessão vai para `/entrar`; sem permissão, para `/caixa`. O layout de `src/app/(sistema)/` protege as telas, e cada página e Server Action repete a checagem que lhe cabe (`getFuncionarioAtual` usa `cache` do React, então na renderização a repetição não consulta o banco duas vezes; em Server Action não há cache). Os `exigir*` vão na primeira linha, fora de `try/catch`: o redirect é uma exceção e um `catch` o engoliria.
+- **Modo caixa:** abrir o caixa leva a `/vender`, no grupo `src/app/(pdv)/`, que exige caixa aberto (sem caixa, volta para `/caixa`). O layout de `(sistema)` redireciona para `/vender` o funcionário (não dono) com caixa aberto, pela regra pura `ficaNaTelaDeVendas` (`src/features/auth/permissoes.ts`, testada); assim, digitar outro endereço não tira ninguém da venda. Fechar o caixa leva ao fechamento, já no `(sistema)`. Esc abre o aviso `SairDoPdv` (`<dialog>`): o dono pode "Sair sem fechar o caixa" (vai ao dashboard); o funcionário só tem "Fechar o caixa". Limite conhecido: o layout não roda de novo nas navegações internas do mesmo grupo (Next), então quem já está no `(sistema)` quando o caixa é aberto em outra aba, ou reaberto pelo dono, só é levado à venda na próxima entrada no grupo ou recarga. A trava é de tela: as Server Actions continuam valendo pelas permissões de cada uma.
 
 ## Dados e migrations
 
@@ -143,12 +148,14 @@ Plano de schema (Drizzle, em `src/db/schema/`). Tipos inferidos com `$inferSelec
 |---|---|
 | `funcionarios` | `id` (= `auth.users.id`), `nome`, `usuario` (único), `papel` (`funcionario`/`dono`), `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_cancelar_venda`, `pode_ver_historico`, `ativo`, `criado_em` |
 | `categorias` | `id`, `nome`, `ordem`, `ativo` |
-| `produtos` | `id`, `nome`, `categoria_id`, `tipo_venda` (`unidade`/`peso`), `preco_centavos` (por unidade ou kg), `codigo`, `estoque_minimo`, `baixa_automatica`, `ativo` |
+| `produtos` | `id`, `nome`, `categoria_id`, `tipo_venda` (`unidade`/`peso`), `preco_centavos` (por unidade ou kg), `codigo`, `estoque_minimo`, `baixa_automatica`, `ativo`, `imagem` (id da galeria padrão em `public/produtos/galeria/`) ou `foto_id` (foto enviada); nunca os dois (CHECK) |
+| `produto_fotos` | `id`, `tipo` (`image/webp`/`jpeg`/`png`, conferido pelos primeiros bytes), `conteudo` (`bytea`, até 300 KB), `criado_em`. Entregue por `GET /fotos-produtos/[id]` só para quem está logado; trocar ou remover a foto apaga a antiga e cria `id` novo (cache longo sem imagem velha) |
 | `estoque_movimentos` | `id`, `produto_id`, `tipo` (`entrada`/`saida`/`ajuste`/`venda`/`cancelamento`), `quantidade` (numeric, sinal indica direção), `motivo`, `observacao`, `venda_id`, `funcionario_id`, `criado_em` |
 | `caixas` | `id`, `funcionario_id`, `status`, `aberto_em`, `fechado_em`, `fundo_centavos`, `esperado_centavos`, `contado_centavos`, `diferenca_centavos`, `observacao`, `sem_fundo`; índice único parcial: um `aberto` por funcionário |
 | `caixa_movimentos` | `id`, `caixa_id`, `tipo` (`sangria`/`suprimento`), `valor_centavos`, `motivo`, `funcionario_id`, `criado_em` |
 | `vendas` | `id`, `numero` (sequencial), `caixa_id`, `funcionario_id`, `tipo` (`balcao`/`comanda`), `identificacao`, `status` (`aberta`/`concluida`/`cancelada`), `total_centavos`, `troco_centavos`, `aberta_em`, `concluida_em`, `cancelada_por`, `cancelada_em`, `motivo_cancelamento` |
-| `venda_itens` | `id`, `venda_id`, `produto_id`, `nome_produto` (cópia), `tipo_venda`, `quantidade`, `peso_gramas`, `preco_unitario_centavos` (cópia), `total_centavos`, `lancado_por`, `criado_em` |
+| `venda_itens` | `id`, `venda_id`, `produto_id`, `nome_produto` (cópia), `tipo_venda`, `quantidade`, `peso_gramas`, `peso_pelo_valor` (as gramas foram estimadas pelo valor da balança; só em `tipo_venda = 'peso'`), `preco_unitario_centavos` (cópia), `total_centavos`, `lancado_por`, `criado_em` |
+| `comanda_lancamentos` | `id` (gerado na tela, um por envio de "Lançar na comanda"; envio repetido esbarra na chave e não lança de novo), `venda_id`, `lancado_por`, `criado_em` |
 | `pagamentos` | `id`, `venda_id`, `forma` (`dinheiro`/`pix`/`debito`/`credito`), `bandeira_id`, `valor_centavos`, `valor_recebido_centavos`, `criado_em` |
 | `bandeiras` | `id`, `nome`, `tipo` (`debito`/`credito`), `ativo`, `ordem`; únicas por nome (sem diferenciar maiúsculas) e tipo. O dono cadastra, renomeia e desativa em `/configuracoes`; não se apagam, porque pagamentos apontam para elas. Desativada some dos cards de pagamento (e o servidor a recusa), mas continua no histórico e no filtro |
 | `configuracoes` | Linha única (`id` = 1, garantido por CHECK, semeada pela migration): `nome_loja` (1 a 60 caracteres ou vazio), `atualizado_em`. Sem nome, o menu mostra "Sorveteria PDV"; as telas públicas sempre mostram esse nome |
@@ -160,7 +167,7 @@ Operações em transação (`db.transaction`): abrir caixa, fechar caixa, sangri
 
 ## Venda, caixa e concorrência
 
-- **Preço e total vêm do banco.** A tela manda só produto, quantidade ou gramas e as partes do pagamento; o servidor busca preço e nome no cadastro, recalcula o total e confere a soma. Se o total mudou desde que a tela abriu, a resposta diz o novo valor.
+- **Preço e total vêm do banco.** A tela manda só produto, quantidade ou gramas e as partes do pagamento; o servidor busca preço e nome no cadastro, recalcula o total e confere a soma. Se o total mudou desde que a tela abriu, a resposta diz o novo valor. Exceção: produto por peso informado pelo valor da balança vale o valor digitado (até R$ 100.000,00); as gramas são estimadas por `gramasPorValor` e o servidor recusa produto sem preço do kg ou mais de 100 kg (`calcularItem` em `src/features/vendas/regras.ts`).
 - **Travas (`for update`) sempre na mesma ordem: caixa, depois venda.** Venda, cobrança de comanda, abertura de comanda, sangria e suprimento travam o caixa aberto, então nada entra num caixa que está fechando. O cancelamento lê o caixa da venda, trava esse caixa e só depois a venda, para não se cruzar com uma cobrança.
 - **Venda repetida:** a tela do balcão gera o `id` da venda (UUID v4 com `getRandomValues`, porque `crypto.randomUUID` não existe fora de HTTPS e o tablet pode abrir o sistema pela rede local). Um segundo envio esbarra na chave primária e recebe a venda já gravada.
 - **Comanda cobrada por outro funcionário** passa para o caixa de quem cobrou: o dinheiro está na gaveta dele.
@@ -181,6 +188,8 @@ Conexão: `DATABASE_URL` aponta para o pooler do Supabase (modo transação) e `
 | Drizzle no servidor + Data API bloqueada | Atende "nenhuma API exposta no front-end" e o default Drizzle | supabase-js com RLS por política no cliente | Toolkit `docs/06-project-defaults.md` | Se precisar de tempo real no navegador |
 | Supabase Auth | Login por funcionário no mesmo provedor do banco | Auth próprio ou outro provedor | Pedido do dono | Se o Supabase for trocado |
 | Lógica de negócio em TypeScript com transação Drizzle | Testável com Vitest; um lugar só para as regras | Funções SQL (RPC) no banco | Toolkit (Drizzle, transações) | Se surgir concorrência que exija lock no banco |
+| Fotos enviadas no Postgres (`bytea`), reduzidas no navegador para 480×480 | Poucas dezenas de KB por produto; sem bucket, chave ou política nova; a mesma transação salva produto e foto | Supabase Storage (bucket privado + chave secreta no servidor) | Pedido do dono, 24/10/2026 | Se as fotos passarem de alguns MB no total ou precisarem de CDN |
+| Galeria padrão como SVG no repositório | Versionada, sem banco e sem marca registrada: ilustrações próprias + Fluent UI Emoji (MIT, licença em `public/produtos/galeria/`) | Fotos de banco de imagens | Pedido do dono, 24/10/2026 | — |
 | Centavos inteiros | Evitar erro de ponto flutuante | `numeric` com decimais no app | Toolkit, "valores monetários" | — |
 
 ## Manutenção

@@ -6,6 +6,7 @@ import { Campo } from "@/components/ui/Campo";
 import { CampoDinheiro } from "@/components/ui/CampoDinheiro";
 import { Selecao } from "@/components/ui/Selecao";
 import type { ProdutoLista } from "../queries";
+import { EscolherFoto } from "./EscolherFoto";
 
 type Categoria = { id: string; nome: string; ativo: boolean };
 type TipoVenda = ProdutoLista["tipoVenda"];
@@ -35,6 +36,7 @@ export function CamposProduto({ produto, categorias, erros }: CamposProdutoProps
     <>
       {produto ? <input type="hidden" name="id" value={produto.id} /> : null}
       <Campo name="nome" rotulo="Nome" defaultValue={produto?.nome} autoComplete="off" required erro={erros.nome} />
+      <EscolherFoto produto={produto} erro={erros.foto} />
       <Selecao name="categoriaId" rotulo="Categoria" defaultValue={produto?.categoriaId ?? ""} erro={erros.categoriaId}>
         <option value="">Sem categoria</option>
         {opcoesCategoria.map((categoria) => (

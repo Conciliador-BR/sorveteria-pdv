@@ -21,13 +21,13 @@ Permissões extras: `pode_lancar_estoque`, `pode_gerenciar_produtos`, `pode_canc
 ## Fluxos da versão inicial
 
 1. **Entrar:** apresentação → botão "Acessar o sistema" → login com usuário e senha → funcionário sem caixa aberto vai para "Abrir caixa"; dono vai para o dashboard.
-2. **Abrir caixa:** funcionário confirma a própria senha e informa o fundo de troco (obrigatório) → caixa aberto.
-3. **Venda no balcão:** escolher produtos (por unidade ou por peso em gramas) → total → pagamento → venda registrada.
+2. **Abrir caixa:** funcionário confirma a própria senha e informa o fundo de troco (obrigatório) → caixa aberto → o sistema entra direto na **tela de vendas (modo caixa)**: tela cheia estilo caixa de supermercado, só com Vender (balcão e comandas) e Caixa (sangria, suprimento e fechamento), sem menu nem configurações. Esc (ou o botão "Sair") pergunta como sair: o dono sai sem fechar o caixa; o funcionário só sai fechando o caixa.
+3. **Venda no balcão:** escolher produtos (por unidade ou por peso, digitando as gramas ou o valor em reais que a balança mostrou) → total → pagamento → venda registrada.
 4. **Comanda:** abrir comanda com nome ou número ("Família Silva", "Mesa 4") → lançar itens ao longo do tempo, por qualquer funcionário com caixa aberto → total atualizado → fechar e cobrar.
 5. **Pagamento:** dinheiro (valor recebido e troco calculado na hora), Pix (confirmação manual) ou cartão: card "Débito" ou "Crédito" → cards das bandeiras → toque na bandeira → finalizar; pagamento dividido entre formas.
 6. **Sangria e suprimento:** retirar ou colocar dinheiro na gaveta, com motivo.
 7. **Fechar caixa:** confirmar senha → informar o dinheiro contado → ver esperado, contado e diferença → resumo por forma de pagamento e bandeira.
-8. **Estoque:** cadastrar produto; lançar entrada ou saída com motivo; ver saldo e valor em estoque (o alerta de mínimo fica no dashboard).
+8. **Estoque:** cadastrar produto (com foto opcional: imagem pronta da galeria ou foto enviada pelo celular/computador, que aparece nos cartões da venda); lançar entrada ou saída com motivo; ver saldo e valor em estoque (o alerta de mínimo fica no dashboard).
 9. **Histórico:** filtrar vendas por período, funcionário, forma, bandeira e status; ver detalhe; exportar CSV.
 10. **Dashboard:** faturamento do dia, semana e mês; ticket médio; vendas por dia, hora, forma de pagamento, bandeira, produto e funcionário; fechamentos com diferença; estoque baixo.
 11. **Funcionários:** dono cria login, define papel e liga/desliga permissões extras; redefine senha; desativa sem apagar histórico.
@@ -72,10 +72,11 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Caixa não fecha com comanda aberta vinculada a ele. Observação obrigatória quando houver diferença.
 - Caixa fechado não é editado; só o dono reabre, com registro.
 - Abertura e fechamento pedem a senha do próprio funcionário de novo.
+- Com o caixa aberto, o funcionário fica na tela de vendas: qualquer outra tela do sistema, mesmo digitada no endereço, volta para ela. Só fechando o caixa ele volta ao menu. O dono sai e volta quando quiser, com o caixa aberto.
 
 **Venda, comanda e pagamento**
 
-- Valores monetários em centavos inteiros; peso em gramas. Item por peso = preço do kg × gramas ÷ 1000, arredondado ao centavo mais próximo (meio centavo para cima).
+- Valores monetários em centavos inteiros; peso em gramas. Item por peso = preço do kg × gramas ÷ 1000, arredondado ao centavo mais próximo (meio centavo para cima). Quando o funcionário digita o valor da balança, o item vale esse valor e as gramas são estimadas (valor × 1000 ÷ preço do kg, arredondado, mínimo 1 g) só para o estoque; por isso preço × gramas pode não fechar exatamente com o total. Produto por peso sem preço do kg não aceita o valor. O item guarda que foi informado pelo valor, e o histórico e a comanda mostram o peso como estimado ("≈ 334 g (pelo valor)").
 - O preço e o nome do produto são copiados para o item da venda; mudanças posteriores não alteram vendas antigas.
 - Comanda é uma venda com status `aberta`; cada item registra quem lançou e quando.
 - Troco = valor recebido em dinheiro − parte em dinheiro da venda; nunca negativo. Valor recebido menor que a parte em dinheiro bloqueia a confirmação.
