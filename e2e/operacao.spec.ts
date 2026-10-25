@@ -51,9 +51,28 @@ test.describe("operação da loja pelo dono", () => {
     await expect(page.getByLabel("Fundo de troco")).toHaveValue("R$ 300,00");
     await page.getByRole("button", { name: "Abrir caixa" }).click();
 
+    // Caixa aberto: entra direto na tela de vendas (modo caixa), sem o menu do sistema.
+    await expect(page).toHaveURL(/\/vender$/);
+    await expect(tituloDaPagina(page)).toHaveText("Vender e comandas");
+    await expect(page.getByRole("navigation", { name: "Menu principal" })).toHaveCount(0);
+
+    await page.getByRole("navigation", { name: "Tela de vendas" }).getByRole("link", { name: "Caixa" }).click();
     await expect(tituloDaPagina(page)).toHaveText("Caixa");
     await expect(valorDaLinha(page, "Fundo de troco")).toHaveText("R$ 300,00");
     await expect(valorDaLinha(page, "= Esperado na gaveta")).toHaveText("R$ 300,00");
+  });
+
+  test("Esc deixa o dono sair da tela de vendas sem fechar o caixa", async () => {
+    await page.goto("/vender");
+    await page.keyboard.press("Escape");
+    const aviso = page.getByRole("dialog", { name: "Sair da tela de vendas?" });
+    await expect(aviso).toBeVisible();
+    await aviso.getByRole("button", { name: "Sair sem fechar o caixa" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    // O caixa continua aberto: Vender volta direto para a venda.
+    await page.goto("/vender");
+    await expect(tituloDaPagina(page)).toHaveText("Vender e comandas");
   });
 
   test("cadastra um produto por unidade e um por kg", async () => {

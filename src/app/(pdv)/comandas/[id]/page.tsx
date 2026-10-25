@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { estiloBotao } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { temPermissao } from "@/features/auth/permissoes";
 import { exigirFuncionario } from "@/features/auth/sessao";
 import { buscarCaixaAberto } from "@/features/caixa/queries";
@@ -11,8 +10,6 @@ import { CancelarComandaForm } from "@/features/vendas/components/CancelarComand
 import { ComandaFechada } from "@/features/vendas/components/ComandaFechada";
 import { ItensDaComanda } from "@/features/vendas/components/ItensDaComanda";
 import { PdvComanda } from "@/features/vendas/components/PdvComanda";
-import { SemCaixaAviso } from "@/features/vendas/components/SemCaixaAviso";
-import { TotalDestaque } from "@/features/vendas/components/TotalDestaque";
 import { buscarComanda, listarBandeirasAtivas, listarProdutosParaVenda } from "@/features/vendas/queries";
 import { formatarDataHora } from "@/features/vendas/regras";
 
@@ -22,6 +19,8 @@ export default async function ComandaPage({ params }: PageProps<"/comandas/[id]"
   const funcionario = await exigirFuncionario();
   const { id } = await params;
   const [comanda, caixa] = await Promise.all([buscarComanda(id), buscarCaixaAberto(funcionario.id)]);
+  // O layout não roda de novo em toda navegação: a página confere o caixa por conta própria.
+  if (!caixa) redirect("/caixa");
   if (!comanda) notFound();
 
   const voltar = (
@@ -47,21 +46,6 @@ export default async function ComandaPage({ params }: PageProps<"/comandas/[id]"
   }
 
   const cancelar = temPermissao(funcionario, "pode_cancelar_venda") ? <CancelarComandaForm vendaId={comanda.id} /> : null;
-
-  if (!caixa) {
-    return (
-      <>
-        {cabecalho}
-        <SemCaixaAviso texto="Abra o seu caixa para lançar itens ou cobrar esta comanda." />
-        <Card className="flex max-w-2xl flex-col gap-3">
-          <h2 className="text-xl font-semibold">Itens da comanda</h2>
-          <ItensDaComanda itens={comanda.itens} podeRemover={false} />
-          <TotalDestaque rotulo="Total da comanda" centavos={comanda.totalCentavos} className="border-t border-borda pt-3" />
-        </Card>
-        {cancelar}
-      </>
-    );
-  }
 
   const [produtos, bandeiras] = await Promise.all([listarProdutosParaVenda(), listarBandeirasAtivas()]);
   return (

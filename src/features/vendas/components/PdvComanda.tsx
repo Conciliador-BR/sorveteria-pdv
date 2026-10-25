@@ -9,6 +9,7 @@ import { cobrarComanda, lancarNaComanda, type EstadoVenda } from "../actions";
 import type { BandeirasPorTipo, ProdutoParaVenda } from "../queries";
 import { itensParaEnvio, novoIdVenda } from "../regras";
 import { useCarrinho } from "../useCarrinho";
+import { useTeclasPdv } from "../useTeclasPdv";
 import { Carrinho } from "./Carrinho";
 import { ConfirmacaoVenda } from "./ConfirmacaoVenda";
 import { GradeProdutos } from "./GradeProdutos";
@@ -46,6 +47,8 @@ export function PdvComanda({ vendaId, totalCentavos, produtos, bandeiras, itensL
   const refBusca = useRef<HTMLInputElement>(null);
   const refCobrar = useRef<HTMLButtonElement>(null);
   const voltouDoPagamento = useRef(false);
+  // F2 vai para a busca, como no balcão (a dica da busca promete isso).
+  useTeclasPdv({ F2: () => refBusca.current?.focus() }, etapa === "itens" && !cobranca.venda);
 
   // "Voltar aos itens" devolve o foco ao botão de cobrar (ou à busca, se ele estiver desabilitado).
   useEffect(() => {

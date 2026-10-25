@@ -6,6 +6,7 @@ import { venderNoBalcao, type EstadoVenda } from "../actions";
 import type { BandeirasPorTipo, ProdutoParaVenda } from "../queries";
 import { itensParaEnvio, novoIdVenda } from "../regras";
 import { useCarrinho } from "../useCarrinho";
+import { useTeclasPdv } from "../useTeclasPdv";
 import { Carrinho } from "./Carrinho";
 import { ConfirmacaoVenda } from "./ConfirmacaoVenda";
 import { GradeProdutos } from "./GradeProdutos";
@@ -34,6 +35,9 @@ export function PdvBalcao({ produtos, bandeiras }: PdvBalcaoProps) {
     if (alvo === "cobrar" && cobrar && !cobrar.disabled) cobrar.focus();
     else refBusca.current?.focus();
   }, [etapa, envioDescartado]);
+
+  // F2 vai para a busca e F8 cobra (o botão desabilitado ignora o clique). Só na tela de itens.
+  useTeclasPdv({ F2: () => refBusca.current?.focus(), F8: () => refCobrar.current?.click() }, etapa === "itens");
 
   if (estado.venda && estado.envio !== envioDescartado) {
     return (
@@ -75,26 +79,48 @@ export function PdvBalcao({ produtos, bandeiras }: PdvBalcaoProps) {
   }
 
   return (
-    <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
-      <GradeProdutos produtos={produtos} aoEscolher={carrinho.adicionar} refBusca={refBusca} />
-      <div className="md:sticky md:top-20 md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto">
-        <Carrinho titulo="Venda" rotuloTotal="Total" carrinho={carrinho} vazio="Toque nos produtos para começar a venda.">
-          <Button
-            ref={refCobrar}
-            variante="cobrar"
-            tamanho="lg"
-            className="w-full"
-            disabled={!carrinho.pronto}
-            onClick={() => {
-              setEnvioDescartado(estado.envio);
-              setEtapa("pagamento");
-            }}
-          >
-            Cobrar
-          </Button>
-          {carrinho.linhas.length > 0 && !carrinho.pronto ? <p className="text-sm text-texto-suave">Falta digitar o peso ou o valor de algum item.</p> : null}
-        </Carrinho>
+    // Do tablet para cima: produtos rolam à esquerda e o cupom ocupa a altura toda à direita, com o total sempre à vista.
+    <div className="flex flex-col gap-4 md:h-full">
+      <div className="grid gap-4 md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,1fr)_22rem] md:grid-rows-[minmax(0,1fr)] lg:gap-6 xl:grid-cols-[minmax(0,1fr)_28rem]">
+        <GradeProdutos produtos={produtos} aoEscolher={carrinho.adicionar} refBusca={refBusca} />
+        <div className="md:min-h-0">
+          <Carrinho titulo="Cupom" rotuloTotal="Total" carrinho={carrinho} vazio="Toque nos produtos ou busque pelo nome para começar a venda.">
+            <Button
+              ref={refCobrar}
+              variante="cobrar"
+              tamanho="lg"
+              className="w-full"
+              aria-keyshortcuts="F8"
+              disabled={!carrinho.pronto}
+              onClick={() => {
+                setEnvioDescartado(estado.envio);
+                setEtapa("pagamento");
+              }}
+            >
+              Cobrar
+              <kbd aria-hidden="true" className="hidden rounded-campo border border-superficie/50 px-1.5 text-xs font-medium md:inline">
+                F8
+              </kbd>
+            </Button>
+            {carrinho.linhas.length > 0 && !carrinho.pronto ? <p className="text-sm text-texto-suave">Falta digitar o peso ou o valor de algum item.</p> : null}
+          </Carrinho>
+        </div>
       </div>
+      {/* Lembrete das teclas, só onde há teclado físico provável (tablet deitado e computador). */}
+      <p className="hidden shrink-0 flex-wrap gap-x-5 gap-y-1 rounded-card bg-tinta px-4 py-2 text-sm text-superficie/80 lg:flex">
+        <span>
+          <kbd className="font-semibold text-acento">F2</kbd> Buscar produto
+        </span>
+        <span>
+          <kbd className="font-semibold text-acento">F8</kbd> Cobrar
+        </span>
+        <span>
+          <kbd className="font-semibold text-acento">Enter</kbd> Lançar o produto buscado
+        </span>
+        <span>
+          <kbd className="font-semibold text-acento">Esc</kbd> Sair da tela de vendas
+        </span>
+      </p>
     </div>
   );
 }
