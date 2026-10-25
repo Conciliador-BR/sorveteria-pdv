@@ -101,7 +101,7 @@ export function CamposProduto({ produto, categorias, erros }: CamposProdutoProps
         step={1}
         rotulo={porPeso ? "Estoque mínimo (em gramas)" : "Estoque mínimo (em unidades)"}
         defaultValue={produto?.estoqueMinimo ?? 0}
-        dica={porPeso ? "Em gramas: 5 kg = 5000. Abaixo disso, o estoque mostra alerta." : "Abaixo disso, o estoque mostra alerta."}
+        dica={porPeso ? "Em gramas: 5 kg = 5000. Abaixo disso, o dashboard mostra alerta." : "Abaixo disso, o dashboard mostra alerta."}
         erro={erros.estoqueMinimo}
       />
       <CaixaSelecao

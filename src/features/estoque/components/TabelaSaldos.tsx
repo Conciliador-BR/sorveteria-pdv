@@ -2,13 +2,11 @@ import { Badge, type TomBadge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { formatarReais } from "@/lib/dinheiro";
 import type { SaldoProduto } from "../queries";
-import { formatarQuantidade, situacaoEstoque, valorEmEstoque, type SituacaoEstoque } from "../regras";
+import { formatarQuantidade, valorEmEstoque } from "../regras";
 
-const situacoes: Record<SituacaoEstoque, { rotulo: string; tom: TomBadge }> = {
-  negativo: { rotulo: "Negativo", tom: "perigo" },
-  baixo: { rotulo: "Baixo", tom: "acento" },
-  ok: { rotulo: "OK", tom: "sucesso" },
-};
+// Aqui só o saldo negativo alerta; o estoque mínimo avisa no dashboard do dono.
+const negativo: { rotulo: string; tom: TomBadge } = { rotulo: "Negativo", tom: "perigo" };
+const ok: { rotulo: string; tom: TomBadge } = { rotulo: "OK", tom: "sucesso" };
 
 export function TabelaSaldos({ saldos }: { saldos: SaldoProduto[] }) {
   if (saldos.length === 0) {
@@ -43,7 +41,7 @@ export function TabelaSaldos({ saldos }: { saldos: SaldoProduto[] }) {
           </thead>
           <tbody>
             {linhas.map((item) => {
-              const situacao = situacoes[situacaoEstoque(item.saldo, item.estoqueMinimo)];
+              const situacao = item.saldo < 0 ? negativo : ok;
               return (
                 <tr key={item.id} className="border-b border-borda last:border-b-0">
                   <th scope="row" className="px-4 py-3 font-medium">{item.nome}</th>
