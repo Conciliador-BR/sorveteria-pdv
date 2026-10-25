@@ -3,11 +3,11 @@ import { ehDono, temPermissao, type Permissao, type PerfilAcesso } from "./permi
 export type IconeMenu =
   | "caixa"
   | "vender"
-  | "comandas"
   | "estoque"
   | "produtos"
   | "historico"
   | "dashboard"
+  | "precificacao"
   | "funcionarios"
   | "configuracoes";
 
@@ -17,13 +17,14 @@ type Regra = "todos" | "dono" | Permissao;
 
 const itens: readonly (ItemMenu & { regra: Regra })[] = [
   { href: "/caixa", rotulo: "Caixa", icone: "caixa", regra: "todos" },
-  { href: "/vender", rotulo: "Vender", icone: "vender", regra: "todos" },
-  { href: "/comandas", rotulo: "Comandas", icone: "comandas", regra: "todos" },
+  { href: "/vender", rotulo: "Vender e comandas", icone: "vender", regra: "todos" },
   { href: "/estoque", rotulo: "Estoque", icone: "estoque", regra: "pode_lancar_estoque" },
   { href: "/produtos", rotulo: "Produtos", icone: "produtos", regra: "pode_gerenciar_produtos" },
   // Todos veem as próprias vendas; quem tem `pode_ver_historico` vê as de todos.
   { href: "/vendas", rotulo: "Histórico", icone: "historico", regra: "todos" },
   { href: "/dashboard", rotulo: "Dashboard", icone: "dashboard", regra: "dono" },
+  // Custos e margem são do dono: nem quem gerencia produtos vê.
+  { href: "/precificacao", rotulo: "Precificação", icone: "precificacao", regra: "dono" },
   { href: "/funcionarios", rotulo: "Funcionários", icone: "funcionarios", regra: "dono" },
   { href: "/configuracoes", rotulo: "Configurações", icone: "configuracoes", regra: "dono" },
 ];

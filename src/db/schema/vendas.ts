@@ -56,6 +56,8 @@ export const vendaItens = pgTable("venda_itens", {
   tipoVenda: tipoVenda("tipo_venda").notNull(),
   quantidade: integer("quantidade").notNull().default(1),
   pesoGramas: integer("peso_gramas"),
+  // Produto por peso cobrado pelo valor que a balança mostrou: as gramas são estimadas.
+  pesoPeloValor: boolean("peso_pelo_valor").notNull().default(false),
   precoUnitarioCentavos: integer("preco_unitario_centavos").notNull(),
   totalCentavos: integer("total_centavos").notNull(),
   lancadoPor: uuid("lancado_por").notNull().references(() => funcionarios.id, { onDelete: "restrict" }),
@@ -63,10 +65,20 @@ export const vendaItens = pgTable("venda_itens", {
 }, (t) => [
   check("venda_itens_quantidade_positiva", sql`${t.quantidade} > 0`),
   check("venda_itens_peso_coerente", sql`(${t.tipoVenda} = 'peso') = (${t.pesoGramas} is not null and ${t.pesoGramas} > 0)`),
+  check("venda_itens_peso_pelo_valor_coerente", sql`not ${t.pesoPeloValor} or ${t.tipoVenda} = 'peso'`),
   check("venda_itens_valores_positivos", sql`${t.precoUnitarioCentavos} >= 0 and ${t.totalCentavos} >= 0`),
   index("venda_itens_venda_idx").on(t.vendaId),
   index("venda_itens_produto_idx").on(t.produtoId),
 ]).enableRLS();
+
+// Um registro por envio de "Lançar na comanda", com o id gerado na tela: se o mesmo envio
+// chegar duas vezes (internet instável), a chave repetida impede lançar os itens de novo.
+export const comandaLancamentos = pgTable("comanda_lancamentos", {
+  id: uuid("id").primaryKey(),
+  vendaId: uuid("venda_id").notNull().references(() => vendas.id, { onDelete: "restrict" }),
+  lancadoPor: uuid("lancado_por").notNull().references(() => funcionarios.id, { onDelete: "restrict" }),
+  criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("comanda_lancamentos_venda_idx").on(t.vendaId)]).enableRLS();
 
 export const formaPagamento = pgEnum("forma_pagamento", ["dinheiro", "pix", "debito", "credito"]);
 

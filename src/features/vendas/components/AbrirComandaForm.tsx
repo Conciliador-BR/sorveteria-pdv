@@ -14,20 +14,25 @@ export function AbrirComandaForm() {
   const { formRef, enviar } = useEnvioSemReset(acao, estado);
 
   return (
-    <form ref={formRef} onSubmit={enviar} className="flex flex-col gap-4" noValidate>
+    <form ref={formRef} onSubmit={enviar} className="flex flex-col gap-3" noValidate>
       <RetornoFormulario estado={estado} />
-      <Campo
-        name="identificacao"
-        rotulo="Nome ou número"
-        dica="Ex.: Família Silva, Mesa 4"
-        autoComplete="off"
-        maxLength={40}
-        required
-        erro={estado.campos?.identificacao}
-      />
-      <Button type="submit" tamanho="lg" carregando={enviando} textoCarregando="Abrindo…">
-        Abrir comanda
-      </Button>
+      {/* Campo e botão lado a lado a partir do tablet; empilhados no celular. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="min-w-0 flex-1 lg:w-64">
+          <Campo
+            name="identificacao"
+            rotulo="Nome ou número da comanda"
+            placeholder="Ex.: Família Silva, Mesa 4"
+            autoComplete="off"
+            maxLength={40}
+            required
+            erro={estado.campos?.identificacao}
+          />
+        </div>
+        <Button type="submit" carregando={enviando} textoCarregando="Abrindo…">
+          Abrir comanda
+        </Button>
+      </div>
     </form>
   );
 }

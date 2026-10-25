@@ -7,8 +7,9 @@ import { Button, estiloBotao } from "@/components/ui/Button";
 import type { EstadoFormulario } from "@/lib/formulario";
 import { cobrarComanda, lancarNaComanda, type EstadoVenda } from "../actions";
 import type { BandeirasPorTipo, ProdutoParaVenda } from "../queries";
-import { itensParaEnvio } from "../regras";
+import { itensParaEnvio, novoIdVenda } from "../regras";
 import { useCarrinho } from "../useCarrinho";
+import { useTeclasPdv } from "../useTeclasPdv";
 import { Carrinho } from "./Carrinho";
 import { ConfirmacaoVenda } from "./ConfirmacaoVenda";
 import { GradeProdutos } from "./GradeProdutos";
@@ -32,15 +33,22 @@ const focarAoMontar = (elemento: HTMLElement | null) => elemento?.focus();
 export function PdvComanda({ vendaId, totalCentavos, produtos, bandeiras, itensLancados, cancelar }: PdvComandaProps) {
   const carrinho = useCarrinho();
   const [etapa, setEtapa] = useState<"itens" | "pagamento">("itens");
+  // Um id por lançamento: se o mesmo envio chegar duas vezes, o servidor lança uma vez só.
+  const [idLancamento, setIdLancamento] = useState(() => novoIdVenda());
   const [lancamento, lancar, lancando] = useActionState(async (anterior: EstadoFormulario, formData: FormData) => {
     const resultado = await lancarNaComanda(anterior, formData);
-    if (resultado.ok) carrinho.limpar();
+    if (resultado.ok) {
+      carrinho.limpar();
+      setIdLancamento(novoIdVenda());
+    }
     return resultado;
   }, {} as EstadoFormulario);
   const [cobranca, cobrar, cobrando] = useActionState(cobrarComanda, {} as EstadoVenda);
   const refBusca = useRef<HTMLInputElement>(null);
   const refCobrar = useRef<HTMLButtonElement>(null);
   const voltouDoPagamento = useRef(false);
+  // F2 vai para a busca, como no balcão (a dica da busca promete isso).
+  useTeclasPdv({ F2: () => refBusca.current?.focus() }, etapa === "itens" && !cobranca.venda);
 
   // "Voltar aos itens" devolve o foco ao botão de cobrar (ou à busca, se ele estiver desabilitado).
   useEffect(() => {
@@ -54,7 +62,7 @@ export function PdvComanda({ vendaId, totalCentavos, produtos, bandeiras, itensL
   if (cobranca.venda) {
     return (
       <ConfirmacaoVenda titulo="Comanda cobrada" venda={cobranca.venda} refTitulo={focarAoMontar}>
-        <Link href="/comandas" className={estiloBotao({ tamanho: "lg", className: "w-full" })}>
+        <Link href="/vender" className={estiloBotao({ tamanho: "lg", className: "w-full" })}>
           Voltar às comandas
         </Link>
       </ConfirmacaoVenda>
@@ -104,7 +112,7 @@ export function PdvComanda({ vendaId, totalCentavos, produtos, bandeiras, itensL
         </section>
 
         <form action={lancar} onSubmit={(evento) => (lancando || !carrinho.pronto) && evento.preventDefault()}>
-          <input type="hidden" name="dados" value={JSON.stringify({ vendaId, itens: itensParaEnvio(carrinho.linhas) })} />
+          <input type="hidden" name="dados" value={JSON.stringify({ id: idLancamento, vendaId, itens: itensParaEnvio(carrinho.linhas) })} />
           <Carrinho titulo="Novos itens" rotuloTotal="Subtotal dos novos itens" carrinho={carrinho} vazio="Toque nos produtos para lançar na comanda.">
             {lancamento.erro || (lancamento.ok && !pendentes) ? (
               <Aviso key={lancamento.envio} tipo={lancamento.erro ? "erro" : "sucesso"}>

@@ -10,7 +10,7 @@ type ComandaFechadaProps = {
 // Comanda que já saiu de "aberta": cobrada (mostra o resumo e o troco) ou cancelada.
 export function ComandaFechada({ comanda }: ComandaFechadaProps) {
   const voltar = (
-    <Link href="/comandas" className={estiloBotao({ tamanho: "lg", className: "w-full sm:w-auto" })}>
+    <Link href="/vender" className={estiloBotao({ tamanho: "lg", className: "w-full sm:w-auto" })}>
       Voltar às comandas
     </Link>
   );

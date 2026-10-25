@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { violouUnico } from "@/db/erros";
-import { auditoria, caixas, vendaItens, vendas } from "@/db/schema";
+import { auditoria, caixas, comandaLancamentos, vendaItens, vendas } from "@/db/schema";
 import { exigirFuncionario, exigirPermissao } from "@/features/auth/sessao";
 import { buscarCaixaAberto } from "@/features/caixa/queries";
 import { emitirNfceSeLigada } from "@/features/fiscal/emissao";
@@ -80,7 +80,7 @@ export async function venderNoBalcao(anterior: EstadoVenda, formData: FormData):
       return { id: nova.id, numero: nova.numero, totalCentavos, trocoCentavos: conferencia.trocoCentavos };
     });
     await emitirNfceSeLigada(venda.id, funcionario.id);
-    revalidatePath("/caixa");
+    revalidatePath("/vender/caixa");
     return { ok: `Venda nº ${venda.numero} registrada.`, venda, envio };
   } catch (erro) {
     if (violouUnico(erro)) {
@@ -116,7 +116,7 @@ export async function abrirComanda(anterior: EstadoFormulario, formData: FormDat
   } catch (erro) {
     return tratarErro(erro, envio);
   }
-  revalidatePath("/comandas");
+  revalidatePath("/vender");
   // Segue direto para lançar itens; o redirect também impede um segundo toque de abrir outra comanda.
   redirect(`/comandas/${comanda.id}`);
 }
@@ -153,17 +153,31 @@ export async function lancarNaComanda(anterior: EstadoFormulario, formData: Form
   try {
     await getDb().transaction(async (tx) => {
       await travarComandaAberta(tx, dados.data.vendaId);
+      // O id vem da tela: um envio repetido do mesmo lançamento esbarra na chave e não lança de novo.
+      await tx.insert(comandaLancamentos).values({ id: dados.data.id, vendaId: dados.data.vendaId, lancadoPor: funcionario.id });
       const itens = await montarItens(tx, dados.data.itens, dados.data.vendaId, funcionario.id);
       await tx.insert(vendaItens).values(itens);
       await atualizarTotal(tx, dados.data.vendaId);
     });
   } catch (erro) {
+    if (violouUnico(erro)) {
+      const [ja] = await getDb()
+        .select({ id: comandaLancamentos.id })
+        .from(comandaLancamentos)
+        .where(and(eq(comandaLancamentos.id, dados.data.id), eq(comandaLancamentos.vendaId, dados.data.vendaId)))
+        .limit(1);
+      if (ja) {
+        revalidatePath(`/comandas/${dados.data.vendaId}`);
+        return { ok: "Itens lançados na comanda.", envio };
+      }
+      return { erro: "Não foi possível lançar os itens. Tente de novo.", envio };
+    }
     // A comanda pode ter sido cobrada ou cancelada em outro aparelho: a tela recarrega com o estado atual.
     revalidatePath(`/comandas/${dados.data.vendaId}`);
     return tratarErro(erro, envio);
   }
   revalidatePath(`/comandas/${dados.data.vendaId}`);
-  revalidatePath("/comandas");
+  revalidatePath("/vender");
   return { ok: "Itens lançados na comanda.", envio };
 }
 
@@ -189,7 +203,7 @@ export async function removerItemDaComanda(anterior: EstadoFormulario, formData:
       return item.vendaId;
     });
     revalidatePath(`/comandas/${vendaId}`);
-    revalidatePath("/comandas");
+    revalidatePath("/vender");
   } catch (erro) {
     return tratarErro(erro, envio);
   }
@@ -220,8 +234,8 @@ export async function cobrarComanda(anterior: EstadoVenda, formData: FormData): 
       return { id: dados.data.vendaId, numero: concluida.numero, totalCentavos, trocoCentavos: conferencia.trocoCentavos };
     });
     await emitirNfceSeLigada(venda.id, funcionario.id);
-    revalidatePath("/comandas");
-    revalidatePath("/caixa");
+    revalidatePath("/vender");
+    revalidatePath("/vender/caixa");
     return { ok: `Comanda cobrada. Venda nº ${venda.numero}.`, venda, envio };
   } catch (erro) {
     revalidatePath(`/comandas/${dados.data.vendaId}`);
@@ -265,7 +279,7 @@ export async function cancelarVenda(anterior: EstadoFormulario, formData: FormDa
   }
   revalidatePath("/vendas", "layout");
   revalidatePath("/dashboard");
-  revalidatePath("/comandas");
-  revalidatePath("/caixa");
+  revalidatePath("/vender");
+  revalidatePath("/vender/caixa");
   return { ok: "Venda cancelada.", envio };
 }

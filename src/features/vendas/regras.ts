@@ -1,4 +1,4 @@
-import { totalPorPeso, troco } from "@/lib/dinheiro";
+import { gramasPorValor, totalPorPeso, troco } from "@/lib/dinheiro";
 
 export type ItemCalculo =
   | { tipoVenda: "unidade"; precoCentavos: number; quantidade: number }
@@ -6,6 +6,31 @@ export type ItemCalculo =
 
 export function totalDoItem(item: ItemCalculo) {
   return item.tipoVenda === "peso" ? totalPorPeso(item.precoCentavos, item.pesoGramas) : item.precoCentavos * item.quantidade;
+}
+
+// Item como chega da tela (ver `itensSchema`): quantidade, gramas ou o valor que a balança mostrou.
+export type ItemInformado = { quantidade: number } | { pesoGramas: number } | { valorCentavos: number };
+
+/** Erro de regra do item, com mensagem pronta para o funcionário. */
+export class ErroItem extends Error {}
+
+const PESO_MAXIMO_GRAMAS = 100_000;
+
+// Quantidade, gramas e total de um item a partir do cadastro. No modo valor o total é o que a balança
+// mostrou e as gramas são estimadas pelo preço do kg (para o estoque).
+export function calcularItem(produto: { nome: string; tipoVenda: "unidade" | "peso"; precoCentavos: number }, item: ItemInformado) {
+  const porPeso = produto.tipoVenda === "peso";
+  if (porPeso === "quantidade" in item) throw new ErroItem(`Informe ${porPeso ? "o peso" : "a quantidade"} de ${produto.nome}.`);
+  if ("quantidade" in item) {
+    return { quantidade: item.quantidade, pesoGramas: null, pesoPeloValor: false, totalCentavos: totalDoItem({ tipoVenda: "unidade", precoCentavos: produto.precoCentavos, quantidade: item.quantidade }) };
+  }
+  if ("pesoGramas" in item) {
+    return { quantidade: 1, pesoGramas: item.pesoGramas, pesoPeloValor: false, totalCentavos: totalDoItem({ tipoVenda: "peso", precoCentavos: produto.precoCentavos, pesoGramas: item.pesoGramas }) };
+  }
+  if (produto.precoCentavos <= 0) throw new ErroItem(`${produto.nome} está sem preço do kg. Digite o peso.`);
+  const pesoGramas = gramasPorValor(produto.precoCentavos, item.valorCentavos);
+  if (pesoGramas > PESO_MAXIMO_GRAMAS) throw new ErroItem(`O valor de ${produto.nome} passa de 100 kg. Confira o que foi digitado.`);
+  return { quantidade: 1, pesoGramas, pesoPeloValor: true, totalCentavos: item.valorCentavos };
 }
 
 export function totalDaVenda(itens: { totalCentavos: number }[]) {
@@ -43,21 +68,29 @@ export function conferirPagamentos(totalCentavos: number, pagamentos: PagamentoI
 // Carrinho da tela (navegador). O servidor recalcula tudo pelo cadastro ao gravar.
 export type ProdutoVenda = { id: string; nome: string; tipoVenda: "unidade" | "peso"; precoCentavos: number };
 
+/** Como o produto por peso é informado: gramas da balança ou o valor em reais que ela mostrou. */
+export type ModoPeso = "gramas" | "valor";
+
 export type LinhaCarrinho = {
   chave: string;
   produto: ProdutoVenda;
   quantidade: number;
   /** Só produto por peso; null enquanto o peso não foi digitado. */
   pesoGramas: number | null;
+  modoPeso: ModoPeso;
+  /** Só no modo "valor"; null enquanto o valor não foi digitado. */
+  valorCentavos: number | null;
 };
 
 // Por unidade soma na linha existente; por peso abre uma linha nova (cada copo é pesado à parte).
-export function adicionarAoCarrinho(linhas: LinhaCarrinho[], produto: ProdutoVenda, chave: string): LinhaCarrinho[] {
+export function adicionarAoCarrinho(linhas: LinhaCarrinho[], produto: ProdutoVenda, chave: string, modoPeso: ModoPeso = "gramas"): LinhaCarrinho[] {
   if (produto.tipoVenda === "unidade") {
     const existente = linhas.find((linha) => linha.produto.id === produto.id);
     if (existente) return alterarQuantidade(linhas, existente.chave, existente.quantidade + 1);
   }
-  return [...linhas, { chave, produto, quantidade: 1, pesoGramas: null }];
+  // Sem preço do kg não há como estimar as gramas: a linha começa sempre pelo peso.
+  const modo = produto.precoCentavos > 0 ? modoPeso : "gramas";
+  return [...linhas, { chave, produto, quantidade: 1, pesoGramas: null, modoPeso: modo, valorCentavos: null }];
 }
 
 export function alterarQuantidade(linhas: LinhaCarrinho[], chave: string, quantidade: number) {
@@ -70,7 +103,17 @@ export function definirPeso(linhas: LinhaCarrinho[], chave: string, pesoGramas: 
   return linhas.map((linha) => (linha.chave === chave ? { ...linha, pesoGramas: peso } : linha));
 }
 
+export function definirModoPeso(linhas: LinhaCarrinho[], chave: string, modoPeso: ModoPeso) {
+  return linhas.map((linha) => (linha.chave === chave ? { ...linha, modoPeso } : linha));
+}
+
+export function definirValorPeso(linhas: LinhaCarrinho[], chave: string, valorCentavos: number | null) {
+  const valor = valorCentavos && valorCentavos > 0 ? Math.min(Math.floor(valorCentavos), 10_000_000) : null;
+  return linhas.map((linha) => (linha.chave === chave ? { ...linha, valorCentavos: valor } : linha));
+}
+
 export function totalDaLinha(linha: LinhaCarrinho) {
+  if (linha.produto.tipoVenda === "peso" && linha.modoPeso === "valor") return linha.valorCentavos ?? 0;
   if (linha.produto.tipoVenda === "peso") {
     return linha.pesoGramas ? totalDoItem({ tipoVenda: "peso", precoCentavos: linha.produto.precoCentavos, pesoGramas: linha.pesoGramas }) : 0;
   }
@@ -81,18 +124,26 @@ export function totalDoCarrinho(linhas: LinhaCarrinho[]) {
   return linhas.reduce((soma, linha) => soma + totalDaLinha(linha), 0);
 }
 
-/** Pronto para enviar: tem itens e todo produto por peso tem peso. */
+function pesoInformado(linha: LinhaCarrinho) {
+  return linha.modoPeso === "valor" ? linha.valorCentavos !== null : linha.pesoGramas !== null;
+}
+
+/** Pronto para enviar: tem itens e todo produto por peso tem peso ou valor, conforme o modo. */
 export function carrinhoPronto(linhas: LinhaCarrinho[]) {
-  return linhas.length > 0 && linhas.every((linha) => linha.produto.tipoVenda === "unidade" || linha.pesoGramas !== null);
+  return linhas.length > 0 && linhas.every((linha) => linha.produto.tipoVenda === "unidade" || pesoInformado(linha));
 }
 
 // Formato esperado por `itensSchema` (schemas.ts).
 export function itensParaEnvio(linhas: LinhaCarrinho[]) {
-  return linhas.map((linha) =>
-    linha.produto.tipoVenda === "peso" && linha.pesoGramas !== null
-      ? { produtoId: linha.produto.id, pesoGramas: linha.pesoGramas }
-      : { produtoId: linha.produto.id, quantidade: linha.quantidade },
-  );
+  return linhas.map((linha) => {
+    if (linha.produto.tipoVenda === "peso" && linha.modoPeso === "valor" && linha.valorCentavos !== null) {
+      return { produtoId: linha.produto.id, valorCentavos: linha.valorCentavos };
+    }
+    if (linha.produto.tipoVenda === "peso" && linha.modoPeso === "gramas" && linha.pesoGramas !== null) {
+      return { produtoId: linha.produto.id, pesoGramas: linha.pesoGramas };
+    }
+    return { produtoId: linha.produto.id, quantidade: linha.quantidade };
+  });
 }
 
 // "há 5 min", "há 1 h 20 min".

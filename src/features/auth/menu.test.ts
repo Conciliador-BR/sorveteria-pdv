@@ -15,7 +15,7 @@ const rotulos = (perfil: PerfilAcesso) => itensDoMenu(perfil).map((item) => item
 
 describe("itensDoMenu", () => {
   it("mostra só o básico ao funcionário sem permissões extras, com as próprias vendas", () => {
-    expect(rotulos(funcionario)).toEqual(["Caixa", "Vender", "Comandas", "Histórico"]);
+    expect(rotulos(funcionario)).toEqual(["Caixa", "Vender e comandas", "Histórico"]);
   });
 
   it("acrescenta cada item conforme a permissão ligada", () => {
@@ -31,18 +31,18 @@ describe("itensDoMenu", () => {
       podeCancelarVenda: true,
       podeVerHistorico: true,
     };
-    expect(rotulos(completo)).toEqual(["Caixa", "Vender", "Comandas", "Estoque", "Produtos", "Histórico"]);
+    expect(rotulos(completo)).toEqual(["Caixa", "Vender e comandas", "Estoque", "Produtos", "Histórico"]);
   });
 
   it("mostra tudo ao dono, na ordem do menu", () => {
     expect(rotulos({ ...funcionario, papel: "dono" })).toEqual([
       "Caixa",
-      "Vender",
-      "Comandas",
+      "Vender e comandas",
       "Estoque",
       "Produtos",
       "Histórico",
       "Dashboard",
+      "Precificação",
       "Funcionários",
       "Configurações",
     ]);

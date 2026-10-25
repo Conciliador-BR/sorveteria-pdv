@@ -21,6 +21,7 @@ export default async function EstoquePage() {
           <h2 id="titulo-saldos" className="text-xl font-semibold">
             Saldos
           </h2>
+          <p className="text-sm text-texto-suave">Valor calculado pelo preço de venda de cada produto. Saldo negativo conta como zero.</p>
           <TabelaSaldos saldos={saldos} />
         </section>
         <section aria-labelledby="titulo-lancamento">

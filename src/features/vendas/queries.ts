@@ -13,6 +13,8 @@ export async function listarProdutosParaVenda() {
       codigo: produtos.codigo,
       tipoVenda: produtos.tipoVenda,
       precoCentavos: produtos.precoCentavos,
+      imagem: produtos.imagem,
+      fotoId: produtos.fotoId,
       categoria: categorias.nome,
     })
     .from(produtos)
@@ -91,6 +93,7 @@ export async function buscarComanda(id: string) {
       tipoVenda: vendaItens.tipoVenda,
       quantidade: vendaItens.quantidade,
       pesoGramas: vendaItens.pesoGramas,
+      pesoPeloValor: vendaItens.pesoPeloValor,
       totalCentavos: vendaItens.totalCentavos,
       lancadoPor: funcionarios.nome,
       criadoEm: vendaItens.criadoEm,

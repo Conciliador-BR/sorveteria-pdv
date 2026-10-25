@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ehDono, paginaInicial, temPermissao, type PerfilAcesso } from "./permissoes";
+import { ehDono, ficaNaTelaDeVendas, paginaInicial, temPermissao, type PerfilAcesso } from "./permissoes";
 
 const funcionario: PerfilAcesso = {
   papel: "funcionario",
@@ -36,5 +36,19 @@ describe("paginaInicial", () => {
   it("leva o dono ao dashboard e o funcionário ao caixa", () => {
     expect(paginaInicial({ ...funcionario, papel: "dono" })).toBe("/dashboard");
     expect(paginaInicial(funcionario)).toBe("/caixa");
+  });
+});
+
+describe("ficaNaTelaDeVendas", () => {
+  it("prende o funcionário com caixa aberto na tela de vendas", () => {
+    expect(ficaNaTelaDeVendas(funcionario, true)).toBe(true);
+  });
+
+  it("libera o funcionário sem caixa aberto", () => {
+    expect(ficaNaTelaDeVendas(funcionario, false)).toBe(false);
+  });
+
+  it("deixa o dono sair mesmo com o caixa aberto", () => {
+    expect(ficaNaTelaDeVendas({ ...funcionario, papel: "dono" }, true)).toBe(false);
   });
 });

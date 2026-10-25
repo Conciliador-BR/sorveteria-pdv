@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ClipboardList,
+  Calculator,
   History,
   IceCreamCone,
   LayoutDashboard,
@@ -20,11 +20,11 @@ import { cn } from "@/lib/utils";
 const icones: Record<IconeMenu, LucideIcon> = {
   caixa: Wallet,
   vender: ShoppingCart,
-  comandas: ClipboardList,
   estoque: Package,
   produtos: IceCreamCone,
   historico: History,
   dashboard: LayoutDashboard,
+  precificacao: Calculator,
   funcionarios: Users,
   configuracoes: Settings,
 };
