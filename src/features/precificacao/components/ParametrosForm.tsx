@@ -10,18 +10,20 @@ import type { EstadoFormulario } from "@/lib/formulario";
 import { useEnvioSemReset } from "@/lib/useEnvioSemReset";
 import { salvarParametros } from "../actions";
 import { formatarPercentual, percentualParaCampo, type Parametros } from "../regras";
+import { CamposImposto } from "./CamposImposto";
 
 type ParametrosFormProps = {
   parametros: Parametros & { margemPadraoPercentual: number };
   /** Vendas concluídas dos últimos 30 dias, como referência. */
   ultimos30Dias: { faturamentoCentavos: number; cartaoCentavos: number };
+  vendas12MesesCentavos: number;
 };
 
 function CampoPercentual({ name, rotulo, valor, dica, erro }: { name: string; rotulo: string; valor: number; dica: string; erro?: string }) {
   return <Campo name={name} rotulo={`${rotulo} (%)`} inputMode="decimal" autoComplete="off" defaultValue={percentualParaCampo(valor)} required dica={dica} erro={erro} />;
 }
 
-export function ParametrosForm({ parametros, ultimos30Dias }: ParametrosFormProps) {
+export function ParametrosForm({ parametros, ultimos30Dias, vendas12MesesCentavos }: ParametrosFormProps) {
   const [estado, acao, enviando] = useActionState(salvarParametros, {} as EstadoFormulario);
   const erro = estado.campos ?? {};
   const { formRef, enviar } = useEnvioSemReset(acao, estado);
@@ -37,13 +39,7 @@ export function ParametrosForm({ parametros, ultimos30Dias }: ParametrosFormProp
         dica={`Serve para dividir os custos fixos entre as vendas. Nos últimos 30 dias o sistema registrou ${formatarReais(ultimos30Dias.faturamentoCentavos)}.`}
         erro={erro.faturamentoMensalCentavos}
       />
-      <CampoPercentual
-        name="impostoPercentual"
-        rotulo="Imposto sobre a venda"
-        valor={parametros.impostoPercentual}
-        dica="No Simples Nacional costuma ficar entre 4% e 8%. Confirme com o seu contador."
-        erro={erro.impostoPercentual}
-      />
+      <CamposImposto parametros={parametros} vendas12MesesCentavos={vendas12MesesCentavos} erro={erro} />
       <CampoPercentual
         name="taxaCartaoPercentual"
         rotulo="Taxa da maquininha"

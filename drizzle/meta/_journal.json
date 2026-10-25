@@ -50,6 +50,13 @@
       "when": 1792856726402,
       "tag": "0006_precificacao",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792935788332,
+      "tag": "0007_imposto_regime",
+      "breakpoints": true
     }
   ]
 }

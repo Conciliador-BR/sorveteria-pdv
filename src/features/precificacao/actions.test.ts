@@ -30,7 +30,7 @@ const envios = [
   ["excluirCustoFixo", () => acoes.excluirCustoFixo({}, formulario({ id }))],
   ["salvarMaquina", () => acoes.salvarMaquina({}, formulario({ nome: "Freezer", valorCompraCentavos: "3000,00", vidaUtilAnos: "5" }))],
   ["excluirMaquina", () => acoes.excluirMaquina({}, formulario({ id }))],
-  ["salvarParametros", () => acoes.salvarParametros({}, formulario({ impostoPercentual: "6", taxaCartaoPercentual: "2", parteCartaoPercentual: "50", perdasPercentual: "0", margemPadraoPercentual: "30" }))],
+  ["salvarParametros", () => acoes.salvarParametros({}, formulario({ regimeImposto: "percentual", anexoSimples: "I", impostoPercentual: "6", taxaCartaoPercentual: "2", parteCartaoPercentual: "50", perdasPercentual: "0", margemPadraoPercentual: "30" }))],
   ["salvarItemFicha", () => acoesFicha.salvarItemFicha({}, formulario({ produtoId, insumoId: id, quantidade: "100" }))],
   ["removerItemFicha", () => acoesFicha.removerItemFicha({}, formulario({ id }))],
   ["salvarProdutoPrecificacao", () => acoesFicha.salvarProdutoPrecificacao({}, formulario({ produtoId, rendimento: "1", margemPercentual: "", aplicar: "sim", precoCentavos: "460" }))],
@@ -46,6 +46,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   exigirDono.mockResolvedValue({ id: "dono-1" });
   buscarParametros.mockResolvedValue({
+    regime: "percentual",
+    anexoSimples: "I",
+    receita12MesesCentavos: null,
+    dasMensalCentavos: null,
     faturamentoMensalCentavos: 5_000_000,
     impostoPercentual: 600,
     taxaCartaoPercentual: 200,
@@ -64,6 +68,15 @@ describe("ações da precificação", () => {
   it.each(envios)("%s recusa quem não é dono antes de tocar no banco", async (_nome, enviar) => {
     exigirDono.mockRejectedValue(new Error("redirect:/caixa"));
     await expect(enviar()).rejects.toThrow("redirect:/caixa");
+    expect(getDb).not.toHaveBeenCalled();
+  });
+
+  it("MEI exige o valor do DAS", async () => {
+    const estado = await acoes.salvarParametros(
+      {},
+      formulario({ faturamentoMensalCentavos: "", regimeImposto: "mei", anexoSimples: "I", impostoPercentual: "0", taxaCartaoPercentual: "2", parteCartaoPercentual: "50", perdasPercentual: "0", margemPadraoPercentual: "30", receita12MesesCentavos: "", dasMensalCentavos: "" }),
+    );
+    expect(estado.campos).toEqual({ dasMensalCentavos: "Informe o valor do DAS do mês." });
     expect(getDb).not.toHaveBeenCalled();
   });
 

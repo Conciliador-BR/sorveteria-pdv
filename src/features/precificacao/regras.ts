@@ -1,6 +1,8 @@
 // Cálculo puro da precificação. Percentuais guardados em centésimos de ponto (3000 = 30%).
 // Os custos por unidade podem ter frações de centavo; só o preço final é arredondado.
 
+import { impostoDaLoja, type ParametrosImposto } from "./imposto";
+
 export const PERCENTUAL_MAXIMO = 10_000;
 // Mesmo teto do preço no cadastro de produtos (R$ 100.000,00).
 export const PRECO_MAXIMO_CENTAVOS = 100_000_00;
@@ -47,20 +49,21 @@ export function depreciacaoMensal(maquina: { valorCompraCentavos: number; valorR
   return Math.round((maquina.valorCompraCentavos - maquina.valorResidualCentavos) / maquina.vidaUtilMeses);
 }
 
-export type Parametros = {
-  faturamentoMensalCentavos: number | null;
-  impostoPercentual: number;
+export type Parametros = ParametrosImposto & {
   taxaCartaoPercentual: number;
   parteCartaoPercentual: number;
   perdasPercentual: number;
 };
 
 // Quanto cada real vendido precisa separar para custos fixos, impostos, cartão e perdas.
+// O DAS do MEI é valor fixo do mês: entra junto dos custos fixos no rateio.
 export function despesasSobreVenda(p: Parametros, custosMensaisCentavos: number) {
-  const fixo = p.faturamentoMensalCentavos ? (custosMensaisCentavos * PERCENTUAL_MAXIMO) / p.faturamentoMensalCentavos : 0;
+  const imposto = impostoDaLoja(p);
+  const mensais = custosMensaisCentavos + imposto.fixoMensalCentavos;
+  const fixo = p.faturamentoMensalCentavos ? (mensais * PERCENTUAL_MAXIMO) / p.faturamentoMensalCentavos : 0;
   const cartao = (p.taxaCartaoPercentual * p.parteCartaoPercentual) / PERCENTUAL_MAXIMO;
-  const partes = { fixo, imposto: p.impostoPercentual, cartao, perdas: p.perdasPercentual };
-  return { ...partes, total: partes.fixo + partes.imposto + partes.cartao + partes.perdas };
+  const partes = { fixo, imposto: imposto.percentual, cartao, perdas: p.perdasPercentual };
+  return { ...partes, total: partes.fixo + partes.imposto + partes.cartao + partes.perdas, detalheImposto: imposto };
 }
 
 // Preço pela margem sobre a venda: preço = custo ÷ (1 − despesas% − margem%).

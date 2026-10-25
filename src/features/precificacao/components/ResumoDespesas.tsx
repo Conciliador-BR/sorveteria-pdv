@@ -11,9 +11,19 @@ type ResumoDespesasProps = {
 
 // Quanto de cada R$ 100 vendidos já tem dono antes do lucro.
 export function ResumoDespesas({ despesas, custosMensaisCentavos, temFaturamento }: ResumoDespesasProps) {
+  const { detalheImposto } = despesas;
+  const das = detalheImposto.fixoMensalCentavos;
+  const rotuloImposto = detalheImposto.simples
+    ? `Imposto (Simples, faixa ${detalheImposto.simples.faixa})`
+    : das > 0
+      ? "Imposto (MEI: o DAS está nos custos fixos)"
+      : "Imposto";
   const linhas = [
-    { rotulo: `Custos fixos e máquinas (${formatarReais(custosMensaisCentavos)}/mês)`, valor: despesas.fixo },
-    { rotulo: "Imposto", valor: despesas.imposto },
+    {
+      rotulo: `Custos fixos e máquinas (${formatarReais(custosMensaisCentavos)}/mês${das > 0 ? ` + DAS ${formatarReais(das)}` : ""})`,
+      valor: despesas.fixo,
+    },
+    { rotulo: rotuloImposto, valor: despesas.imposto },
     { rotulo: "Taxa de cartão (só na parte em cartão)", valor: despesas.cartao },
     { rotulo: "Perdas", valor: despesas.perdas },
   ];
@@ -35,7 +45,7 @@ export function ResumoDespesas({ despesas, custosMensaisCentavos, temFaturamento
           <dd className="font-bold tabular-nums">{formatarPercentual(arredondar(despesas.total))}</dd>
         </div>
       </dl>
-      {!temFaturamento && custosMensaisCentavos > 0 ? (
+      {!temFaturamento && custosMensaisCentavos + das > 0 ? (
         <Aviso tipo="info">Informe quanto a loja vende por mês para os custos fixos entrarem no preço.</Aviso>
       ) : null}
       {despesas.total >= PERCENTUAL_MAXIMO ? (

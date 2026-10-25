@@ -17,6 +17,7 @@ import { ResumoDespesas } from "@/features/precificacao/components/ResumoDespesa
 import {
   buscarParametros,
   custosMensais,
+  faturamentoUltimos12Meses,
   listarInsumos,
   listarItensFicha,
   listarProdutosParaPrecificar,
@@ -54,7 +55,7 @@ export default async function PrecificacaoPage({ searchParams }: { searchParams:
       {aba === "taxas" ? (
         <div className="grid gap-6 lg:grid-cols-2">
           <FormularioNovo titulo="Impostos, taxas e margem">
-            <ParametrosForm parametros={parametros} ultimos30Dias={await resumoUltimos30Dias()} />
+            <ParametrosForm parametros={parametros} ultimos30Dias={await resumoUltimos30Dias()} vendas12MesesCentavos={await faturamentoUltimos12Meses()} />
           </FormularioNovo>
           <div className="flex flex-col gap-6">
             <ResumoDespesas despesas={despesas} custosMensaisCentavos={custos.total} temFaturamento={parametros.faturamentoMensalCentavos !== null} />

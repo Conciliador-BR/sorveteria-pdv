@@ -98,6 +98,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Custo do insumo = preço da embalagem ÷ quantidade (g, ml ou unidades). Custo do produto = soma dos insumos da receita ÷ rendimento (por unidade, ou por kg no produto por peso). Produto de revenda (picolé comprado pronto) usa ele mesmo como insumo.
 - Custos mensais = custos fixos + depreciação linear das máquinas ((compra − valor no fim) ÷ vida útil em meses). Entram no preço como percentual do faturamento médio informado.
 - Despesas sobre a venda = custos mensais ÷ faturamento + imposto + taxa da maquininha × parte das vendas no cartão + perdas.
+- Imposto pelo regime da loja: **MEI** (o DAS mensal soma aos custos fixos, sem % por venda), **Simples Nacional** (alíquota efetiva = (receita de 12 meses × alíquota nominal − parcela a deduzir) ÷ receita de 12 meses, pelas tabelas dos Anexos I, comércio, e II, indústria, da LC 123/2006; sem a receita de 12 meses, usa o faturamento médio × 12; acima de R$ 4,8 milhões avisa e usa a última faixa) ou **outro** (o dono digita o %). O anexo certo é confirmado com o contador.
 - Preço sugerido = custo ÷ (1 − despesas − margem), arredondado para cima ao centavo. A margem é sobre o preço de venda; a tela mostra o markup equivalente (quanto o preço está acima do custo) e explica a diferença. Despesas + margem ≥ 100% não têm preço.
 - A tela só sugere: o preço do caixa muda apenas com "Usar … no caixa", que o servidor recalcula, recusa se o valor mudou e grava na `auditoria`. Vendas antigas não mudam.
 
@@ -138,7 +139,7 @@ Nota fiscal (NFC-e), integração automática com maquininha ou banco (Pix é co
 - Funcionário sem `pode_lancar_estoque` não vê a tela de estoque e o servidor recusa o lançamento.
 - O histórico mostra número, data, hora, funcionário, itens, total e pagamento de cada venda; cancelada aparece com quem cancelou e o motivo.
 - Nenhuma chave do Supabase, URL de banco ou `service_role` aparece no bundle do navegador.
-- Precificação: casquinha com 100 g de base (balde de 1 kg a R$ 20,00) e 1 casquinha (caixa de 100 a R$ 30,00) custa R$ 2,30; com R$ 6.000 de fixos, uma máquina de R$ 30.000 em 5 anos, faturamento de R$ 50.000, imposto de 6%, taxa de 2% em metade das vendas e margem de 30%, o preço sugerido é R$ 4,60 (lucro R$ 1,38, markup 100%). Somar 30% no custo daria R$ 2,99 e só 3% de lucro. Funcionário não vê nem abre `/precificacao`.
+- Precificação: casquinha com 100 g de base (balde de 1 kg a R$ 20,00) e 1 casquinha (caixa de 100 a R$ 30,00) custa R$ 2,30; com R$ 6.000 de fixos, uma máquina de R$ 30.000 em 5 anos, faturamento de R$ 50.000, imposto de 6%, taxa de 2% em metade das vendas e margem de 30%, o preço sugerido é R$ 4,60 (lucro R$ 1,38, markup 100%). Somar 30% no custo daria R$ 2,99 e só 3% de lucro. No Simples, Anexo II, com R$ 420.000 vendidos em 12 meses, o imposto é 6,7% (faixa 3). Funcionário não vê nem abre `/precificacao`.
 
 ## Próxima entrega
 

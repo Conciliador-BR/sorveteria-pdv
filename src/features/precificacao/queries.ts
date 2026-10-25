@@ -52,7 +52,11 @@ export async function listarMaquinas() {
     .limit(LIMITE);
 }
 
-const PARAMETROS_PADRAO = {
+const PARAMETROS_PADRAO: Parametros & { margemPadraoPercentual: number } = {
+  regime: "percentual",
+  anexoSimples: "I",
+  receita12MesesCentavos: null,
+  dasMensalCentavos: null,
   faturamentoMensalCentavos: null,
   impostoPercentual: 0,
   taxaCartaoPercentual: 0,
@@ -70,6 +74,10 @@ export async function buscarParametros(): Promise<Parametros & { margemPadraoPer
       parteCartaoPercentual: precificacaoParametros.parteCartaoPercentual,
       perdasPercentual: precificacaoParametros.perdasPercentual,
       margemPadraoPercentual: precificacaoParametros.margemPadraoPercentual,
+      regime: precificacaoParametros.regimeImposto,
+      anexoSimples: precificacaoParametros.anexoSimples,
+      receita12MesesCentavos: precificacaoParametros.receita12MesesCentavos,
+      dasMensalCentavos: precificacaoParametros.dasMensalCentavos,
     })
     .from(precificacaoParametros)
     .where(eq(precificacaoParametros.id, 1))
@@ -98,6 +106,15 @@ export async function resumoUltimos30Dias() {
       .where(and(filtro, sql`${pagamentos.forma} in ('debito', 'credito')`)),
   ]);
   return { faturamentoCentavos: faturamento.total, cartaoCentavos: cartao.total };
+}
+
+// Referência para a receita bruta dos últimos 12 meses (Simples Nacional).
+export async function faturamentoUltimos12Meses() {
+  const [linha] = await getDb()
+    .select({ total: sql<number>`coalesce(sum(${vendas.totalCentavos}), 0)::bigint` })
+    .from(vendas)
+    .where(and(eq(vendas.status, "concluida"), gte(vendas.concluidaEm, sql`now() - interval '12 months'`)));
+  return Number(linha.total);
 }
 
 export async function listarProdutosParaPrecificar() {

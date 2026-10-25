@@ -54,6 +54,12 @@ export const maquinaSchema = z
     message: "O valor no fim não pode passar do valor de compra.",
   });
 
+const reaisOpcional = (mensagem: string, maximo = LIMITE_REAIS) =>
+  z.preprocess(
+    (valor) => (typeof valor === "string" ? (valor.trim() === "" ? null : lerReais(valor)) : valor),
+    z.number({ error: mensagem }).int().min(0).max(maximo, "Valor alto demais.").nullable(),
+  );
+
 export const parametrosSchema = z.object({
   faturamentoMensalCentavos: z.preprocess(
     vazioViraNulo,
@@ -64,6 +70,14 @@ export const parametrosSchema = z.object({
   parteCartaoPercentual: percentual(10_000),
   perdasPercentual: percentual(9900),
   margemPadraoPercentual: percentual(9900),
+  regimeImposto: z.enum(["percentual", "simples", "mei"], { error: "Escolha como a loja paga imposto." }),
+  anexoSimples: z.enum(["I", "II"], { error: "Escolha o anexo do Simples." }),
+  // Até R$ 20 milhões: cabe no integer e cobre quem já passou do teto do Simples.
+  receita12MesesCentavos: reaisOpcional("Informe quanto a loja vendeu nos últimos 12 meses.", 2_000_000_000).refine((v) => v !== 0, "Informe um valor maior que zero, ou deixe vazio."),
+  dasMensalCentavos: reaisOpcional("Informe o valor do DAS do mês."),
+}).refine((p) => p.regimeImposto !== "mei" || p.dasMensalCentavos !== null, {
+  path: ["dasMensalCentavos"],
+  message: "Informe o valor do DAS do mês.",
 });
 
 export const itemFichaSchema = z.object({

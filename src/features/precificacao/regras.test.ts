@@ -21,6 +21,10 @@ const fichaCasquinha = [
 ];
 
 const parametros = {
+  regime: "percentual" as const,
+  anexoSimples: "I" as const,
+  receita12MesesCentavos: null,
+  dasMensalCentavos: null,
   faturamentoMensalCentavos: 5_000_000,
   impostoPercentual: 600,
   taxaCartaoPercentual: 200,

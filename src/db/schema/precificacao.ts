@@ -5,6 +5,9 @@ import { produtos } from "./produtos";
 // Precificação (exclusiva do dono). Percentuais em centésimos de ponto: 3000 = 30%.
 
 export const unidadeInsumo = pgEnum("unidade_insumo", ["g", "ml", "un"]);
+// percentual = o dono digita o %; simples = alíquota efetiva pelo anexo e receita de 12 meses; mei = DAS fixo do mês.
+export const regimeImposto = pgEnum("regime_imposto", ["percentual", "simples", "mei"]);
+export const anexoSimples = pgEnum("anexo_simples", ["I", "II"]);
 
 // O que a loja compra para fabricar: o custo sai do preço da embalagem ÷ quantidade que vem nela.
 export const insumos = pgTable("insumos", {
@@ -70,10 +73,16 @@ export const precificacaoParametros = pgTable("precificacao_parametros", {
   parteCartaoPercentual: integer("parte_cartao_percentual").notNull().default(0),
   perdasPercentual: integer("perdas_percentual").notNull().default(0),
   margemPadraoPercentual: integer("margem_padrao_percentual").notNull().default(3000),
+  regimeImposto: regimeImposto("regime_imposto").notNull().default("percentual"),
+  anexoSimples: anexoSimples("anexo_simples").notNull().default("I"),
+  receita12MesesCentavos: integer("receita_12_meses_centavos"),
+  dasMensalCentavos: integer("das_mensal_centavos"),
   atualizadoEm: timestamp("atualizado_em", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   check("precificacao_parametros_linha_unica", sql`${t.id} = 1`),
   check("precificacao_parametros_faturamento_positivo", sql`${t.faturamentoMensalCentavos} > 0`),
+  check("precificacao_parametros_receita_12_meses_positiva", sql`${t.receita12MesesCentavos} > 0`),
+  check("precificacao_parametros_das_positivo", sql`${t.dasMensalCentavos} >= 0`),
   check(
     "precificacao_parametros_percentuais_faixa",
     sql`${t.impostoPercentual} between 0 and 9900 and ${t.taxaCartaoPercentual} between 0 and 9900 and ${t.parteCartaoPercentual} between 0 and 10000 and ${t.perdasPercentual} between 0 and 9900 and ${t.margemPadraoPercentual} between 0 and 9900`,
