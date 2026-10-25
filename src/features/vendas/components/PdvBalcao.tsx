@@ -6,6 +6,7 @@ import { venderNoBalcao, type EstadoVenda } from "../actions";
 import type { BandeirasPorTipo, ProdutoParaVenda } from "../queries";
 import { itensParaEnvio, novoIdVenda } from "../regras";
 import { useCarrinho } from "../useCarrinho";
+import { useTeclasPdv } from "../useTeclasPdv";
 import { Carrinho } from "./Carrinho";
 import { ConfirmacaoVenda } from "./ConfirmacaoVenda";
 import { GradeProdutos } from "./GradeProdutos";
@@ -35,21 +36,8 @@ export function PdvBalcao({ produtos, bandeiras }: PdvBalcaoProps) {
     else refBusca.current?.focus();
   }, [etapa, envioDescartado]);
 
-  // Teclas do caixa: F2 vai para a busca e F8 cobra (o botão desabilitado ignora o clique).
-  useEffect(() => {
-    if (etapa !== "itens") return;
-    function aoTeclar(evento: KeyboardEvent) {
-      if (evento.key === "F2") {
-        evento.preventDefault();
-        refBusca.current?.focus();
-      } else if (evento.key === "F8") {
-        evento.preventDefault();
-        refCobrar.current?.click();
-      }
-    }
-    document.addEventListener("keydown", aoTeclar);
-    return () => document.removeEventListener("keydown", aoTeclar);
-  }, [etapa]);
+  // F2 vai para a busca e F8 cobra (o botão desabilitado ignora o clique). Só na tela de itens.
+  useTeclasPdv({ F2: () => refBusca.current?.focus(), F8: () => refCobrar.current?.click() }, etapa === "itens");
 
   if (estado.venda && estado.envio !== envioDescartado) {
     return (
