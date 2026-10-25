@@ -91,6 +91,7 @@ export async function buscarComanda(id: string) {
       tipoVenda: vendaItens.tipoVenda,
       quantidade: vendaItens.quantidade,
       pesoGramas: vendaItens.pesoGramas,
+      pesoPeloValor: vendaItens.pesoPeloValor,
       totalCentavos: vendaItens.totalCentavos,
       lancadoPor: funcionarios.nome,
       criadoEm: vendaItens.criadoEm,

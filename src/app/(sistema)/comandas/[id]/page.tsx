@@ -25,8 +25,8 @@ export default async function ComandaPage({ params }: PageProps<"/comandas/[id]"
   if (!comanda) notFound();
 
   const voltar = (
-    <Link href="/comandas" className={estiloBotao({ variante: "secundario" })}>
-      Todas as comandas
+    <Link href="/vender" className={estiloBotao({ variante: "secundario" })}>
+      Vender e comandas
     </Link>
   );
   const cabecalho = (

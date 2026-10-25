@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ClipboardList,
   History,
   IceCreamCone,
   LayoutDashboard,
@@ -20,7 +19,6 @@ import { cn } from "@/lib/utils";
 const icones: Record<IconeMenu, LucideIcon> = {
   caixa: Wallet,
   vender: ShoppingCart,
-  comandas: ClipboardList,
   estoque: Package,
   produtos: IceCreamCone,
   historico: History,
@@ -29,8 +27,11 @@ const icones: Record<IconeMenu, LucideIcon> = {
   configuracoes: Settings,
 };
 
+// Uma comanda aberta (/comandas/...) faz parte da tela Vender e comandas.
+const prefixosExtras: Record<string, string[]> = { "/vender": ["/comandas"] };
+
 function estaAtivo(caminho: string, href: string) {
-  return caminho === href || caminho.startsWith(`${href}/`);
+  return [href, ...(prefixosExtras[href] ?? [])].some((prefixo) => caminho === prefixo || caminho.startsWith(`${prefixo}/`));
 }
 
 // Menu sobre o azul-noite (lateral e gaveta): foco em manga, que contrasta com o fundo escuro.

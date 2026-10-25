@@ -1,0 +1,2 @@
+ALTER TABLE "venda_itens" ADD COLUMN "peso_pelo_valor" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "venda_itens" ADD CONSTRAINT "venda_itens_peso_pelo_valor_coerente" CHECK (not "venda_itens"."peso_pelo_valor" or "venda_itens"."tipo_venda" = 'peso');
