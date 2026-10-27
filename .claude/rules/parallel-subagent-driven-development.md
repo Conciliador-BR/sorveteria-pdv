@@ -5,43 +5,50 @@
 The base subagent-driven-development pattern dispatches one implementer at a
 time. That default is safe — but slow when a plan contains genuinely
 independent tasks. The naive fix, dispatching every task in parallel, is
-fast but unsafe in two specific ways:
+risky when ownership and resource use are unclear:
 
 - Two agents can edit the same file concurrently, and one's write silently
   clobbers the other's.
 - Two agents can race each other to `git commit`, interleaving unrelated
   changes into a single commit or committing against a stale HEAD.
 
-This rule describes when full parallel dispatch is safe, and how to
-structure it so it stays safe.
+- Builds and tests can collide through shared output directories, ports,
+  databases, or services even when source files differ.
+
+This rule reduces known coordination risks; it does not guarantee that
+parallel execution is as safe as serial execution.
 
 ## Why this override is safe
 
-Both failure modes above are removed structurally, not by discipline or
-convention:
+The following ownership rules address known failure modes:
 
 - **File collisions** are prevented by only ever forming a wave from tasks
   whose file sets are fully disjoint. If two tasks might touch the same
   file, they never run in the same wave.
 - **Commit races** are prevented by removing self-committing from
   implementers entirely. Implementers leave their changes in the working
-  tree; the controller commits every task's changes itself, one at a time,
-  after the wave finishes.
+  tree; when commits are authorized, the controller commits every task's
+  changes itself, one at a time, after the wave finishes.
 
-Because both preconditions that make parallel dispatch dangerous are
-structurally absent, running independent tasks concurrently is no riskier
-than running them serially — it's just faster.
+- **Resource collisions** require independent mutable resources for each task,
+  including checks, or serialization of the affected work. Worktrees alone
+  do not isolate ports, test databases, or external services.
+
+The historical heading describes the intended guardrails, not a universal
+safety claim. The coordinator still validates integration and unknown scope.
 
 ## Task tagging
 
-At plan time, every task gets two fields:
+At plan time, every task gets three fields:
 
 - **`Files:`** — the exact file paths or globs the task will create or
   modify.
+- **`Resources:`** — ports, build directories, test databases, and services
+  used by the task or its checks, with their isolation or `none`.
 - **`Depends-on:`** — the IDs of tasks whose output this task consumes, or
   `none`.
 
-If either field is missing, or there's genuine uncertainty about what a
+If any field is missing, or there's genuine uncertainty about what a
 task touches or depends on, treat the task as depending on everything
 before it. This is the fail-safe: an under-specified task silently
 degrades to serial execution instead of risking a false-parallel bug.
@@ -49,34 +56,38 @@ Never guess a narrower scope than you actually know.
 
 ## Wave formation rule
 
-Two tasks belong in the same wave if and only if **both** hold:
+Two tasks belong in the same wave only if **all** hold:
 
 1. Neither task is in the other's `Depends-on` chain, even transitively.
 2. Their `Files` sets are fully disjoint.
+3. Their mutable resources are independent or explicitly isolated.
 
-If either condition fails, the later or colliding task moves to a
+If any condition fails or is uncertain, the later or colliding task moves to a
 subsequent wave.
 
 A fully linear dependency chain (task 2 depends on task 1, task 3 depends
 on task 2, …) degrades to exactly one task per wave — identical to plain
-serial execution. There's no regression versus not using this rule at all;
-it only adds concurrency where the plan actually has it.
+serial execution. Validate the resource assumptions before dispatch and
+serialize when independence cannot be established.
 
 ## Per-wave execution loop
 
 For each wave, in order:
 
-1. Write one task-brief file per task in the wave.
+1. Write one task brief per task with files, dependencies, resources,
+   acceptance criteria, and checks.
 2. Dispatch every implementer in the wave in a single message. This is the
    only step where real parallelism happens.
 3. Implementers do **not** commit. Each one leaves its changes in the
    working tree and reports back which files it touched.
-4. The controller commits per task, in wave order — capturing the current
+4. When authorized, the controller commits per task, in wave order — capturing the current
    HEAD fresh immediately before each commit, never a stale or hardcoded
    ref.
-5. Once commits exist for the wave, dispatch that wave's task reviewers
-   together. This is safe because review is read-only — each reviewer is
-   scoped to its own task's commit range.
+5. Dispatch that wave's task reviewers against exact base/head commits plus
+   connected callers, contracts, and tests. Without commit authorization, use
+   recorded working-tree snapshots. Reviewers remain read-only; run them together
+   only when their checks use independent mutable resources. Isolate or serialize
+   checks that share resources; review does not authorize fixes or commits.
 6. Make exactly one controller-owned log or ledger write for the whole
    wave, not one per task. Concurrent per-task writes to the same log race
    each other and lose updates; a single write after the wave completes
@@ -88,14 +99,11 @@ The controller retains the authorized scope when a worker fails. Confirm that th
 
 ## Escape hatch
 
-Sometimes two tasks genuinely can't avoid touching the same files. When
-that happens, don't force them into a shared wave — isolate each
-implementer in its own git worktree or branch instead, so self-committing
-becomes safe again inside that isolated copy.
-
-This is expensive: real disk space and setup cost per isolated agent. Use
-it as a last resort for the rare unavoidable collision, not as a default
-way to parallelize.
+When tasks collide, serialize or combine them. Separate working directories
+or Git worktrees with separate branches are optional when their benefit
+justifies setup cost; a branch name alone does not isolate files. Assign ports,
+build output, databases, and services independently as well. Keep Git operations
+under the agreed ownership and authorization. No worktree is required.
 
 ## What this does not change
 

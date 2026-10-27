@@ -1,6 +1,107 @@
 # Setup e evidências
 
-## Origem e contexto
+## Atualização do toolkit (27/10/2026)
+
+- Toolkit: revisão `790a895304e0c08b70a5b215c9d334f1c86b816c` (18/10/2026), clonada fora do projeto; todos os guias e templates vieram dela. Anterior: `f13bb35` (bootstrap, seção abaixo). Receita: prompt 12 (projeto existente), com prompts 13, 14 e 15.
+- Execução: sessão Claude Code na nuvem (container Linux, Node 22.22.0, pnpm 10.28.0). A máquina do dono (Windows, Node 24) não foi tocada.
+- Context7 indisponível nesta sessão (sem MCP conectado): versões conferidas no npm, na ajuda das CLIs (`next analyze --help`, `skills --help`) e nas fontes oficiais dos guias.
+- Backup antes das mudanças: o próprio Git (commit `7bed06b` na `main`) e um pacote local da sessão com `AGENTS.md`, `CLAUDE.md`, `.claude/`, `docs/`, regras de lint e `package.json`, sem segredos.
+- Delegação: política de seleção dinâmica autorizada pelo dono neste pedido (ver "LLMs" em `AGENTS.md`). Casos do harness rodaram com Sonnet; a revisão de segurança das skills, com o modelo da sessão.
+
+### O que mudou
+
+| Mudança | Motivo e evidência |
+|---|---|
+| `vercel-react-view-transitions` atualizada | `skills update --project`: a única com versão nova (troca "React canary" por "React estável 19.3+"). As outras 8 Vercel já estavam em dia; o catálogo upstream não tem skill web nova (`skills add vercel-labs/agent-skills --list`, 27/10/2026) |
+| Skills novas: `next-dev-loop`, `next-bundle-optimizer` (vercel/next.js, ref `canary`, MIT), `supabase-postgres-best-practices` (supabase/agent-skills 1.1.1, MIT), `differential-review` (trailofbits/skills, CC-BY-SA-4.0, autoria Trail of Bits, fonte `plugins/differential-review`, sem alterações) | Catálogo 17–20 do toolkit. Instaladas com `--agent claude-code --copy` (cópia, sem links simbólicos: funciona no Windows). O `skills update` sem `--copy` trocou a pasta por link para `.agents/skills/`; foi desfeito |
+| Revisão `seguranca` das skills novas | APROVADO com ressalvas, todas contornadas em `AGENTS.md`: `next-dev-loop` sugere `npm i -g` e salva sessão do navegador; `next-bundle-optimizer` sugere instalar outras skills; `differential-review` grava relatório no repositório e usa `git checkout`. Nenhum script executável nem envio de dados |
+| `pnpm lint:typed` (`eslint.typed.config.mjs`, template `next.typed`) no `pnpm check` | Medido: 1 violação (`no-misused-promises` em `EscolherFoto.tsx`, `onChange` async; a função já trata erro), corrigida com `void`. As duas regras entram como erro. Custo: ~20 s contra ~8 s do `pnpm lint` |
+| `.claude/rules/parallel-subagent-driven-development.md` | Trocado pela versão nova (recursos mutáveis: portas, build, banco); o arquivo antigo era igual ao template anterior, sem customização |
+| `AGENTS.md` | Handoff de trabalho inacabado, regra de memória, política de modelos, recursos mutáveis na delegação, skills novas e seção "Capacidades do projeto". Mantidos: bloco do Next, convenções do produto e a faixa de 3 a 8 ciclos de revisão (convenção do dono) |
+| `docs/quality.md`, `docs/onboarding.md`, `docs/architecture.md`, `README.md` | Comando novo, revisão de segurança e avaliação do harness; `agent-browser` opcional; estado do MVP e árvore de componentes corrigidos (estavam no texto do bootstrap) |
+
+### Matriz de cobertura
+
+Estados: **validado** (rodou aqui), **configurado** (arquivos/instruções sem execução ao vivo), **reutilizado**, **não se aplica**, **pendente** (com condição).
+
+| Componente | Estado | Evidência ou condição para retomar |
+|---|---|---|
+| Documentos do manifesto (9) | Validado | Mesmos destinos; `PRODUCT.md` e `docs/design.md` sem mudança necessária |
+| `CLAUDE.md` → `@AGENTS.md` | Validado | Carregado nesta sessão (instruções do projeto apareceram no contexto) |
+| Superpowers, Ponytail `full`, Caveman | Pendente (máquina do dono) | Não instalados na nuvem. Retomar com o prompt 10 no computador do dono; o estilo Caveman em pt-BR já vale pelas instruções |
+| RTK | Pendente (máquina do dono) | `rtk` ausente na nuvem; prompt 10 |
+| Context7 | Pendente | Sem MCP na sessão; conectar no Claude Code do dono (prompt 10) ou como conector da conta |
+| Graphify | Validado na nuvem | `graphifyy` 0.9.96 via `uvx` (efêmero, fora do projeto): `graphify extract . --code-only --no-cluster` gerou 1155 nós e 4300 arestas em 3 s; `query 'What depends on getDb?'` respondeu. Sem `.claude/`, `.env` nem `node_modules`. Arquivos `.sql` sem extrator (`graphifyy[sql]`). `graphify-out/` fica fora do Git; sem extração semântica (o CLI não herda o login da conversa) e sem hook |
+| Memória em camadas | Validado | Ver "Memória" abaixo |
+| Hooks do cliente | Não se aplica | Nenhuma necessidade observada; nenhum hook novo |
+| agent-browser | Pendente (opcional) | Ausente na nuvem; instalação global só com o dono (`docs/onboarding.md`). Equivalente atual: Playwright do projeto |
+| Chrome DevTools MCP | Não se aplica por ora | Sem problema de console/rede/desempenho que o Playwright e o `/_next/mcp` não cubram |
+| Skills Anthropic (documentos, `skill-creator`) | Reutilizado | Disponíveis como plugin da conta no claude.ai; o projeto não precisa de cópia local |
+| Codex | Não se aplica | O dono usa só Claude Code; nada de `.codex/` |
+| Skills Vercel (8) e `find-skills` | Validado (instalação) | `skills list`: as 9 em `.claude/skills/`; catálogo upstream igual; `vercel-react-native-skills` fora (produto só web) |
+| `next-dev-loop` | Configurado; metade validada | Next 16.4.2 + Turbopack atende o mínimo 16.3. `pnpm dev -p 3311`: `/_next/mcp` listou `get_compilation_issues` (sem problemas), `get_routes` e outras 7 ferramentas. Parte do navegador bloqueada por falta do `agent-browser` |
+| `next-bundle-optimizer` | Configurado | `next analyze --help` existe (só Turbopack). Auditoria não rodada: sem pedido de otimização |
+| `supabase-postgres-best-practices` | Configurado | Instalada; nenhuma mudança de SQL neste pedido |
+| `differential-review` | Configurado | Instalada; sem diff de segurança para revisar neste pedido. Limites em `AGENTS.md` |
+| Revisão de segurança (prompt 13) | Configurado | Origem e invocação em `docs/quality.md`; revisão de base do repositório não rodada neste pedido |
+| `gh-fix-ci` | Não se aplica | Fluxo do Codex; o repositório não tem GitHub Actions |
+| `shadcn` | Não se aplica | UI própria em `src/components/ui/` |
+| Sentry MCP | Não se aplica | Nenhum serviço Sentry escolhido |
+| Harness2, modo nativo (prompt 15) | Validado | Casos de fumaça abaixo; nenhuma falha do harness do projeto, então nenhuma troca candidata. Procedimento reutilizável em `docs/quality.md` |
+| Harness2, CLI oficial | Não selecionado | Laboratório opcional fora do app; exige decisão de dependências, custo e isolamento |
+| Regras de lint, `verify-quality-rules` | Validado | Iguais ao template novo (sem mudança upstream); `pnpm lint:rules` passou |
+| Lint com tipos | Validado | Acima |
+| Templates `next/` | Reutilizado | Sem mudança upstream; o projeto tem versões customizadas |
+| Especialistas `.claude/agents/` | Reutilizado | `seguranca` usado nesta atualização |
+| `task-handoff.md.template` | Reutilizado por equivalente | Regra de handoff em `AGENTS.md`; o template entra quando houver trabalho inacabado entre sessões |
+| CI | Não se aplica | Não há CI no repositório; `pnpm check` é o portão antes do PR |
+
+### Memória
+
+- Projeto no claude.ai: índice `MEMORY.md` da memória do projeto (compartilhado entre conversas), carregado automaticamente em cada conversa do projeto; um arquivo por assunto. Guarda decisões do dono e pendências, nunca senhas.
+- Versionado: `PRODUCT.md` (escopo e decisões de produto) e `docs/` (técnica). Valem mais que a memória quando houver conflito com o código.
+- Claude Code no computador do dono: memória local do cliente não observada nesta sessão.
+- Verificação: em 27/10/2026 esta conversa nova recebeu o índice e as instruções do projeto sem pedir. Invalidar um fato quando o código, `PRODUCT.md` ou o dono disserem outra coisa.
+
+### Avaliação do harness
+
+Avaliador `validate-harness.mjs` (sha256 `14220a75…`), fixture do toolkit `790a895`, cópias descartáveis fora do projeto. Cliente: Claude Code na nuvem; trabalhadores: subagentes novos (não é reinício do cliente), modelo Sonnet.
+
+| Caso | Resultado | Observado |
+|---|---|---|
+| Correção de fronteira | Passou | Base 5/7 (falhas esperadas); depois 7/7; diff mínimo; `local-notes.txt` intacto |
+| Handoff desatualizado | Passou | O agente conferiu o código, recusou o "7/7" do handoff, corrigiu e reescreveu o handoff com o estado real; 7/7 |
+| Revisão só leitura | Passou | Fixture sem mudança (hash igual); relatório privado aponta acesso entre tenants com exemplo, local, impacto e confiança |
+| Reaplicar setup, conflito de recursos, bloqueio parcial, pausar/retomar | Não rodados | Precisam de interação observável do cliente; sem caso real que justifique |
+
+Falha observada no procedimento, não no harness: o avaliador copiado para fora do toolkit falha com `ENOENT`. Os dois agentes recusaram criar arquivo fora da pasta permitida (comportamento correto). Lição registrada em `docs/quality.md`.
+
+### Checks antes e depois
+
+| Check | Antes (7bed06b) | Depois |
+|---|---|---|
+| `pnpm check` | Passou (lint, tipos, regras, 192 testes em 28 arquivos, build; ~46 s) | Passou com `lint:typed` incluído (192 testes; ~56 s) |
+| `pnpm lint:typed` | 1 erro (novo portão) | 0 |
+| `pnpm audit --prod` | Nenhuma vulnerabilidade | Igual |
+| `pnpm audit` | 1 moderada só de desenvolvimento (`esbuild` via `drizzle-kit`) | Igual (o `braces` alto do bootstrap já não aparece) |
+| `pnpm test:e2e e2e/publico.spec.ts` (Chromium da nuvem, sem Supabase) | — | 4 aprovados, 8 pulados por falta das variáveis |
+
+### Manter e repetir
+
+- Atualizar skills: `npx --yes skills@latest update --project --yes`, depois conferir se alguma virou link para `.agents/` e reinstalar com `--copy`; revisar o diff e chamar o `seguranca`.
+- Skills com `ref: canary` (next.js): revisar o diff a cada atualização.
+- Repetir este setup: prompt 12 do toolkit com a revisão nova; ele preserva as customizações acima.
+- Revisar quando: o Next mudar de versão principal (requisitos do `next-dev-loop`), o projeto adotar CI no GitHub (`gh-fix-ci`), escolher Sentry, ou o dono instalar o `agent-browser`.
+
+### Pendências
+
+1. Dono: rodar o prompt 10 no computador (Superpowers, Ponytail, Caveman, RTK, Context7, Graphify) e, se quiser, `agent-browser`.
+2. Conferir em uma sessão nova do Claude Code no computador do dono se as 13 skills aparecem.
+3. Revisão de segurança de base do repositório (prompt 13): pronta para rodar quando o dono pedir.
+
+## Bootstrap (16/10/2026)
+
+### Origem e contexto
 
 - Data: 16/10/2026.
 - Toolkit: [soumatheusgomes/vibe-coding-toolkit](https://github.com/soumatheusgomes/vibe-coding-toolkit), revisão `f13bb354363dafef8ce8d8f605856cc9e1cc52cc` (15/10/2026). Receita: `docs/prompts/11-next-project-bootstrap.md`.
@@ -8,7 +109,7 @@
 - Runtime da execução: Node.js 22.22.0 (o container não tem Node 24); pnpm 10.28.0. O projeto declara Node 24 em `.node-version` e `engines`, e o pnpm avisa sobre a diferença nesta execução.
 - Política de subagentes: modelo da sessão, sem seleção dinâmica autorizada.
 
-## Decisões e fontes
+### Decisões e fontes
 
 | Decisão | Default do toolkit | Adotado | Motivo e fonte |
 |---|---|---|---|
@@ -20,7 +121,7 @@
 | Skills | `.agents/skills/` + links | Cópias em `.claude/skills/` | Com um só cliente (`--agent claude-code`), a CLI `skills` copiou direto para o diretório do Claude Code |
 | `public/` | — | Removida com os SVGs de exemplo | Sem uso; assets do produto entram com o design |
 
-## Componentes
+### Componentes
 
 | Componente | Ação e motivo | Escopo | Estado e evidência |
 |---|---|---|---|
@@ -40,11 +141,11 @@
 | @playwright/test 1.63.0 (devDependency, script `test:e2e`) | Testes E2E em `e2e/`. Fonte: npm registry (`npm view @playwright/test`), 18/10/2026. Fixado em 1.63.0 (publicada em 04/09/2026) porque a 1.64.x tem menos de 2 semanas (1.64.0 em 07/10, 1.64.1 em 14/10/2026) | Projeto | Smoke público validado na nuvem (ver Verificações); fluxos com banco pendentes |
 | Chromium para o Playwright | Máquina do dono: `pnpm exec playwright install chromium`. Nuvem: Chromium 141 (141.0.7390.37, build 1194) já instalado em `/opt/pw-browsers`, usado via `PW_CHROMIUM_PATH=/opt/pw-browsers/chromium` sem `playwright install` | Máquina do dono / nuvem | Nuvem validada; máquina do dono pendente |
 
-## Documentação criada
+### Documentação criada
 
 PRODUCT.md, README.md, AGENTS.md (com o bloco de regras gerado pelo Next preservado no topo), CLAUDE.md (`@AGENTS.md`), docs/architecture.md, docs/design.md, docs/onboarding.md, docs/quality.md e este arquivo.
 
-## Verificações
+### Verificações
 
 | Item | Estado | Evidência |
 |---|---|---|
@@ -62,13 +163,13 @@ PRODUCT.md, README.md, AGENTS.md (com o bloco de regras gerado pelo Next preserv
 | Login ponta a ponta | Pendente | Falta o dono criar o primeiro usuário e cadastrar as variáveis de ambiente |
 | Descoberta de skills e agentes | Pendente | Conferir numa sessão nova do Claude Code |
 
-## Pendências e próxima entrega
+### Pendências e próxima entrega
 
 1. Dono: rodar o prompt 10 na máquina (RTK, Ponytail, Caveman, Superpowers, Context7, Graphify).
 2. Dono: criar o próprio login no `sorveteria-dev` em Authentication → Users com o e-mail `mateus@sorveteria.local` (o usuário do login é a parte antes do `@`: 3 a 32 de `a-z0-9._-`) e Auto Confirm. Em seguida o agente insere a linha em `funcionarios` com o mesmo `id`, `usuario = mateus` e `papel = dono`; sem essa linha o login responde "Usuário ou senha incorretos". Depois, cadastrar `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` no `.env.local`.
 3. Próxima tarefa do MVP: tokens visuais, apresentação e tela de funcionários.
 
-## Revisão do bootstrap (16/10/2026)
+### Revisão do bootstrap (16/10/2026)
 
 Três ciclos pedidos pelo dono, com os especialistas `seguranca` e `revisor`:
 

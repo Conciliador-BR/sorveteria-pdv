@@ -1,8 +1,6 @@
 # Código e arquitetura
 
-> Estado em 16/10/2026: **base do bootstrap implementada** (Next, núcleo do servidor, lint, testes e skills; ver `docs/setup.md`). Funcionalidades, schema e telas ainda são **plano**. Ao implementar, substitua cada seção pelo que realmente existir.
->
-> Existe hoje: `src/app/` (layout e página provisória), `src/db/index.ts` (pool lazy) e `src/db/schema/index.ts` (vazio), `src/lib/` (`env`, `env-schema`, `logger`, `utils` e testes), `eslint-rules/`, `scripts/verify-quality-rules.mjs`, `drizzle.config.ts`, `vitest.config.mts`, `.claude/` (agentes, regra de ondas e skills).
+> Estado em 27/10/2026: o MVP descrito em `PRODUCT.md` está implementado nas funcionalidades de `src/features/` (apresentação, login e permissões, funcionários, produtos, estoque, caixa, vendas e comandas, histórico, dashboard, precificação, configurações e NFC-e simulada), com schema em `src/db/schema/` e migrations em `drizzle/`. A árvore abaixo segue o código; ao mudar a estrutura, atualize-a junto.
 
 ## Stack efetiva
 
@@ -17,7 +15,7 @@ Versões efetivas no `pnpm-lock.yaml` e em `docs/setup.md`:
 | Autenticação | Supabase Auth via `@supabase/ssr`, só no servidor (instalado na entrega do login) | Produto exige login por funcionário; mesmo provedor do banco |
 | Validação | Zod | Default do toolkit |
 | Logs | Pino no servidor | Default do toolkit |
-| Testes | Vitest; Playwright entra com os fluxos de caixa e venda | Default do toolkit; E2E quando o fluxo existir |
+| Testes | Vitest (unidade) e Playwright (E2E em `e2e/`) | Default do toolkit; ver `docs/quality.md` |
 | Hospedagem | Vercel | Prevista; publicação depende de autorização |
 
 Bibliotecas a avaliar só quando a tela pedir (não instalar no bootstrap): componentes acessíveis para modal/select (ex.: Radix), React Hook Form para o modal de pagamento, Recharts para o dashboard.
@@ -70,8 +68,8 @@ sorveteria-pdv/
 │   │   ├── configuracoes/        # nome da loja, dados fiscais e bandeiras de cartão (exclusivo do dono)
 │   │   └── fiscal/               # NFC-e simulada, recibo e DANFE de 80 mm (/comprovante/[id])
 │   ├── components/
-│   │   ├── ui/                   # Button, MoneyInput, WeightInput, Keypad, Modal, Card, Badge, Table...
-│   │   └── layout/               # AppShell, Sidebar, Topbar, PageHeader
+│   │   ├── ui/                   # Button, Campo, CampoDinheiro, Selecao, CaixaSelecao, Card, Badge, Aviso, RetornoFormulario
+│   │   └── layout/               # AppShell, PdvShell, AbasPdv, ListaMenu, MenuCelular, Marca, PageHeader
 │   ├── proxy.ts                  # chama a renovação de sessão (substitui o middleware no Next 16)
 │   ├── db/
 │   │   ├── index.ts              # getDb(): pool lazy (template do toolkit)
@@ -82,7 +80,7 @@ sorveteria-pdv/
 │       ├── utils.ts              # cn() (template do toolkit)
 │       ├── dinheiro.ts           # centavos ⇄ R$, troco, arredondamento
 │       └── supabase/             # server.ts (cliente Auth do servidor), proxy.ts (renova a sessão), cookies.ts (opções do cookie)
-├── eslint-rules/, eslint.config.mjs, scripts/verify-quality-rules.mjs
+├── eslint-rules/, eslint.config.mjs, eslint.typed.config.mjs, scripts/verify-quality-rules.mjs
 ├── drizzle.config.ts, vitest.config.mts
 ├── .env.example                  # nomes e defaults não sensíveis
 └── .graphifyignore

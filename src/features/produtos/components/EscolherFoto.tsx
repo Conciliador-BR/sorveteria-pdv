@@ -114,7 +114,7 @@ export function EscolherFoto({ produto, erro }: EscolherFotoProps) {
         className="sr-only"
         tabIndex={-1}
         aria-hidden="true"
-        onChange={(evento) => aoEscolherArquivo(evento.target.files)}
+        onChange={(evento) => void aoEscolherArquivo(evento.target.files)}
       />
       {mensagem ? (
         <p id={`${id}-erro`} className="text-sm font-medium text-perigo">

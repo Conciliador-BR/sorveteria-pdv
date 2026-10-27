@@ -23,6 +23,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Instalar: `pnpm install`
 - Desenvolver: `pnpm dev`
 - Lint: `pnpm lint`
+- Lint com tipos (promessas): `pnpm lint:typed`
 - Tipos: `pnpm typecheck` (gera os tipos de rota com `next typegen` antes do `tsc`)
 - Regras locais de lint: `pnpm lint:rules`
 - Testes: `pnpm test`
@@ -49,6 +50,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Se um agente falhar ou ficar com estado incerto, confirme que parou antes de assumir seus arquivos. Inspecione alterações parciais e retome do ponto verificado, sem escritores concorrentes.
 - Não repita tentativa idêntica sem evidência nova. Respeite limites de custo, tempo e tentativas, gates explícitos e negativas; decisões anteriores não ampliam autorização.
 - Ao retomar por handoff, confira arquivos, Git, checks e processos reais. Só afirme execução em segundo plano quando houver processo, agente ou automação ativo e verificável.
+- Trabalho inacabado que atravessa sessões ganha um handoff curto no registro de plano/tarefa existente (objetivo, estado verificado, checks, pendências, bloqueios, recursos em uso e próxima ação), sem virar memória permanente.
 - Sem alternativa segura, informe o bloqueio, o trabalho concluído e o que falta para retomar; não apresente pendência como resultado nem prometa continuação automática.
 
 ## Padrões e documentação
@@ -59,6 +61,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Prefira tipos inferidos, consultas parametrizadas, projeções explícitas, listagens limitadas e DTOs seguros. Operações de venda, pagamento, caixa e estoque usam transação.
 - Consulte fontes oficiais atuais e o canal estável antes de alterar stack/APIs. Aplique melhorias compatíveis no escopo autorizado; registre fonte, motivo e resultado em `docs/setup.md`. Não migre versões principais ou serviços automaticamente.
 - `PRODUCT.md` guarda escopo; `docs/architecture.md`, estrutura e decisões; `docs/design.md`, interface; `docs/onboarding.md`, preparação; `docs/quality.md`, checks. Atualize o documento responsável junto da mudança, sem duplicar regras.
+- Memória: local, carregamento e regras de validade em `docs/setup.md` ("Memória"). Índice curto, detalhes sob demanda; fato durável leva fonte, data de verificação e gatilho de invalidação. Diante de conflito, confira o código e as decisões atuais e retire o fato superado.
 
 ## Ferramentas e estilo
 
@@ -68,7 +71,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Context7:** consulte documentação atual para Next.js, Drizzle, Supabase Auth, Zod e Tailwind. Resolva o identificador e consulte um conceito por vez. Nunca envie segredos ou código privado. Se indisponível, use fontes oficiais e registre a limitação.
 - **RTK:** use comandos suportados. Com hook nativo ativo, evite wrapper duplicado; sem hook, prefixe comandos suportados. Use `rtk proxy <comando>` para saída original.
 - **Graphify:** use grafo existente quando ajudar em perguntas de estrutura. Registre evidência desatualizada/incompleta; não invente relações. Exclua segredos, dependências, skills vendorizadas e arquivos gerados.
-- **LLMs:** preserve cliente nativo, modelo principal e autenticação autorizados, inclusive em Graphify e Caveman. Sem política de seleção autorizada, subagentes usam o modelo da sessão. Não troque provedor nem ative API paga ou proxy silenciosamente.
+- **LLMs:** preserve cliente nativo, modelo principal e autenticação autorizados, inclusive em Graphify e Caveman. Política autorizada (27/10/2026): escolha o modelo mais leve capaz de cumprir o aceite e aumente a capacidade por risco/evidência (segurança, dados, migrations e revisão crítica começam com capacidade maior); restrições explícitas de modelo prevalecem. Informe modelo e esforço nos controles suportados. Não troque provedor nem ative API paga ou proxy silenciosamente.
 
 Confira instalação e descoberta antes de depender de uma ferramenta. Ausência precisa de registro ou alternativa oficialmente suportada; uma preferência escrita não instala um plugin.
 
@@ -85,8 +88,21 @@ Instaladas no projeto em `.claude/skills/` (cópias para o Claude Code), registr
 - `deploy-to-vercel`: publicação/preview autorizados.
 - `vercel-cli-with-tokens`: operações Vercel com esse método de autenticação escolhido.
 - `find-skills`: descoberta quando faltar uma capacidade concreta.
+- `next-dev-loop`: feedback do app rodando depois de mudar código Next (preflight do `/_next/mcp` com `get_compilation_issues` e `get_routes`, depois o navegador via `agent-browser`). Sem `agent-browser` instalado, use a parte do `/_next/mcp` e o Playwright do projeto; não instale nada global (`npm i -g`) sem autorização do dono. Sessão do navegador só com login do `sorveteria-dev`.
+- `next-bundle-optimizer`: auditoria de bundle com evidência do `next analyze`; corrija só dentro de pedido autorizado. Ignore as sugestões da skill de instalar outras skills ou capturar fora do sandbox.
 
 Instalar skills não executa suas ações. Não force animações, cache, deploy ou mudanças de arquitetura só porque uma skill está disponível.
+
+## Capacidades do projeto
+
+Detalhes, pré-requisitos e evidência em `docs/setup.md`.
+
+- `supabase-postgres-best-practices`: carregue antes de mexer em schema, SQL, migrations, índices, RLS ou desempenho do PostgreSQL; preserve Drizzle e Supabase. `EXPLAIN ANALYZE` executa a consulta: só no `sorveteria-dev`.
+- `differential-review` (Trail of Bits, CC-BY-SA-4.0): revisão de segurança de um diff com faixa base/head explícita. Relatório fica fora do repositório (scratchpad ou conversa), nunca em arquivo versionado; inspecione versões antigas com `git show`, sem `git checkout`. Sem a skill, faça o mesmo rastreio manualmente.
+- Revisão de segurança do repositório inteiro ou de um diff: prompt 13 do Vibe Coding Toolkit, repositório externo (origem e invocação em `docs/quality.md`). Somente leitura e relatório privado; "nenhum achado" não garante segurança.
+- Avaliação e melhoria do harness: prompts 14 e 15 do toolkit, modo nativo (origem, casos e resultados em `docs/quality.md` e `docs/setup.md`).
+
+Fora do projeto, com motivo em `docs/setup.md`: `gh-fix-ci` (fluxo do Codex; o repositório não tem GitHub Actions), `shadcn` (UI própria em `src/components/ui/`), Sentry MCP (sem serviço escolhido) e `vercel-react-native-skills` (produto só web). Ferramentas disponíveis não autorizam publicar, mandar mensagens, mudar conta ou trocar framework, bundler, provedor ou sistema de UI.
 
 ## Git e colaboração
 
@@ -101,7 +117,7 @@ Instalar skills não executa suas ações. Não force animações, cache, deploy
 - Delegue somente quando isolamento de contexto, especialização ou paralelismo independente compensarem a coordenação; prefira ferramenta determinística ou execução direta para tarefas simples.
 - A sessão principal é a coordenadora. Os especialistas do projeto ficam em `.claude/agents/` e a regra de ondas paralelas em `.claude/rules/parallel-subagent-driven-development.md`. A "tabela de roteamento" citada pela regra é o fluxo de entrega em `docs/onboarding.md`; o contrato da skill-base depende do Superpowers instalado.
 - Quebre o trabalho por fluxo do produto (fatia vertical: tela, ação do servidor, dados e testes da mesma funcionalidade), não por camada técnica. Especialistas de design, dados e segurança entram como revisores com checklist próprio ou em tarefas que realmente só tocam seu domínio.
-- Cada tarefa recebe objetivo, contexto mínimo, arquivos permitidos, dependências, aceite e checks. Um escritor por arquivo; coordenador cuida de lockfiles, configuração compartilhada, migrations e integração. Revisores paralelos trabalham somente em leitura.
+- Cada tarefa recebe objetivo, contexto mínimo, arquivos permitidos, dependências, recursos mutáveis, aceite e checks. Um escritor por arquivo; coordenador cuida de lockfiles, configuração compartilhada, migrations e integração. Isole ou serialize portas, `.next`, banco de teste e serviços compartilhados (o E2E usa a porta 3000 e o mesmo caixa no `sorveteria-dev`). Revisores paralelos trabalham somente em leitura.
 - Verifique diff e checks antes de aceitar o resultado de um trabalhador. Diante de falha, investigue e escale capacidade/contexto quando necessário; respeite limites finitos de tentativas, tempo e recursos. Não estime economia sem medição.
 - Após cada ciclo de implementação ou correção, sempre sugira ao usuário de **3 a 8 ciclos posteriores de code review**, escolhendo quantidade e focos conforme risco e escopo. Entregue motivo e prompt copiável com número, focos e checks reais. Essa faixa é convenção do projeto, não garantia de qualidade; a sugestão não autoriza executar novas rodadas automaticamente.
 - Em uma rodada solicitada, cada ciclo revisa o estado atual, registra achados com severidade/local/evidência e verifica correções autorizadas. Use focos complementares, com revisão de integração ao final. Correções internas não reiniciam a contagem; respeite a quantidade combinada e informe riscos residuais.
