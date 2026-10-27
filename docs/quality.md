@@ -7,6 +7,7 @@
 | Comando | Prova |
 |---|---|
 | `pnpm lint` | Presets Next/TypeScript, teto de 350 linhas, logger, fronteira de dados e guardas Drizzle |
+| `pnpm lint:typed` | Lint com tipos (`eslint.typed.config.mjs`): `no-floating-promises` e `no-misused-promises` como erro em `src/` (~20 s) |
 | `pnpm typecheck` | Tipos de rota gerados (`next typegen`) e TypeScript strict sem erros |
 | `pnpm lint:rules` | Self-check das regras locais em `eslint-rules/` |
 | `pnpm test` | Testes Vitest de regras e fronteiras |
@@ -68,6 +69,23 @@ Ao concluir um ciclo de implementação ou correção, sugira de 3 a 8 ciclos po
 Cada ciclo verifica o estado atual e o código conectado, registra achados com severidade, local e evidência e reavalia correções autorizadas com os checks afetados. Correções da mesma rodada não reiniciam a contagem. Termine com verificação integrada e riscos residuais, sem criar ciclos artificiais ou afirmar que uma quantidade de revisões prova ausência de bugs.
 
 Focos úteis neste produto: regras de dinheiro, autorização e vazamento de segredo, transações e estoque, acessibilidade do balcão, integração entre telas.
+
+## Revisão de segurança
+
+Prompt reutilizável: bloco "Prompt" de [`docs/prompts/13-security-review.md`](https://github.com/soumatheusgomes/vibe-coding-toolkit/blob/790a895304e0c08b70a5b215c9d334f1c86b816c/docs/prompts/13-security-review.md) do toolkit, revisão `790a895`. Não foi copiado para o repositório; para atualizar, leia a versão nova e troque a revisão aqui.
+
+- Repositório inteiro: cole no agente `Leia <link acima> e execute o bloco "Prompt" neste repositório, em modo repositório. Preserve meu cliente/modelo/autenticação e salve o relatório redigido fora do repositório.`
+- Um diff: troque o modo por `modo diff, base=<ref>, head=<ref>, comparação=endpoint ou merge-base, dirty=excluir ou incluir`.
+- Somente leitura, relatório privado (nunca em arquivo versionado), sem acesso a produção. Com a skill `differential-review`, use-a no modo diff com esses mesmos limites; sem ela, rastreio manual.
+- O agente `seguranca` (`.claude/agents/seguranca.md`) continua revisando todo diff antes do PR.
+
+## Avaliação do harness
+
+O harness é o conjunto de instruções, skills, agentes e regras que guia os agentes. Fonte: `docs/07-harness-evaluation.md` e prompts 14 (avaliar) e 15 (melhorar, modo nativo inspirado no Harness2; não roda o framework do Google) do toolkit, revisão `790a895`.
+
+- Quando rodar: depois de mudar `AGENTS.md`, `.claude/`, skills, modelo ou cliente, ou diante de uma falha real de agente. Cole: `Leia https://raw.githubusercontent.com/soumatheusgomes/vibe-coding-toolkit/790a895304e0c08b70a5b215c9d334f1c86b816c/docs/prompts/14-harness-evaluation.md e execute o bloco "Prompt" em cópias descartáveis.` Para uma falha observada, use o prompt 15 do mesmo endereço (uma comparação candidata por vez).
+- Rode o avaliador `scripts/validate-harness.mjs` de dentro da cópia do toolkit: ele compara `local-notes.txt` com o template por caminho relativo e falha com `ENOENT` se for copiado para outra pasta (lição de 27/10/2026; invalida se o avaliador mudar).
+- Resultados: `docs/setup.md`, seção "Avaliação do harness".
 
 ## Dependências e entrega
 

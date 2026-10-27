@@ -18,6 +18,7 @@ A máquina é preparada pelo [prompt 10 do toolkit](https://github.com/soumatheu
    ```
 
 4. Acompanhe: o agente pode pedir login no navegador, senha do sistema ou para abrir o Docker Desktop. Senhas e códigos são digitados só nessas telas, nunca no chat.
+5. Opcional, para a skill `next-dev-loop` (o agente abre o app no navegador e confere a tela depois de mudar o código): `npm i -g agent-browser` e depois `agent-browser install`. É uma instalação global no seu computador; só rode se quiser esse recurso. Sem ele, os agentes usam o Playwright do projeto.
 
 ### 2. VS Code
 
@@ -70,7 +71,7 @@ O cookie de sessão é `Secure` quando o app roda em modo produção (`pnpm star
 
 ## Verificar
 
-`pnpm check` roda lint, tipos, regras locais, testes e build. Não precisa de banco nem de credenciais. Testes que dependem do Supabase de desenvolvimento ficam separados; veja `docs/quality.md`.
+`pnpm check` roda lint, lint com tipos, tipos, regras locais, testes e build. Não precisa de banco nem de credenciais. Testes que dependem do Supabase de desenvolvimento ficam separados; veja `docs/quality.md`.
 
 Testes de ponta a ponta (E2E, o navegador clicando nas telas como uma pessoa), na máquina do dono:
 
